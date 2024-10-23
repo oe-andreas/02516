@@ -20,6 +20,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Device: {device}')
 
 ## Dataloaders
+from .dataloaders.PH2_loader import PH2
 from .dataloaders.retinal_loader import retinal
 
 im_size = 256
@@ -41,8 +42,8 @@ retinal_test_loader = DataLoader(retinal_test, batch_size=batch_size, shuffle=Fa
 model_Unet_orig = UNet_orig(im_size).to(device)
 optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001)
 
-train_loader = PH2_train_loader
-test_loader =  PH2_test_loader
+train_loader = retinal_train_loader
+test_loader =  retinal_test_loader
 
 train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, bce_loss, 30, train_loader, test_loader)
 
@@ -53,3 +54,5 @@ plot_predictions(model_Unet_orig, device, train_loader, model_name='Unet_orig')
 
 # Save model weights
 torch.save(model_Unet_orig.state_dict(), 'Trained_models/Unet_orig.pth')
+
+print(train_losses)

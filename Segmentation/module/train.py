@@ -37,7 +37,7 @@ def train(model, device, opt, loss_fn, epochs, train_loader, test_loader):
         avg_loss = 0
         avg_eval_metrics = []
         model.eval()
-        for X_batch, Y_batch in test_loader:
+        for X_batch, Y_batch, Z_batch in test_loader:
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device)
 
