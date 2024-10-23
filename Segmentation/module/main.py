@@ -11,7 +11,7 @@ import torch.nn.functional as F
 from .models.EncDec import EncDec
 from .models.UNet import UNet, UNet_orig
 
-from .train import train
+from .train2 import train
 from .plot import plot_losses, plot_metrics, plot_predictions
 
 from .losses.losses import bce_loss
