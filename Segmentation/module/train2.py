@@ -31,7 +31,9 @@ def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loa
 
             # Calculate loss only on masked pixels
             loss = loss_fn(Y_batch_masked, Y_pred_masked)
-
+            loss.backward()  # backward-pass
+            opt.step()  # update weights
+            
             # calculate metrics to show the user
             avg_loss += loss.detach().cpu() / len(train_loader)
         print(' - loss: %f' % avg_loss)
