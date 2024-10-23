@@ -25,13 +25,16 @@ class PH2(torch.utils.data.Dataset):
         image_path = self.image_paths[idx]
         label_path = self.label_paths[idx]
         
+        
         image = Image.open(image_path)
         label = Image.open(label_path)
+
         if self.train:
             # Generate a random rotation angle
             angle = np.random.uniform(0, 360)
             image = transforms.functional.rotate(image, angle)
             label = transforms.functional.rotate(label, angle)
+        
         Y = self.transform(label)
         X = self.transform(image)
         return X, Y
