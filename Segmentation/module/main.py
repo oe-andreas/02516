@@ -94,7 +94,7 @@ train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device
 ## Plot results for Unet
 plot_losses(train_losses, test_losses, model_name='Unet_orig')
 plot_metrics(observed_eval_metrics, model_name='Unet_orig')
-plot_predictions(model_Unet, device, train_loader, model_name='Unet_orig')
+plot_predictions(model_Unet_orig, device, train_loader, model_name='Unet_orig')
 
 # Save model weights
-torch.save(model_Unet.state_dict(), 'Trained_models/Unet_orig.pth')
+torch.save(model_Unet_orig.state_dict(), 'Trained_models/Unet_orig.pth')
