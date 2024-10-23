@@ -23,7 +23,7 @@ print(f'Device: {device}')
 from .dataloaders.PH2_loader import PH2
 from .dataloaders.retinal_loader import retinal
 
-im_size = 128
+im_size = 256
 batch_size = 32
 
 train_transform = transforms.Compose([transforms.Resize((im_size, im_size)), 
