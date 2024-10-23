@@ -13,51 +13,51 @@ class UNet_orig(nn.Module):
         
 
         # encoder (downsampling)
-        self.enc_conv0a = nn.Conv2d(c[0], c[1], 3, padding=0) #im_size -> im_size - 2
-        self.enc_conv0b = nn.Conv2d(c[1], c[1], 3, padding=0) #im_size - 2 -> im_size - 4
+        self.enc_conv0a = nn.Conv2d(c[0], c[1], 3, padding=1) #im_size -> im_size - 2
+        self.enc_conv0b = nn.Conv2d(c[1], c[1], 3, padding=1) #im_size - 2 -> im_size - 4
         
         self.pool0 = nn.MaxPool2d(2, 2)  # im_size - 4 -> floor(im_size/2) - 2
     
-        self.enc_conv1a = nn.Conv2d(c[1], c[2], 3, padding=0) #floor(im_size/2) - 2 -> floor(im_size/2) - 4
-        self.enc_conv1b = nn.Conv2d(c[2], c[2], 3, padding=0) #floor(im_size/2) - 4 -> floor(im_size/2) - 6
+        self.enc_conv1a = nn.Conv2d(c[1], c[2], 3, padding=1) #floor(im_size/2) - 2 -> floor(im_size/2) - 4
+        self.enc_conv1b = nn.Conv2d(c[2], c[2], 3, padding=1) #floor(im_size/2) - 4 -> floor(im_size/2) - 6
         
         self.pool1 = nn.MaxPool2d(2, 2)  # floor(im_size/2) - 6 -> floor(im_size/4) - 3
         
-        self.enc_conv2a = nn.Conv2d(c[2], c[3], 3, padding=0) # floor(im_size/4) - 3 -> floor(im_size/4) - 5
-        self.enc_conv2b = nn.Conv2d(c[3], c[3], 3, padding=0) # floor(im_size/4) - 5 -> floor(im_size/4) - 7
+        self.enc_conv2a = nn.Conv2d(c[2], c[3], 3, padding=1) # floor(im_size/4) - 3 -> floor(im_size/4) - 5
+        self.enc_conv2b = nn.Conv2d(c[3], c[3], 3, padding=1) # floor(im_size/4) - 5 -> floor(im_size/4) - 7
         
         self.pool2 = nn.MaxPool2d(2, 2) # floor(im_size/4) - 7 -> floor(im_size/8) - 3
         
-        self.enc_conv3a = nn.Conv2d(c[3], c[4], 3, padding=0) # floor(im_size/8) - 3 -> floor(im_size/8) - 5
-        self.enc_conv3b = nn.Conv2d(c[4], c[4], 3, padding=0) # floor(im_size/8) - 5 -> floor(im_size/8) - 7
+        self.enc_conv3a = nn.Conv2d(c[3], c[4], 3, padding=1) # floor(im_size/8) - 3 -> floor(im_size/8) - 5
+        self.enc_conv3b = nn.Conv2d(c[4], c[4], 3, padding=1) # floor(im_size/8) - 5 -> floor(im_size/8) - 7
         
         self.pool3 = nn.MaxPool2d(2, 2)  # floor(im_size/8) - 7 -> floor(im_size/16) - 3
         
-        self.bottleneck_conv_a = nn.Conv2d(c[4], c[5], 3, padding=0)
-        self.bottleneck_conv_b = nn.Conv2d(c[5], c[5], 3, padding=0)
+        self.bottleneck_conv_a = nn.Conv2d(c[4], c[5], 3, padding=1)
+        self.bottleneck_conv_b = nn.Conv2d(c[5], c[5], 3, padding=1)
 
         # decoder (upsampling)
         self.up_conv3 = nn.ConvTranspose2d(c[5], c[4], kernel_size = 2, stride = 2)
         
-        self.dec_conv3a = nn.ConvTranspose2d(2*c[4], c[4], 3, padding = 0)
-        self.dec_conv3b = nn.ConvTranspose2d(c[4], c[4], 3, padding = 0)
+        self.dec_conv3a = nn.ConvTranspose2d(2*c[4], c[4], 3, padding = 1)
+        self.dec_conv3b = nn.ConvTranspose2d(c[4], c[4], 3, padding = 1)
         
         self.up_conv2 = nn.ConvTranspose2d(c[4], c[3], kernel_size = 2, stride = 2)
         
-        self.dec_conv2a = nn.ConvTranspose2d(2*c[3], c[3], 3, padding = 0)
-        self.dec_conv2b = nn.ConvTranspose2d(c[3], c[3], 3, padding = 0)
+        self.dec_conv2a = nn.ConvTranspose2d(2*c[3], c[3], 3, padding = 1)
+        self.dec_conv2b = nn.ConvTranspose2d(c[3], c[3], 3, padding = 1)
         
         self.up_conv1 = nn.ConvTranspose2d(c[3], c[2], kernel_size = 2, stride = 2)
         
-        self.dec_conv1a = nn.ConvTranspose2d(2*c[2], c[2], 3, padding = 0)
-        self.dec_conv1b = nn.ConvTranspose2d(c[2], c[2], 3, padding = 0)
+        self.dec_conv1a = nn.ConvTranspose2d(2*c[2], c[2], 3, padding = 1)
+        self.dec_conv1b = nn.ConvTranspose2d(c[2], c[2], 3, padding = 1)
         
         self.up_conv0 = nn.ConvTranspose2d(c[2], c[1], kernel_size = 2, stride = 2)
         
-        self.dec_conv0a = nn.ConvTranspose2d(2*c[1], c[1], 3, padding = 0)
-        self.dec_conv0b = nn.ConvTranspose2d(c[1], c[1], 3, padding = 0)
+        self.dec_conv0a = nn.ConvTranspose2d(2*c[1], c[1], 3, padding = 1)
+        self.dec_conv0b = nn.ConvTranspose2d(c[1], c[1], 3, padding = 1)
         
-        self.final_conv = nn.ConvTranspose2d(c[1], 1, 1, padding = 0) #1 by 1 conv
+        self.final_conv = nn.ConvTranspose2d(c[1], 1, 1, padding = 1) #1 by 1 conv
         
     def forward(self, x):
         #encoding

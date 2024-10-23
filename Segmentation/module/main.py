@@ -101,6 +101,7 @@ for train_loader, test_loader, dataset_name in loaders:
     model_Unet_orig = UNet_orig(im_size).to(device)
     optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001)
 
+<<<<<<< HEAD
     train_loader = PH2_train_loader
     test_loader =  PH2_test_loader
 
@@ -113,3 +114,12 @@ for train_loader, test_loader, dataset_name in loaders:
 
     # Save model weights
     torch.save(model_Unet.state_dict(), 'Trained_models/Unet_orig.pth')
+=======
+## Plot results for Unet
+plot_losses(train_losses, test_losses, model_name='Unet_orig')
+plot_metrics(observed_eval_metrics, model_name='Unet_orig')
+plot_predictions(model_Unet_orig, device, train_loader, model_name='Unet_orig')
+
+# Save model weights
+torch.save(model_Unet_orig.state_dict(), 'Trained_models/Unet_orig.pth')
+>>>>>>> d9e7c673eacc0cfcebbe46aedc5574015ec1890d
