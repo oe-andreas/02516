@@ -17,6 +17,7 @@ from .losses.losses import bce_loss, dice_loss, iou_loss, focal_loss, bce_total_
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Device: {device}')
 
+#a comment from ø
 
 ## Dataloaders
 from .dataloaders.PH2_loader import PH2
