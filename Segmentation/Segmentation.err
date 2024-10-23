@@ -1,0 +1,25 @@
+
+Traceback (most recent call last):
+  File "/appl9/python/3.10.13/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/appl9/python/3.10.13/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/zhome/39/9/156533/02516/02516/Segmentation/module/main.py", line 92, in <module>
+    train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, bce_loss, 30, train_loader, test_loader)
+  File "/zhome/39/9/156533/02516/02516/Segmentation/module/train.py", line 26, in train
+    Y_pred = model(X_batch)
+  File "/zhome/39/9/156533/02516_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/39/9/156533/02516_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/39/9/156533/02516/02516/Segmentation/module/models/UNet.py", line 84, in forward
+    x4 = F.relu(self.bottleneck_conv_b(x4))
+  File "/zhome/39/9/156533/02516_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/zhome/39/9/156533/02516_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/zhome/39/9/156533/02516_env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 458, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/zhome/39/9/156533/02516_env/lib/python3.10/site-packages/torch/nn/modules/conv.py", line 454, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: Calculated padded input size per channel: (2 x 2). Kernel size: (3 x 3). Kernel size can't be greater than actual input size

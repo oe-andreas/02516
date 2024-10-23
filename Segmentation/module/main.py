@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 
 from .models.EncDec import EncDec
-from .models.UNet import UNet
+from .models.UNet import UNet, UNet_orig
 
 from .train import train
 from .plot import plot_losses, plot_metrics, plot_predictions
@@ -22,9 +22,6 @@ print(f'Device: {device}')
 ## Dataloaders
 from .dataloaders.PH2_loader import PH2
 from .dataloaders.retinal_loader import retinal
-
-# first commend 
-#a second comment from Ø
 
 im_size = 128
 batch_size = 32
@@ -84,3 +81,20 @@ plot_predictions(model_Unet, device, train_loader, model_name='Unet')
 
 # Save model weights
 torch.save(model_Unet.state_dict(), 'Trained_models/Unet.pth')
+
+## TRAIN FULL UNET
+model_Unet_orig = UNet_orig(im_size).to(device)
+optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001)
+
+train_loader = PH2_train_loader
+test_loader =  PH2_test_loader
+
+train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, bce_loss, 30, train_loader, test_loader)
+
+## Plot results for Unet
+plot_losses(train_losses, test_losses, model_name='Unet_orig')
+plot_metrics(observed_eval_metrics, model_name='Unet_orig')
+plot_predictions(model_Unet, device, train_loader, model_name='Unet_orig')
+
+# Save model weights
+torch.save(model_Unet.state_dict(), 'Trained_models/Unet_orig.pth')
