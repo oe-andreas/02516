@@ -2,11 +2,12 @@ import os
 from PIL import Image
 import numpy as np
 import torch
+import torchvision.transforms as transforms
 
 identity = lambda x : x
 
 class retinal(torch.utils.data.Dataset):
-    def __init__(self, transform = identity, label_transform = None, indeces = np.arange(21,41), data_path='/dtu/datasets1/02516/DRIVE/training'):
+    def __init__(self, train = True, transform = identity, label_transform = None, indeces = np.arange(21,41), data_path='/dtu/datasets1/02516/DRIVE/training'):
         'Initialization. indeces should be those integers between 21 and 40 that are to be included in this loader'
         self.transform = transform
         self.label_transform = label_transform if label_transform is not None else transform
@@ -28,6 +29,22 @@ class retinal(torch.utils.data.Dataset):
         
         image = Image.open(image_path)
         label = Image.open(label_path)
+
+        if self.train:
+            # Random horizontal flip
+            if np.random.rand() > 0.5:
+                image = transforms.functional.hflip(image)
+                label = transforms.functional.hflip(label)
+
+            # Random vertical flip
+            if np.random.rand() > 0.5:
+                image = transforms.functional.vflip(image)
+                label = transforms.functional.vflip(label)
+            # Generate a random rotation angle
+            angle = np.random.uniform(0, 360)
+            image = transforms.functional.rotate(image, angle)
+            label = transforms.functional.rotate(label, angle)
+
         Y = self.transform(label)
         X = self.transform(image)
         return X, Y
