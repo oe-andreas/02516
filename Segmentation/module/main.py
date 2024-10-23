@@ -44,8 +44,8 @@ retinal_test_loader = DataLoader(retinal_test, batch_size=batch_size, shuffle=Fa
 ####PH2####
 PH2_indeces = sorted([int(str[-3:]) for str in glob.glob('/dtu/datasets1/02516/PH2_Dataset_images/IMD*')])
 
-PH2_train = PH2(indeces = PH2_indeces[:170], transform = train_transform)
-PH2_test = PH2(indeces = PH2_indeces[170:], transform = test_transform)
+PH2_train = PH2(indeces = PH2_indeces[:170], transform = train_transform, train = True)
+PH2_test = PH2(indeces = PH2_indeces[170:], transform = test_transform, train= False)
 
 PH2_train_loader = DataLoader(PH2_train, batch_size=batch_size, shuffle=True)
 PH2_test_loader = DataLoader(PH2_test, batch_size=batch_size, shuffle=False)
