@@ -57,7 +57,7 @@ class UNet_orig(nn.Module):
         self.dec_conv0a = nn.ConvTranspose2d(2*c[1], c[1], 3, padding = 1)
         self.dec_conv0b = nn.ConvTranspose2d(c[1], c[1], 3, padding = 1)
         
-        self.final_conv = nn.ConvTranspose2d(c[1], 1, 1, padding = 1) #1 by 1 conv
+        self.final_conv = nn.ConvTranspose2d(c[1], 1, 1) #1 by 1 conv
         
     def forward(self, x):
         #encoding
@@ -65,23 +65,32 @@ class UNet_orig(nn.Module):
         x0 = F.relu(self.enc_conv0a(x0))
         x0 = F.relu(self.enc_conv0b(x0))
         
+        #print(f'x0.shape: {x0.shape}')
+        
         x1 = self.pool0(x0)
         x1 = F.relu(self.enc_conv1a(x1))
         x1 = F.relu(self.enc_conv1b(x1))
+        
+        #print(f'x1.shape: {x1.shape}')
         
         x2 = self.pool1(x1)
         x2 = F.relu(self.enc_conv2a(x2))
         x2 = F.relu(self.enc_conv2b(x2))
         
+        #print(f'x2.shape: {x2.shape}')
+        
         x3 = self.pool2(x2)
         x3 = F.relu(self.enc_conv3a(x3))
         x3 = F.relu(self.enc_conv3b(x3))
         
+        #print(f'x3.shape: {x3.shape}')
         
         #bottleneck level
         x4 = self.pool3(x3)
         x4 = F.relu(self.bottleneck_conv_a(x4))
         x4 = F.relu(self.bottleneck_conv_b(x4))
+        
+        #print(f'x4.shape: {x4.shape}')
         
         
         #decoding
@@ -90,47 +99,61 @@ class UNet_orig(nn.Module):
         H, W = x3_up.shape[-2:]
         H_, W_ = x3.shape[-2:]
         diff_H, diff_W = int(H_ - H), int(W_ - W)
-        skip_conn_3 = x3[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
+        skip_conn_3 = x3#[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
+        
+        #print(f'H = {H}, H_ = {H_}, W = {W}, W_ = {W_}')
+        #print(skip_conn_3.shape)
+        #print(x3_up.shape)
         
         x3_up = torch.cat((skip_conn_3, x3_up), 1)
         x3_up = self.dec_conv3a(x3_up)
         x3_up = self.dec_conv3b(x3_up)
+        
+        #print(f'x3_up.shape: {x3_up.shape}')
         
         #level 2
         x2_up = self.up_conv2(x3_up)
         H, W = x2_up.shape[-2:]
         H_, W_ = x2.shape[-2:]
         diff_H, diff_W = int(H_ - H), int(W_ - W)
-        skip_conn_2 = x2[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
+        skip_conn_2 = x2#[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
         
         x2_up = torch.cat((skip_conn_2, x2_up), 1)
         x2_up = self.dec_conv2a(x2_up)
         x2_up = self.dec_conv2b(x2_up)
+        
+        #print(f'x2_up.shape: {x2_up.shape}')
         
         #level 1
         x1_up = self.up_conv1(x2_up)
         H, W = x1_up.shape[-2:]
         H_, W_ = x1.shape[-2:]
         diff_H, diff_W = int(H_ - H), int(W_ - W)
-        skip_conn_1 = x1[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
+        skip_conn_1 = x1#[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
         
         x1_up = torch.cat((skip_conn_1, x1_up), 1)
         x1_up = self.dec_conv1a(x1_up)
         x1_up = self.dec_conv1b(x1_up)
+        
+        #print(f'x1_up.shape: {x1_up.shape}')
         
         #level 0
         x0_up = self.up_conv0(x1_up)
         H, W = x0_up.shape[-2:]
         H_, W_ = x0.shape[-2:]
         diff_H, diff_W = int(H_ - H), int(W_ - W)
-        skip_conn_0 = x0[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
+        skip_conn_0 = x0#[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
         
         x0_up = torch.cat((skip_conn_0, x0_up), 1)
         x0_up = self.dec_conv0a(x0_up)
         x0_up = self.dec_conv0b(x0_up)
         
+        #print(f'x0_up.shape: {x0_up.shape}')
+        
         #final conv
         y = self.final_conv(x0_up)
+        
+        #print(f'y.shape: {y.shape}')
         
         return y
     
