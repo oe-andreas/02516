@@ -83,4 +83,4 @@ plot_metrics(observed_eval_metrics, model_name='Unet')
 plot_predictions(model_Unet, device, train_loader, model_name='Unet')
 
 # Save model weights
-torch.save(model_Unet.state_dict(), 'Trained_models/EncDec.pth')
+torch.save(model_Unet.state_dict(), 'Trained_models/Unet.pth')
