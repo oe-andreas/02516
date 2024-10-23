@@ -159,5 +159,3 @@ fig.colorbar(im, cax=axs[3])
 plt.tight_layout()
 
 plt.savefig('graphics/predictions.png')
-
-
