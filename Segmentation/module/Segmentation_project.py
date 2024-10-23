@@ -14,7 +14,6 @@ from .models.UNet import UNet
 
 from .losses.losses import bce_loss, dice_loss, iou_loss, focal_loss, bce_total_variation, accuracy, sensitivity, specificity
 
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Device: {device}')
 
