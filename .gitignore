@@ -3,3 +3,7 @@ Segmentation/submit.sh
 __pycache__/
 # Ignore all .pyc files in the repository
 *.pyc
+
+# ignore stderr and stdout
+*.err
+*.out
