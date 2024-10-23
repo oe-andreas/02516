@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_losses(train_losses, test_losses, model_name):
+def plot_losses(train_losses, test_losses, dataset_name, model_name):
     plt.figure(figsize=(12, 6))
     
     # Plot training and testing losses with improved styling
@@ -10,7 +10,7 @@ def plot_losses(train_losses, test_losses, model_name):
     plt.plot(test_losses, label='Testing Loss', color='red', marker='s', linestyle='--', linewidth=2, markersize=5)
 
     # Titles and labels
-    plt.title(f'Loss History for {model_name}', fontsize=16)
+    plt.title(f'Loss History for {model_name} on {dataset_name} Dataset', fontsize=16)
     plt.xlabel('Epoch', fontsize=14)
     plt.ylabel('Loss', fontsize=14)
     plt.xticks(fontsize=12)
@@ -23,10 +23,10 @@ def plot_losses(train_losses, test_losses, model_name):
     plt.legend(loc='best', fontsize=12, frameon=True, shadow=True)
 
     # Save the figure with high resolution
-    plt.savefig(f'graphics/loss_history_{model_name}.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'graphics/loss_history_{model_name}_{dataset_name}.png', dpi=300, bbox_inches='tight')
     plt.close()
 
-def plot_metrics(observed_eval_metrics, model_name):
+def plot_metrics(observed_eval_metrics, dataset_name, model_name):
     observed_eval_metrics = np.array(observed_eval_metrics)
 
     plt.figure(figsize=(12, 6))
@@ -39,7 +39,7 @@ def plot_metrics(observed_eval_metrics, model_name):
     plt.plot(observed_eval_metrics[:, 4], label='Specificity', color='purple', marker='x', linestyle='--', linewidth=2, markersize=5)
 
     # Titles and labels
-    plt.title(f'Metric Scores Over Time for {model_name}', fontsize=16)
+    plt.title(f'Metric Scores Over Time for {model_name} on {dataset_name} Dataset', fontsize=16)
     plt.xlabel('Epoch', fontsize=14)
     plt.ylabel('Score', fontsize=14)
     plt.xticks(fontsize=12)
@@ -52,10 +52,10 @@ def plot_metrics(observed_eval_metrics, model_name):
     plt.legend(loc='best', fontsize=12, frameon=True, shadow=True)
 
     # Save the figure with high resolution
-    plt.savefig(f'graphics/score_history_{model_name}.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'graphics/score_history_{model_name}_{dataset_name}.png', dpi=300, bbox_inches='tight')
     plt.close()
 
-def plot_predictions(model, device, train_loader, model_name):
+def plot_predictions(model, device, train_loader, dataset_name, model_name):
     # visualize predictions
     to_im_shape = lambda x : x.permute(1,2,0).numpy()
 
@@ -68,8 +68,9 @@ def plot_predictions(model, device, train_loader, model_name):
 
     fig, axs = plt.subplots(1, 4, figsize=(18, 5), gridspec_kw={'width_ratios': [1, 1, 1, 0.05]})
 
-    #Input image
+    # Input image
     axs[0].imshow(to_im_shape(X.cpu().squeeze()))
+    axs[0].set_title('Input Image')
 
     # Ground truth
     axs[1].imshow(to_im_shape(y), vmin=0, vmax=1)
@@ -84,6 +85,7 @@ def plot_predictions(model, device, train_loader, model_name):
 
     plt.tight_layout()
 
-    plt.savefig(f'graphics/predictions_{model_name}.png')
+    plt.savefig(f'graphics/predictions_{model_name}_{dataset_name}.png', dpi=300, bbox_inches='tight')
+    plt.close()
 
 
