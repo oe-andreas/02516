@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class EncDec(nn.Module):
-    def __init__(self, im_siz = 128):
+    def __init__(self, im_size = 128):
         super().__init__()
 
         # encoder (downsampling)
