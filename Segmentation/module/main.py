@@ -49,17 +49,36 @@ PH2_test_loader = DataLoader(PH2_test, batch_size=batch_size, shuffle=False)
 
 # Define the loaders and their corresponding dataset names
 loaders = [
-    (PH2_train_loader, PH2_test_loader, "PH2"),
-    (retinal_train_loader, retinal_test_loader, "Retinal")
+    (retinal_train_loader, retinal_test_loader, "Retinal"),
+    (PH2_train_loader, PH2_test_loader, "PH2")
 ]
 
 ## Training for both datasets
 for train_loader, test_loader, dataset_name in loaders:
-    ## TRAIN Encoder Decoder
-    model_EncDec = EncDec(im_size).to(device)
-    optimizer = torch.optim.Adam(model_EncDec.parameters(), lr=0.001)
+    ## Full UNet
+    model_Unet_orig = UNet_orig(im_size,channels=[3,16,32,64,128,256]).to(device)
+    optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001, weight_decay=1e-5)
+    # Initialize the scheduler
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
+    # Train model
+    train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, scheduler, bce_loss, 30, train_loader, test_loader)
 
-    train_losses, test_losses, observed_eval_metrics = train(model_EncDec, device, optimizer, bce_loss, 30, train_loader, test_loader)
+    ## Plot results for Unet
+    plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_orig')
+    plot_metrics(observed_eval_metrics, dataset_name, model_name='Unet_orig')
+    plot_predictions(model_Unet_orig, device, train_loader, dataset_name, model_name='Unet_orig')
+
+    # Save model weights
+    torch.save(model_Unet_orig.state_dict(), 'Trained_models/Unet_orig.pth')
+
+    ## Encoder Decoder
+    model_EncDec = EncDec(im_size).to(device)
+    optimizer = torch.optim.Adam(model_EncDec.parameters(), lr=0.001, weight_decay=1e-5)
+    # Initialize the scheduler
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
+    
+    # Train model
+    train_losses, test_losses, observed_eval_metrics = train(model_EncDec, device, optimizer, scheduler, bce_loss, 30, train_loader, test_loader)
 
     ## Plot results for Encoder Decoder
     plot_losses(train_losses, test_losses, dataset_name, model_name='EncDec')
@@ -69,16 +88,4 @@ for train_loader, test_loader, dataset_name in loaders:
     # Save model weights
     torch.save(model_EncDec.state_dict(), 'Trained_models/EncDec.pth')
 
-    ## TRAIN FULL UNET
-    model_Unet_orig = UNet_orig(im_size).to(device)
-    optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001)
-
-    train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, bce_loss, 30, train_loader, test_loader)
-
-    ## Plot results for Unet
-    plot_losses(train_losses, test_losses, model_name='Unet_orig')
-    plot_metrics(observed_eval_metrics, model_name='Unet_orig')
-    plot_predictions(model_Unet_orig, device, train_loader, model_name='Unet_orig')
-
-    # Save model weights
-    torch.save(model_Unet_orig.state_dict(), 'Trained_models/Unet_orig.pth')
+    
