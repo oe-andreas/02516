@@ -7,7 +7,7 @@ def plot_losses(train_losses, test_losses, model_name):
     
     # Plot training and testing losses with improved styling
     plt.plot(train_losses, label='Training Loss', color='blue', marker='o', linestyle='-', linewidth=2, markersize=5)
-    plt.plot(test_losses, label='Testing Loss', color='red', marker='s', linestyle='--', linewidth=2, markersize=5)
+    plt.plot(test_losses, label='Testing Loss', color='red', marker='o', linestyle='-', linewidth=2, markersize=5)
 
     # Titles and labels
     plt.title(f'Loss History for {model_name}', fontsize=16)
@@ -33,10 +33,10 @@ def plot_metrics(observed_eval_metrics, model_name):
     
     # Plot each metric with improved styling
     plt.plot(observed_eval_metrics[:, 0], label='Dice', color='blue', marker='o', linestyle='-', linewidth=2, markersize=5)
-    plt.plot(observed_eval_metrics[:, 1], label='IoU', color='orange', marker='s', linestyle='--', linewidth=2, markersize=5)
-    plt.plot(observed_eval_metrics[:, 2], label='Accuracy', color='green', marker='^', linestyle=':', linewidth=2, markersize=5)
-    plt.plot(observed_eval_metrics[:, 3], label='Sensitivity', color='red', marker='D', linestyle='-', linewidth=2, markersize=5)
-    plt.plot(observed_eval_metrics[:, 4], label='Specificity', color='purple', marker='x', linestyle='--', linewidth=2, markersize=5)
+    plt.plot(observed_eval_metrics[:, 1], label='IoU', color='orange', marker='o', linestyle='-', linewidth=2, markersize=5)
+    plt.plot(observed_eval_metrics[:, 2], label='Accuracy', color='green', marker='o', linestyle='-', linewidth=2, markersize=5)
+    plt.plot(observed_eval_metrics[:, 3], label='Sensitivity', color='red', marker='o', linestyle='-', linewidth=2, markersize=5)
+    plt.plot(observed_eval_metrics[:, 4], label='Specificity', color='purple', marker='o', linestyle='-', linewidth=2, markersize=5)
 
     # Titles and labels
     plt.title(f'Metric Scores Over Time for {model_name}', fontsize=16)
