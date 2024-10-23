@@ -1,1 +1,5 @@
 Segmentation/submit.sh
+# Ignore all __pycache__ directories
+__pycache__/
+# Ignore all .pyc files in the repository
+*.pyc
