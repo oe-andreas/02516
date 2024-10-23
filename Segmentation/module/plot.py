@@ -60,7 +60,7 @@ def plot_predictions(model, device, train_loader, dataset_name, model_name):
     to_im_shape = lambda x : x.permute(1,2,0).numpy()
 
     model.eval()
-    X_batch, y_batch = next(iter(train_loader))
+    X_batch, y_batch, _ = next(iter(train_loader))
     X, y = X_batch[0], y_batch[0]
     X = X.unsqueeze(0).to(device)
     y_pred = model(X)
