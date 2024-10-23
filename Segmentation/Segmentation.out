@@ -1,196 +1,196 @@
 Device: cuda
 * Epoch 1/30
- - loss: 0.682299
- - val_loss: 0.742300
+ - loss: 0.654517
+ - val_loss: 0.819867
 * Epoch 2/30
- - loss: 0.649437
- - val_loss: 0.724906
+ - loss: 0.611154
+ - val_loss: 0.727069
 * Epoch 3/30
- - loss: 0.609281
- - val_loss: 0.759319
+ - loss: 0.602789
+ - val_loss: 0.852422
 * Epoch 4/30
- - loss: 0.554512
- - val_loss: 0.833702
+ - loss: 0.496983
+ - val_loss: 1.263368
 * Epoch 5/30
- - loss: 0.472160
- - val_loss: 0.776849
+ - loss: 0.462838
+ - val_loss: 0.951802
 * Epoch 6/30
- - loss: 0.440264
- - val_loss: 0.651247
+ - loss: 0.427216
+ - val_loss: 0.660250
 * Epoch 7/30
- - loss: 0.470990
- - val_loss: 0.930324
+ - loss: 0.413174
+ - val_loss: 0.723999
 * Epoch 8/30
- - loss: 0.438188
- - val_loss: 0.866853
+ - loss: 0.366982
+ - val_loss: 0.946456
 * Epoch 9/30
- - loss: 0.393621
- - val_loss: 0.707798
+ - loss: 0.350266
+ - val_loss: 1.052549
 * Epoch 10/30
- - loss: 0.312208
- - val_loss: 0.635382
+ - loss: 0.361774
+ - val_loss: 1.259668
 * Epoch 11/30
- - loss: 0.259732
- - val_loss: 0.677216
+ - loss: 0.353554
+ - val_loss: 0.825512
 * Epoch 12/30
- - loss: 0.220203
- - val_loss: 0.962711
+ - loss: 0.320126
+ - val_loss: 0.692332
 * Epoch 13/30
- - loss: 0.244586
- - val_loss: 0.615014
+ - loss: 0.279909
+ - val_loss: 1.453946
 * Epoch 14/30
- - loss: 0.211033
- - val_loss: 0.886028
+ - loss: 0.273714
+ - val_loss: 0.656926
 * Epoch 15/30
- - loss: 0.247789
- - val_loss: 0.590853
+ - loss: 0.215406
+ - val_loss: 0.962583
 * Epoch 16/30
- - loss: 0.247084
- - val_loss: 0.433417
+ - loss: 0.236119
+ - val_loss: 0.437819
 * Epoch 17/30
- - loss: 0.214319
- - val_loss: 1.133942
+ - loss: 0.211810
+ - val_loss: 0.629936
 * Epoch 18/30
- - loss: 0.209596
- - val_loss: 0.474451
+ - loss: 0.186695
+ - val_loss: 0.601117
 * Epoch 19/30
- - loss: 0.209576
- - val_loss: 0.527154
+ - loss: 0.175880
+ - val_loss: 0.842799
 * Epoch 20/30
- - loss: 0.177589
- - val_loss: 0.643742
+ - loss: 0.187328
+ - val_loss: 0.679983
 * Epoch 21/30
- - loss: 0.155234
- - val_loss: 0.582348
+ - loss: 0.171028
+ - val_loss: 0.526328
 * Epoch 22/30
- - loss: 0.154302
- - val_loss: 0.576265
+ - loss: 0.152365
+ - val_loss: 0.699072
 * Epoch 23/30
- - loss: 0.149003
- - val_loss: 0.570123
+ - loss: 0.154433
+ - val_loss: 0.563723
 * Epoch 24/30
- - loss: 0.134604
- - val_loss: 0.511642
+ - loss: 0.155514
+ - val_loss: 0.459364
 * Epoch 25/30
- - loss: 0.142111
- - val_loss: 0.426605
+ - loss: 0.167826
+ - val_loss: 0.428165
 * Epoch 26/30
- - loss: 0.136536
- - val_loss: 0.539060
+ - loss: 0.136167
+ - val_loss: 0.605286
 * Epoch 27/30
- - loss: 0.133416
- - val_loss: 0.517532
+ - loss: 0.145532
+ - val_loss: 0.425067
 * Epoch 28/30
- - loss: 0.132810
- - val_loss: 0.519694
+ - loss: 0.132881
+ - val_loss: 0.472636
 * Epoch 29/30
- - loss: 0.123774
- - val_loss: 0.444227
+ - loss: 0.126654
+ - val_loss: 0.529656
 * Epoch 30/30
- - loss: 0.121043
- - val_loss: 0.613953
+ - loss: 0.125845
+ - val_loss: 0.575043
 * Epoch 1/30
- - loss: 0.591292
- - val_loss: 0.875974
+ - loss: 0.578213
+ - val_loss: 0.891927
 * Epoch 2/30
- - loss: 0.503159
- - val_loss: 0.885275
+ - loss: 0.507586
+ - val_loss: 0.899658
 * Epoch 3/30
- - loss: 0.469044
- - val_loss: 0.820115
+ - loss: 0.453511
+ - val_loss: 0.784685
 * Epoch 4/30
- - loss: 0.411803
- - val_loss: 0.743907
+ - loss: 0.404750
+ - val_loss: 0.587074
 * Epoch 5/30
- - loss: 0.381136
- - val_loss: 0.715938
+ - loss: 0.337395
+ - val_loss: 0.637852
 * Epoch 6/30
- - loss: 0.353843
- - val_loss: 0.565363
+ - loss: 0.291117
+ - val_loss: 1.306289
 * Epoch 7/30
- - loss: 0.324809
- - val_loss: 0.999558
+ - loss: 0.273993
+ - val_loss: 0.527627
 * Epoch 8/30
- - loss: 0.270631
- - val_loss: 1.421893
+ - loss: 0.226766
+ - val_loss: 0.782363
 * Epoch 9/30
- - loss: 0.272865
- - val_loss: 0.995969
+ - loss: 0.214508
+ - val_loss: 0.607167
 * Epoch 10/30
- - loss: 0.213689
- - val_loss: 1.201515
+ - loss: 0.196647
+ - val_loss: 0.791182
 * Epoch 11/30
- - loss: 0.237870
- - val_loss: 0.425505
+ - loss: 0.186662
+ - val_loss: 0.657341
 * Epoch 12/30
- - loss: 0.190441
- - val_loss: 0.998954
+ - loss: 0.165960
+ - val_loss: 0.689553
 * Epoch 13/30
- - loss: 0.171139
- - val_loss: 0.637541
+ - loss: 0.167585
+ - val_loss: 0.635003
 * Epoch 14/30
- - loss: 0.161818
- - val_loss: 0.697924
+ - loss: 0.148113
+ - val_loss: 0.619016
 * Epoch 15/30
- - loss: 0.156581
- - val_loss: 0.480211
+ - loss: 0.149380
+ - val_loss: 0.610173
 * Epoch 16/30
- - loss: 0.135353
- - val_loss: 0.651975
+ - loss: 0.137373
+ - val_loss: 0.650500
 * Epoch 17/30
- - loss: 0.138562
- - val_loss: 0.662915
+ - loss: 0.140683
+ - val_loss: 0.451408
 * Epoch 18/30
- - loss: 0.136821
- - val_loss: 0.481449
+ - loss: 0.138013
+ - val_loss: 0.655164
 * Epoch 19/30
- - loss: 0.118176
- - val_loss: 0.737126
+ - loss: 0.126284
+ - val_loss: 0.768251
 * Epoch 20/30
- - loss: 0.119489
- - val_loss: 0.494644
+ - loss: 0.129167
+ - val_loss: 0.508810
 * Epoch 21/30
- - loss: 0.112076
- - val_loss: 0.454845
+ - loss: 0.130063
+ - val_loss: 0.421494
 * Epoch 22/30
- - loss: 0.108834
- - val_loss: 0.470320
+ - loss: 0.137013
+ - val_loss: 0.464689
 * Epoch 23/30
- - loss: 0.113692
- - val_loss: 0.300922
+ - loss: 0.150755
+ - val_loss: 0.842604
 * Epoch 24/30
- - loss: 0.133965
- - val_loss: 0.438570
+ - loss: 0.135644
+ - val_loss: 0.779210
 * Epoch 25/30
- - loss: 0.128874
- - val_loss: 0.564625
+ - loss: 0.141678
+ - val_loss: 0.528897
 * Epoch 26/30
- - loss: 0.115078
- - val_loss: 0.510520
+ - loss: 0.137606
+ - val_loss: 0.617138
 * Epoch 27/30
- - loss: 0.112742
- - val_loss: 0.571762
+ - loss: 0.131331
+ - val_loss: 0.490411
 * Epoch 28/30
- - loss: 0.097209
- - val_loss: 0.510414
+ - loss: 0.132429
+ - val_loss: 0.477313
 * Epoch 29/30
- - loss: 0.092084
- - val_loss: 0.440089
+ - loss: 0.130865
+ - val_loss: 0.435359
 * Epoch 30/30
- - loss: 0.094149
- - val_loss: 0.401948
+ - loss: 0.123265
+ - val_loss: 0.833039
 
 ------------------------------------------------------------
 Sender: LSF System <lsfadmin@hpc.dtu.dk>
-Subject: Job 22896626: <Segmentation> in cluster <dcc> Done
+Subject: Job 22896750: <Segmentation> in cluster <dcc> Done
 
-Job <Segmentation> was submitted from host <hpclogin1> by user <s204209> in cluster <dcc> at Wed Oct 23 13:46:06 2024
-Job was executed on host(s) <4*n-62-18-8>, in queue <c02516>, as user <s204209> in cluster <dcc> at Wed Oct 23 13:46:08 2024
+Job <Segmentation> was submitted from host <hpclogin1> by user <s204209> in cluster <dcc> at Wed Oct 23 14:18:42 2024
+Job was executed on host(s) <4*n-62-18-8>, in queue <c02516>, as user <s204209> in cluster <dcc> at Wed Oct 23 14:18:43 2024
 </zhome/e7/1/156531> was used as the home directory.
 </zhome/e7/1/156531/02516/Segmentation_project/02516/Segmentation> was used as the working directory.
-Started at Wed Oct 23 13:46:08 2024
-Terminated at Wed Oct 23 13:47:28 2024
-Results reported at Wed Oct 23 13:47:28 2024
+Started at Wed Oct 23 14:18:43 2024
+Terminated at Wed Oct 23 14:20:07 2024
+Results reported at Wed Oct 23 14:20:07 2024
 
 Your job looked like:
 
@@ -217,16 +217,16 @@ Successfully completed.
 
 Resource usage summary:
 
-    CPU time :                                   75.46 sec.
-    Max Memory :                                 830 MB
-    Average Memory :                             802.33 MB
+    CPU time :                                   77.72 sec.
+    Max Memory :                                 243 MB
+    Average Memory :                             240.67 MB
     Total Requested Memory :                     16384.00 MB
-    Delta Memory :                               15554.00 MB
+    Delta Memory :                               16141.00 MB
     Max Swap :                                   -
     Max Processes :                              4
-    Max Threads :                                8
-    Run time :                                   153 sec.
-    Turnaround time :                            82 sec.
+    Max Threads :                                5
+    Run time :                                   117 sec.
+    Turnaround time :                            85 sec.
 
 The output (if any) is above this job summary.
 
@@ -238,197 +238,197 @@ Read file <Segmentation.err> for stderr output of this job.
 
 Device: cuda
 * Epoch 1/30
- - loss: 0.696762
- - val_loss: 0.959959
+ - loss: 0.657270
+ - val_loss: 0.807093
 * Epoch 2/30
- - loss: 0.633571
- - val_loss: 0.719834
+ - loss: 0.621128
+ - val_loss: 0.814957
 * Epoch 3/30
- - loss: 0.627398
- - val_loss: 0.712232
+ - loss: 0.578597
+ - val_loss: 0.858817
 * Epoch 4/30
- - loss: 0.647457
- - val_loss: 0.707246
+ - loss: 0.471440
+ - val_loss: 0.912029
 * Epoch 5/30
- - loss: 0.609329
- - val_loss: 0.876719
+ - loss: 0.445546
+ - val_loss: 0.700740
 * Epoch 6/30
- - loss: 0.546880
- - val_loss: 0.887525
+ - loss: 0.437034
+ - val_loss: 0.676616
 * Epoch 7/30
- - loss: 0.454173
- - val_loss: 1.136168
+ - loss: 0.419771
+ - val_loss: 0.712044
 * Epoch 8/30
- - loss: 0.422558
- - val_loss: 0.893627
+ - loss: 0.412944
+ - val_loss: 1.026704
 * Epoch 9/30
- - loss: 0.379591
- - val_loss: 0.972057
+ - loss: 0.366516
+ - val_loss: 0.956653
 * Epoch 10/30
- - loss: 0.357566
- - val_loss: 0.763898
+ - loss: 0.309627
+ - val_loss: 1.155400
 * Epoch 11/30
- - loss: 0.338288
- - val_loss: 0.593002
+ - loss: 0.252142
+ - val_loss: 0.742429
 * Epoch 12/30
- - loss: 0.255625
- - val_loss: 0.715660
+ - loss: 0.200410
+ - val_loss: 0.612841
 * Epoch 13/30
- - loss: 0.221735
- - val_loss: 0.914316
+ - loss: 0.179184
+ - val_loss: 0.798563
 * Epoch 14/30
- - loss: 0.250491
- - val_loss: 0.953177
+ - loss: 0.218131
+ - val_loss: 0.606012
 * Epoch 15/30
- - loss: 0.214903
- - val_loss: 0.828084
+ - loss: 0.199459
+ - val_loss: 0.967777
 * Epoch 16/30
- - loss: 0.197304
- - val_loss: 0.502106
+ - loss: 0.188340
+ - val_loss: 1.070140
 * Epoch 17/30
- - loss: 0.189280
- - val_loss: 0.555818
+ - loss: 0.213318
+ - val_loss: 0.568665
 * Epoch 18/30
- - loss: 0.178514
- - val_loss: 0.488864
+ - loss: 0.175693
+ - val_loss: 0.451178
 * Epoch 19/30
- - loss: 0.162234
- - val_loss: 0.352346
+ - loss: 0.155621
+ - val_loss: 0.552062
 * Epoch 20/30
- - loss: 0.176296
- - val_loss: 0.377531
+ - loss: 0.152877
+ - val_loss: 0.798494
 * Epoch 21/30
- - loss: 0.157260
- - val_loss: 0.566423
+ - loss: 0.157269
+ - val_loss: 0.628463
 * Epoch 22/30
- - loss: 0.140553
- - val_loss: 0.595806
+ - loss: 0.147361
+ - val_loss: 0.655330
 * Epoch 23/30
- - loss: 0.141619
- - val_loss: 0.441585
+ - loss: 0.131866
+ - val_loss: 0.905813
 * Epoch 24/30
- - loss: 0.138770
- - val_loss: 0.387111
+ - loss: 0.146058
+ - val_loss: 0.707868
 * Epoch 25/30
- - loss: 0.140642
- - val_loss: 0.359412
+ - loss: 0.149895
+ - val_loss: 0.433626
 * Epoch 26/30
- - loss: 0.136433
- - val_loss: 0.307994
+ - loss: 0.131276
+ - val_loss: 0.502778
 * Epoch 27/30
- - loss: 0.126553
- - val_loss: 0.433874
+ - loss: 0.132820
+ - val_loss: 0.593131
 * Epoch 28/30
- - loss: 0.118664
- - val_loss: 0.406493
+ - loss: 0.128775
+ - val_loss: 1.017566
 * Epoch 29/30
- - loss: 0.120353
- - val_loss: 0.435505
+ - loss: 0.136194
+ - val_loss: 0.667468
 * Epoch 30/30
- - loss: 0.106686
- - val_loss: 0.523899
+ - loss: 0.130240
+ - val_loss: 0.660659
 * Epoch 1/30
- - loss: 0.611916
- - val_loss: 0.839735
+ - loss: 0.593888
+ - val_loss: 0.851801
 * Epoch 2/30
- - loss: 0.522997
- - val_loss: 0.826066
+ - loss: 0.515397
+ - val_loss: 0.882796
 * Epoch 3/30
- - loss: 0.475934
- - val_loss: 0.789977
+ - loss: 0.489633
+ - val_loss: 0.852751
 * Epoch 4/30
- - loss: 0.404335
- - val_loss: 0.542319
+ - loss: 0.412194
+ - val_loss: 0.877164
 * Epoch 5/30
- - loss: 0.268255
- - val_loss: 0.759550
+ - loss: 0.283786
+ - val_loss: 1.567577
 * Epoch 6/30
- - loss: 0.309447
- - val_loss: 0.983096
+ - loss: 0.281552
+ - val_loss: 0.653435
 * Epoch 7/30
- - loss: 0.294996
- - val_loss: 0.755272
+ - loss: 0.221809
+ - val_loss: 0.833359
 * Epoch 8/30
- - loss: 0.238637
- - val_loss: 0.769424
+ - loss: 0.194134
+ - val_loss: 0.871421
 * Epoch 9/30
- - loss: 0.239238
- - val_loss: 0.506229
+ - loss: 0.199330
+ - val_loss: 0.607457
 * Epoch 10/30
- - loss: 0.225788
- - val_loss: 0.674754
+ - loss: 0.192103
+ - val_loss: 0.795076
 * Epoch 11/30
- - loss: 0.199639
- - val_loss: 0.893971
+ - loss: 0.205498
+ - val_loss: 0.707583
 * Epoch 12/30
- - loss: 0.214019
- - val_loss: 0.569528
+ - loss: 0.210665
+ - val_loss: 0.483407
 * Epoch 13/30
- - loss: 0.188317
- - val_loss: 0.521117
+ - loss: 0.199818
+ - val_loss: 0.622029
 * Epoch 14/30
- - loss: 0.174585
- - val_loss: 0.755628
+ - loss: 0.206593
+ - val_loss: 0.773037
 * Epoch 15/30
- - loss: 0.157788
- - val_loss: 0.621619
+ - loss: 0.154406
+ - val_loss: 0.638921
 * Epoch 16/30
- - loss: 0.160532
- - val_loss: 0.796962
+ - loss: 0.149015
+ - val_loss: 0.687973
 * Epoch 17/30
- - loss: 0.172066
- - val_loss: 0.450147
+ - loss: 0.148895
+ - val_loss: 0.505809
 * Epoch 18/30
- - loss: 0.147195
- - val_loss: 0.642026
+ - loss: 0.136732
+ - val_loss: 0.657460
 * Epoch 19/30
- - loss: 0.143543
- - val_loss: 0.434755
+ - loss: 0.139764
+ - val_loss: 0.818930
 * Epoch 20/30
- - loss: 0.137020
- - val_loss: 0.462338
+ - loss: 0.199051
+ - val_loss: 0.351965
 * Epoch 21/30
- - loss: 0.129023
- - val_loss: 0.754789
+ - loss: 0.153467
+ - val_loss: 0.759836
 * Epoch 22/30
- - loss: 0.125517
- - val_loss: 0.506852
+ - loss: 0.155899
+ - val_loss: 0.515416
 * Epoch 23/30
- - loss: 0.120378
- - val_loss: 0.424285
+ - loss: 0.144074
+ - val_loss: 0.582858
 * Epoch 24/30
- - loss: 0.119880
- - val_loss: 0.470748
+ - loss: 0.139050
+ - val_loss: 0.561917
 * Epoch 25/30
- - loss: 0.117999
- - val_loss: 0.300616
+ - loss: 0.140877
+ - val_loss: 0.535602
 * Epoch 26/30
- - loss: 0.173092
- - val_loss: 0.470419
+ - loss: 0.144872
+ - val_loss: 0.407455
 * Epoch 27/30
- - loss: 0.149184
- - val_loss: 0.681603
+ - loss: 0.136891
+ - val_loss: 0.632102
 * Epoch 28/30
- - loss: 0.137921
- - val_loss: 0.640789
+ - loss: 0.123008
+ - val_loss: 0.674291
 * Epoch 29/30
- - loss: 0.130848
- - val_loss: 0.458735
+ - loss: 0.126818
+ - val_loss: 0.504248
 * Epoch 30/30
- - loss: 0.124615
- - val_loss: 0.715306
+ - loss: 0.123840
+ - val_loss: 0.369394
 
 ------------------------------------------------------------
 Sender: LSF System <lsfadmin@hpc.dtu.dk>
-Subject: Job 22896650: <Segmentation> in cluster <dcc> Done
+Subject: Job 22896759: <Segmentation> in cluster <dcc> Done
 
-Job <Segmentation> was submitted from host <hpclogin1> by user <s204209> in cluster <dcc> at Wed Oct 23 13:51:41 2024
-Job was executed on host(s) <4*n-62-18-8>, in queue <c02516>, as user <s204209> in cluster <dcc> at Wed Oct 23 13:51:43 2024
+Job <Segmentation> was submitted from host <hpclogin1> by user <s204209> in cluster <dcc> at Wed Oct 23 14:21:35 2024
+Job was executed on host(s) <4*n-62-18-8>, in queue <c02516>, as user <s204209> in cluster <dcc> at Wed Oct 23 14:21:35 2024
 </zhome/e7/1/156531> was used as the home directory.
 </zhome/e7/1/156531/02516/Segmentation_project/02516/Segmentation> was used as the working directory.
-Started at Wed Oct 23 13:51:43 2024
-Terminated at Wed Oct 23 13:53:06 2024
-Results reported at Wed Oct 23 13:53:06 2024
+Started at Wed Oct 23 14:21:35 2024
+Terminated at Wed Oct 23 14:23:02 2024
+Results reported at Wed Oct 23 14:23:02 2024
 
 Your job looked like:
 
@@ -455,16 +455,16 @@ Successfully completed.
 
 Resource usage summary:
 
-    CPU time :                                   76.60 sec.
-    Max Memory :                                 737 MB
-    Average Memory :                             737.00 MB
+    CPU time :                                   76.42 sec.
+    Max Memory :                                 834 MB
+    Average Memory :                             649.00 MB
     Total Requested Memory :                     16384.00 MB
-    Delta Memory :                               15647.00 MB
+    Delta Memory :                               15550.00 MB
     Max Swap :                                   -
     Max Processes :                              4
     Max Threads :                                8
-    Run time :                                   95 sec.
-    Turnaround time :                            85 sec.
+    Run time :                                   99 sec.
+    Turnaround time :                            87 sec.
 
 The output (if any) is above this job summary.
 

@@ -35,7 +35,7 @@ class UNet_orig(nn.Module):
         
         self.bottleneck_conv_a = nn.Conv2d(c[4], c[5], 3, padding=0)
         self.bottleneck_conv_b = nn.Conv2d(c[5], c[5], 3, padding=0)
-)
+
         # decoder (upsampling)
         self.up_conv3 = nn.ConvTranspose2d(c[5], c[4], kernel_size = 2, stride = 2)
         
