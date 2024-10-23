@@ -1,7 +1,7 @@
 import torch
 from .losses.losses import dice_loss, iou_loss, accuracy, sensitivity, specificity
 
-def train(model, device, opt, loss_fn, epochs, train_loader, test_loader):
+def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loader):
     
     eval_metrics = [dice_loss, iou_loss, accuracy, sensitivity, specificity]
     
@@ -61,5 +61,8 @@ def train(model, device, opt, loss_fn, epochs, train_loader, test_loader):
         observed_eval_metrics.append(avg_eval_metrics)
         print(' - val_loss: %f' % avg_loss)
         test_losses.append(avg_loss)
-    
+
+        # Step the scheduler with the validation loss
+        scheduler.step(avg_loss)
+        
     return train_losses, test_losses, observed_eval_metrics
