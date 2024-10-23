@@ -9,3 +9,9 @@ __pycache__/
 # ignore stderr and stdout
 *.err
 *.out
+
+# Ignore all files in graphics
+Segmentation/graphics/*
+
+# Ignore all .pth files
+*.pth
