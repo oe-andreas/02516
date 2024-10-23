@@ -79,7 +79,7 @@ def train(model, opt, loss_fn, epochs, train_loader, test_loader):
             # calculate metrics to show the user
             avg_loss += loss.detach().cpu() / len(train_loader)
         print(' - loss: %f' % avg_loss)
-        train_losses.append(avg_loss)
+        train_losses.append(avg_loss) # mads was here
 
         # Testing
         avg_loss = 0
