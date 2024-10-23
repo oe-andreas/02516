@@ -2,6 +2,140 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
+class UNet_orig(nn.Module):
+    #implementation to match the original paper
+    
+    def __init__(self, im_size = 572, channels = [3, 64, 128, 256, 512, 1024]):
+        super().__init__()
+        
+        self.channels = channels
+        c = channels #rename to write less
+        
+
+        # encoder (downsampling)
+        self.enc_conv0a = nn.Conv2d(c[0], c[1], 3, padding=0) #im_size -> im_size - 2
+        self.enc_conv0b = nn.Conv2d(c[1], c[1], 3, padding=0) #im_size - 2 -> im_size - 4
+        
+        self.pool0 = nn.MaxPool2d(2, 2)  # im_size - 4 -> floor(im_size/2) - 2
+    
+        self.enc_conv1a = nn.Conv2d(c[1], c[2], 3, padding=0) #floor(im_size/2) - 2 -> floor(im_size/2) - 4
+        self.enc_conv1b = nn.Conv2d(c[2], c[2], 3, padding=0) #floor(im_size/2) - 4 -> floor(im_size/2) - 6
+        
+        self.pool1 = nn.MaxPool2d(2, 2)  # floor(im_size/2) - 6 -> floor(im_size/4) - 3
+        
+        self.enc_conv2a = nn.Conv2d(c[2], c[3], 3, padding=0) # floor(im_size/4) - 3 -> floor(im_size/4) - 5
+        self.enc_conv2b = nn.Conv2d(c[3], c[3], 3, padding=0) # floor(im_size/4) - 5 -> floor(im_size/4) - 7
+        
+        self.pool2 = nn.MaxPool2d(2, 2) # floor(im_size/4) - 7 -> floor(im_size/8) - 3
+        
+        self.enc_conv3a = nn.Conv2d(c[3], c[4], 3, padding=0) # floor(im_size/8) - 3 -> floor(im_size/8) - 5
+        self.enc_conv3b = nn.Conv2d(c[4], c[4], 3, padding=0) # floor(im_size/8) - 5 -> floor(im_size/8) - 7
+        
+        self.pool3 = nn.MaxPool2d(2, 2)  # floor(im_size/8) - 7 -> floor(im_size/16) - 3
+        
+        self.bottleneck_conv_a = nn.Conv2d(c[4], c[5], 3, padding=0)
+        self.bottleneck_conv_b = nn.Conv2d(c[5], c[5], 3, padding=0)
+)
+        # decoder (upsampling)
+        self.up_conv3 = nn.ConvTranspose2d(c[5], c[4], kernel_size = 2, stride = 2)
+        
+        self.dec_conv3a = nn.ConvTranspose2d(2*c[4], c[4], 3, padding = 0)
+        self.dec_conv3b = nn.ConvTranspose2d(c[4], c[4], 3, padding = 0)
+        
+        self.up_conv2 = nn.ConvTranspose2d(c[4], c[3], kernel_size = 2, stride = 2)
+        
+        self.dec_conv2a = nn.ConvTranspose2d(2*c[3], c[3], 3, padding = 0)
+        self.dec_conv2b = nn.ConvTranspose2d(c[3], c[3], 3, padding = 0)
+        
+        self.up_conv1 = nn.ConvTranspose2d(c[3], c[2], kernel_size = 2, stride = 2)
+        
+        self.dec_conv1a = nn.ConvTranspose2d(2*c[2], c[2], 3, padding = 0)
+        self.dec_conv1b = nn.ConvTranspose2d(c[2], c[2], 3, padding = 0)
+        
+        self.up_conv0 = nn.ConvTranspose2d(c[2], c[1], kernel_size = 2, stride = 2)
+        
+        self.dec_conv0a = nn.ConvTranspose2d(2*c[1], c[1], 3, padding = 0)
+        self.dec_conv0b = nn.ConvTranspose2d(c[1], c[1], 3, padding = 0)
+        
+        self.final_conv = nn.ConvTranspose2d(c[1], 1, 1, padding = 0) #1 by 1 conv
+        
+    def forward(self, x):
+        #encoding
+        x0 = x
+        x0 = F.relu(self.enc_conv0a(x0))
+        x0 = F.relu(self.enc_conv0b(x0))
+        
+        x1 = self.pool0(x0)
+        x1 = F.relu(self.enc_conv1a(x1))
+        x1 = F.relu(self.enc_conv1b(x1))
+        
+        x2 = self.pool1(x1)
+        x2 = F.relu(self.enc_conv2a(x2))
+        x2 = F.relu(self.enc_conv2b(x2))
+        
+        x3 = self.pool2(x2)
+        x3 = F.relu(self.enc_conv3a(x3))
+        x3 = F.relu(self.enc_conv3b(x3))
+        
+        
+        #bottleneck level
+        x4 = self.pool3(x3)
+        x4 = F.relu(self.bottleneck_conv_a(x4))
+        x4 = F.relu(self.bottleneck_conv_b(x4))
+        
+        
+        #decoding
+        #level 3
+        x3_up = self.up_conv3(x4)
+        H, W = x3_up.shape[-2:]
+        H_, W_ = x3.shape[-2:]
+        diff_H, diff_W = H_ - H, W_ - W
+        skip_conn_3 = x3[:, :, diff_H/2:-diff_H/2, diff_W/2:-diff_W/2]
+        
+        x3_up = torch.cat((skip_conn_3, x3_up), 1)
+        x3_up = self.dec_conv3a(x3_up)
+        x3_up = self.dec_conv3b(x3_up)
+        
+        #level 2
+        x2_up = self.up_conv2(x3_up)
+        H, W = x2_up.shape[-2:]
+        H_, W_ = x2.shape[-2:]
+        diff_H, diff_W = H_ - H, W_ - W
+        skip_conn_2 = x2[:, :, diff_H/2:-diff_H/2, diff_W/2:-diff_W/2]
+        
+        x2_up = torch.cat((skip_conn_2, x2_up), 1)
+        x2_up = self.dec_conv2a(x2_up)
+        x2_up = self.dec_conv2b(x2_up)
+        
+        #level 1
+        x1_up = self.up_conv1(x1_up)
+        H, W = x1_up.shape[-2:]
+        H_, W_ = x1.shape[-2:]
+        diff_H, diff_W = H_ - H, W_ - W
+        skip_conn_1 = x1[:, :, diff_H/2:-diff_H/2, diff_W/2:-diff_W/2]
+        
+        x1_up = torch.cat((skip_conn_1, x1_up), 1)
+        x1_up = self.dec_conv1a(x1_up)
+        x1_up = self.dec_conv1b(x1_up)
+        
+        #level 0
+        x0_up = self.up_conv0(x1_up)
+        H, W = x0_up.shape[-2:]
+        H_, W_ = x0.shape[-2:]
+        diff_H, diff_W = H_ - H, W_ - W
+        skip_conn_0 = x0[:, :, diff_H/2:-diff_H/2, diff_W/2:-diff_W/2]
+        
+        x0_up = torch.cat((skip_conn_0, x0_up), 1)
+        x0_up = self.dec_conv0a(x0_up)
+        x0_up = self.dec_conv0b(x0_up)
+        
+        #final conv
+        y = self.final_conv(x0_up)
+        
+        return y
+
+
+
 class UNet(nn.Module):
     def __init__(self, im_size = 128):
         super().__init__()
