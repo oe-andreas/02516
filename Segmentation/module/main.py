@@ -114,6 +114,8 @@ test_loader =  PH2_test_loader
 
 train_losses, test_losses, observed_eval_metrics = train(model, optimizer, bce_loss, 30, train_loader, test_loader)
 
+torch.save(model.state_dict(), 'Trained_models/UNet.pth')
+
 
 #plot history
 plt.plot(train_losses, label='train')
