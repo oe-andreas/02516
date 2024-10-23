@@ -60,10 +60,12 @@ test_loader =  PH2_test_loader
 train_losses, test_losses, observed_eval_metrics = train(model_EncDec, device, optimizer, bce_loss, 30, train_loader, test_loader)
 
 ## Plot results for Encoder Decoder
-plot_losses(train_losses,test_losses,model_name='EncDec')
-plot_metrics(observed_eval_metrics,model_name='EncDec')
-plot_predictions(model_EncDec,device,train_loader,model_name='EncDec')
-torch.save(model_EncDec.state_dict(), 'Trained_models/UNet.pth')
+plot_losses(train_losses, test_losses, model_name='EncDec')
+plot_metrics(observed_eval_metrics, model_name='EncDec')
+plot_predictions(model_EncDec, device, train_loader, model_name='EncDec')
+
+# Save model weights
+torch.save(model_EncDec.state_dict(), 'Trained_models/EncDec.pth')
 
 
 ## TRAIN UNET
@@ -76,6 +78,9 @@ test_loader =  PH2_test_loader
 train_losses, test_losses, observed_eval_metrics = train(model_Unet, device, optimizer, bce_loss, 30, train_loader, test_loader)
 
 ## Plot results for Unet
-plot_losses(train_losses,test_losses,model_name='Unet')
-plot_metrics(observed_eval_metrics,model_name='Unet')
-plot_predictions(model_EncDec,device,train_loader,model_name='Unet')
+plot_losses(train_losses, test_losses, model_name='Unet')
+plot_metrics(observed_eval_metrics, model_name='Unet')
+plot_predictions(model_Unet, device, train_loader, model_name='Unet')
+
+# Save model weights
+torch.save(model_Unet.state_dict(), 'Trained_models/EncDec.pth')
