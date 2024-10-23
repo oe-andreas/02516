@@ -46,5 +46,5 @@ class PH2(torch.utils.data.Dataset):
         
         Y = self.transform(label)
         X = self.transform(image)
-        Z = np.ones_like(X)
+        Z = np.ones_like(Y)
         return X, Y, Z

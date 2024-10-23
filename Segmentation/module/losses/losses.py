@@ -36,6 +36,23 @@ def bce_total_variation(y_real, y_pred_logits):
     return bce_loss(y_real, y_pred_logits) + 0.1*total_variation
 
 
+def bce_weighted(y_real, y_pred_logits):
+    
+    num_positives = tf.reduce_sum(y_real)
+    num_negatives = tf.reduce_sum(1.0 - y_real)
+    
+    # Compute the positive class weight: neg / pos
+    pos_weight = num_negatives / (num_positives + tf.keras.backend.epsilon())  # Avoid division by zero
+    
+    # Compute the binary cross-entropy with logits
+    bce = tf.nn.weighted_cross_entropy_with_logits(
+        labels=y_real, logits=y_pred_logits, pos_weight=pos_weight
+    )
+    
+    # Return the mean of the loss across the batch
+    return tf.reduce_mean(bce)
+
+
 def accuracy(y_real, y_pred_logits):
     y_pred = torch.sigmoid(y_pred_logits) > 0.5
     correct = torch.sum(y_pred == y_real)
