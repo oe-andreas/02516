@@ -15,10 +15,10 @@ def train(model, device, opt, loss_fn, epochs, train_loader, test_loader):
         # Training
         avg_loss = 0
         model.train()  # train mode
-        for X_batch, Y_batch in train_loader:
+        for X_batch, Y_batch, Z_batch in train_loader:
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device)
-
+ 
             # set parameter gradients to zero
             opt.zero_grad()
 
