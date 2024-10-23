@@ -32,8 +32,8 @@ test_transform = transforms.Compose([transforms.Resize((im_size, im_size)),
                                     transforms.ToTensor()])
 
 ####DRIVE####
-retinal_train = retinal(indeces = np.arange(21,33), transform = train_transform)
-retinal_test = retinal(indeces = np.arange(33,41), transform = test_transform)
+retinal_train = retinal(indeces = np.arange(21,33), transform = train_transform, train = True)
+retinal_test = retinal(indeces = np.arange(33,41), transform = test_transform, train = False)
 
 retinal_train_loader = DataLoader(retinal_train, batch_size=batch_size, shuffle=True)
 retinal_test_loader = DataLoader(retinal_test, batch_size=batch_size, shuffle=False)
@@ -80,7 +80,7 @@ plot_metrics(observed_eval_metrics, model_name='Unet')
 plot_predictions(model_Unet, device, train_loader, model_name='Unet')
 
 # Save model weights
-torch.save(model_Unet.state_dict(), 'Trained_models/Unet.pth')
+torch.save(model_Unet.state_dict(), 'Trained_models/UNet.pth')
 
 ## TRAIN FULL UNET
 model_Unet_orig = UNet_orig(im_size).to(device)

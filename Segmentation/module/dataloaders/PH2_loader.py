@@ -30,6 +30,15 @@ class PH2(torch.utils.data.Dataset):
         label = Image.open(label_path)
 
         if self.train:
+            # Random horizontal flip
+            if np.random.rand() > 0.5:
+                image = transforms.functional.hflip(image)
+                label = transforms.functional.hflip(label)
+
+            # Random vertical flip
+            if np.random.rand() > 0.5:
+                image = transforms.functional.vflip(image)
+                label = transforms.functional.vflip(label)
             # Generate a random rotation angle
             angle = np.random.uniform(0, 360)
             image = transforms.functional.rotate(image, angle)
