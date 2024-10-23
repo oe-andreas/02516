@@ -56,7 +56,7 @@ def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loa
             
     
             for eval_metric in eval_metrics:
-                avg_eval_metrics.append(eval_metric(Y_batch, Y_pred).cpu() / len(test_loader))
+                avg_eval_metrics.append(eval_metric(Y_batch_masked, Y_pred_masked).cpu() / len(test_loader))
         
         observed_eval_metrics.append(avg_eval_metrics)
         print(' - val_loss: %f' % avg_loss)
