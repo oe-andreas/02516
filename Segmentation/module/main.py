@@ -21,7 +21,7 @@ print(f'Device: {device}')
 from .dataloaders.PH2_loader import PH2
 from .dataloaders.retinal_loader import retinal
 
-
+# first commend 
 #a second comment from Ø
 
 im_size = 128
