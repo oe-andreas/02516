@@ -89,8 +89,8 @@ class UNet_orig(nn.Module):
         x3_up = self.up_conv3(x4)
         H, W = x3_up.shape[-2:]
         H_, W_ = x3.shape[-2:]
-        diff_H, diff_W = H_ - H, W_ - W
-        skip_conn_3 = x3[:, :, diff_H/2:-diff_H/2, diff_W/2:-diff_W/2]
+        diff_H, diff_W = int(H_ - H), int(W_ - W)
+        skip_conn_3 = x3[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
         
         x3_up = torch.cat((skip_conn_3, x3_up), 1)
         x3_up = self.dec_conv3a(x3_up)
@@ -100,19 +100,19 @@ class UNet_orig(nn.Module):
         x2_up = self.up_conv2(x3_up)
         H, W = x2_up.shape[-2:]
         H_, W_ = x2.shape[-2:]
-        diff_H, diff_W = H_ - H, W_ - W
-        skip_conn_2 = x2[:, :, diff_H/2:-diff_H/2, diff_W/2:-diff_W/2]
+        diff_H, diff_W = int(H_ - H), int(W_ - W)
+        skip_conn_2 = x2[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
         
         x2_up = torch.cat((skip_conn_2, x2_up), 1)
         x2_up = self.dec_conv2a(x2_up)
         x2_up = self.dec_conv2b(x2_up)
         
         #level 1
-        x1_up = self.up_conv1(x1_up)
+        x1_up = self.up_conv1(x2_up)
         H, W = x1_up.shape[-2:]
         H_, W_ = x1.shape[-2:]
-        diff_H, diff_W = H_ - H, W_ - W
-        skip_conn_1 = x1[:, :, diff_H/2:-diff_H/2, diff_W/2:-diff_W/2]
+        diff_H, diff_W = int(H_ - H), int(W_ - W)
+        skip_conn_1 = x1[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
         
         x1_up = torch.cat((skip_conn_1, x1_up), 1)
         x1_up = self.dec_conv1a(x1_up)
@@ -122,8 +122,8 @@ class UNet_orig(nn.Module):
         x0_up = self.up_conv0(x1_up)
         H, W = x0_up.shape[-2:]
         H_, W_ = x0.shape[-2:]
-        diff_H, diff_W = H_ - H, W_ - W
-        skip_conn_0 = x0[:, :, diff_H/2:-diff_H/2, diff_W/2:-diff_W/2]
+        diff_H, diff_W = int(H_ - H), int(W_ - W)
+        skip_conn_0 = x0[:, :, diff_H//2:-diff_H//2, diff_W//2:-diff_W//2]
         
         x0_up = torch.cat((skip_conn_0, x0_up), 1)
         x0_up = self.dec_conv0a(x0_up)
@@ -133,8 +133,7 @@ class UNet_orig(nn.Module):
         y = self.final_conv(x0_up)
         
         return y
-
-
+    
 
 class UNet(nn.Module):
     def __init__(self, im_size = 128):
