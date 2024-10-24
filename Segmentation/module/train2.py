@@ -26,8 +26,8 @@ def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loa
             Y_pred = model(X_batch)
 
             # Extract only the pixels where Z_batch == 1
-            Y_batch_masked = Y_batch[Z_batch == 1]
-            Y_pred_masked = Y_pred[Z_batch == 1]
+            Y_batch_masked = Y_batch[Z_batch > 0.5]
+            Y_pred_masked = Y_pred[Z_batch > 0.5]
 
             # Calculate loss only on masked pixels
             loss = loss_fn(Y_batch_masked, Y_pred_masked)
@@ -50,8 +50,8 @@ def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loa
             with torch.no_grad():
                 Y_pred = model(X_batch)
                 # Extract only the pixels where Z_batch == 1
-                Y_batch_masked = Y_batch[Z_batch == 1]
-                Y_pred_masked = Y_pred[Z_batch == 1]
+                Y_batch_masked = Y_batch[Z_batch > 0.5]
+                Y_pred_masked = Y_pred[Z_batch > 0.5]
                 loss = loss_fn(Y_batch_masked, Y_pred_masked)
 
             avg_loss += loss.detach().cpu() / len(test_loader)

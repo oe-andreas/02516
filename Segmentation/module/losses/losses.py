@@ -1,5 +1,5 @@
 import torch
-
+import torch.nn.functional as F
 
 def bce_loss(y_real, y_pred_logits):
     #takes logits
