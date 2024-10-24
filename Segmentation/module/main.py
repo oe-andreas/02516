@@ -14,7 +14,7 @@ from .models.UNet import UNet, UNet_orig
 from .train2 import train
 from .plot import plot_losses, plot_metrics, plot_predictions
 
-from .losses.losses import bce_loss
+from .losses.losses import bce_weighted
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Device: {device}')
@@ -56,12 +56,12 @@ loaders = [
 ## Training for both datasets
 for train_loader, test_loader, dataset_name in loaders:
     ## Full UNet
-    model_Unet_orig = UNet_orig(im_size,channels=[3,16,32,64,128,256]).to(device)
+    model_Unet_orig = UNet_orig(im_size).to(device)
     optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001, weight_decay=1e-5)
     # Initialize the scheduler
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
     # Train model
-    train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, scheduler, bce_loss, 30, train_loader, test_loader)
+    train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, scheduler, bce_weighted, 30, train_loader, test_loader)
 
     ## Plot results for Unet
     plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_orig')
@@ -78,7 +78,7 @@ for train_loader, test_loader, dataset_name in loaders:
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
     
     # Train model
-    train_losses, test_losses, observed_eval_metrics = train(model_EncDec, device, optimizer, scheduler, bce_loss, 30, train_loader, test_loader)
+    train_losses, test_losses, observed_eval_metrics = train(model_EncDec, device, optimizer, scheduler, bce_weighted, 30, train_loader, test_loader)
 
     ## Plot results for Encoder Decoder
     plot_losses(train_losses, test_losses, dataset_name, model_name='EncDec')
