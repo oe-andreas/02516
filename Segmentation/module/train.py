@@ -1,5 +1,7 @@
 import torch
 from .losses.losses import dice_loss, iou_loss, accuracy, sensitivity, specificity
+import torch.nn as nn
+
 
 def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loader):
     
@@ -107,6 +109,7 @@ def train_weak_annotation(model, device, opt, epochs, train_loader, test_loader)
         model.eval()
         for X_batch, Y_real, Y_batch in test_loader:
             X_batch = X_batch.to(device)
+            Y_real = Y_real.to(device)
             Y_batch = Y_batch.to(device)
 
             with torch.no_grad():
@@ -125,5 +128,83 @@ def train_weak_annotation(model, device, opt, epochs, train_loader, test_loader)
         test_losses.append(avg_loss)
     
     return train_losses, test_losses, observed_eval_metrics
+
+
+#computes the point level loss for a batch
+def point_level_loss(pred, target, weight=1.0):
+    """
+    Computes point-level supervised loss.
+    
+    Args:
+        pred (torch.Tensor): The predicted segmentation map of shape [B, C, H, W].
+        target (torch.Tensor): The ground truth segmentation of shape [B, H, W], with values 0, 1, ... (binary or multi-class).
+        labeled_points (list of tuples): A list of labeled points as (x, y) coordinates. These are the points where supervision is provided.
+        weight (float): Weight for the smoothness regularization.
+    
+    Returns:
+        torch.Tensor: The computed loss (supervised + regularization).
+    """
+    # Initialize the loss
+    loss = 0.0
+    criterion = nn.BCELoss()
+
+    # Get the batch size
+    batch_size = pred.size(0)
+    
+    # Iterate over the batch and compute loss for each image
+    for b in range(batch_size):
+        pred_b = pred[b]  # Prediction for image b (shape: [C, H, W])
+        
+        # Supervised loss on labeled points
+        supervised_loss = 0.0
+        k = 0
+        for (x, y, t) in target[b]:  # List of points for the current image
+            
+            pred_point = pred_b[0,x, y].unsqueeze(0)  # Predicted class logits at (x, y) (shape: [1, C])
+            target_point = t.view(-1).float()  # Ground truth class at (x, y) (shape: [1])
+
+            supervised_loss += criterion(pred_point, target_point)
+            k = k+1
+            
+        
+        # Average supervised loss over the labeled points
+        supervised_loss = supervised_loss / len(target[b])
+        
+        # Add smoothness regularization (TV regularization)
+        smoothness_loss = total_variation_loss(pred_b)
+        
+        #Total loss for this batch element
+        loss += supervised_loss + weight * smoothness_loss
+
+    # Average the loss over the batch
+    loss = loss / batch_size
+
+    return loss
+
+
+def total_variation_loss(pred):
+    """
+    Total Variation (TV) loss for smoothness regularization.
+    This encourages smooth transitions in the segmentation map.
+    
+    Args:
+        pred (torch.Tensor): The predicted segmentation map for a single image (shape: [C, H, W]).
+    
+    Returns:
+        torch.Tensor: The total variation loss.
+    """
+    # Compute differences between neighboring pixels (vertical and horizontal)
+    diff_h = torch.abs(pred[0,1:, :] - pred[0,:-1, :]).mean()
+    diff_w = torch.abs(pred[0,:, 1:] - pred[0,:, :-1]).mean()
+    
+    # TV loss is the sum of these differences
+    tv_loss = diff_h + diff_w
+    return tv_loss
+
+
+
+
+
+
 
 

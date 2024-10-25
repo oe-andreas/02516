@@ -50,7 +50,7 @@ test_transform = transforms.Compose([transforms.Resize((im_size, im_size)),
                                     transforms.ToTensor()])
 
 #Load PH2 Dataset
-PH2_indeces = sorted([int(str[-3:]) for str in glob.glob('module/PH2_Dataset_images/IMD*')])
+PH2_indeces = sorted([int(str[-3:]) for str in glob.glob('/dtu/datasets1/02516/PH2_Dataset_images/IMD*')])
 PH2_train = PH2_weak(sample_info=sample_info,indeces = PH2_indeces[:170], transform = train_transform, train = False)
 PH2_test = PH2_weak(sample_info=sample_info,indeces = PH2_indeces[170:], transform = test_transform, train= False)
 PH2_train_loader = DataLoader(PH2_train, batch_size=batch_size, shuffle=True)
@@ -68,8 +68,8 @@ optimizer = torch.optim.Adam(model_EncDec.parameters(), lr=0.001)
 train_losses, test_losses, observed_eval_metrics = train_weak_annotation(model_EncDec, device, optimizer, epoch, PH2_train_loader, PH2_test_loader)
 
 ## Plot results for Encoder Decoder
-plot_losses(train_losses, test_losses, model_name='EncDec_weak')
-plot_metrics(observed_eval_metrics, model_name='EncDec_weak')
+plot_losses(train_losses, test_losses,dataset_name="PH2", model_name='EncDec_weak')
+plot_metrics(observed_eval_metrics, dataset_name="PH2", model_name='EncDec_weak')
 plot_predictions_weak(model_EncDec, device, PH2_train_loader,num_of_annotations, model_name='EncDec_weak')
 
 # Save model weights
@@ -88,8 +88,8 @@ optimizer = torch.optim.Adam(model_Unet.parameters(), lr=0.001)
 train_losses, test_losses, observed_eval_metrics = train_weak_annotation(model_Unet, device, optimizer, epoch,PH2_train_loader, PH2_test_loader)
 
 ## Plot results for Unet
-plot_losses(train_losses, test_losses, model_name='Unet_weak')
-plot_metrics(observed_eval_metrics, model_name='Unet_weak')
+plot_losses(train_losses, test_losses,dataset_name="PH2", model_name='Unet_weak')
+plot_metrics(observed_eval_metrics,dataset_name="PH2", model_name='Unet_weak')
 plot_predictions_weak(model_Unet, device, PH2_train_loader,num_of_annotations, model_name='Unet_weak')
 
 # Save model weights
