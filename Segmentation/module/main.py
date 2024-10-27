@@ -130,7 +130,7 @@ for train_loader, test_loader, dataset_name in loaders:
         ## Plot results for Unet
         plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_'+loss_name)
         plot_metrics(observed_eval_metrics, dataset_name, model_name='Unet_'+loss_name)
-        plot_predictions(model_Unet, device, train_loader, dataset_name, model_name='Unet_'+loss_name)
+        plot_predictions(model_Unet, device, test_loader, dataset_name, model_name='Unet_'+loss_name)
 
         # Save model weights
         torch.save(model_Unet.state_dict(), f'Trained_models/Unet_{loss_name}.pth')
