@@ -59,6 +59,7 @@ def calculate_mean_std_with_mask(dataloader):
     return mean, std
 retinal_train_no_transform = retinal(indeces = np.arange(21,33), transform = train_transform, train = False)
 retinal_train_no_transform_loader = DataLoader(retinal_train_no_transform, batch_size=batch_size, shuffle=True)
+
 # Calculate mean and std using the mask
 mean, std = calculate_mean_std_with_mask(retinal_train_no_transform_loader)
 normalize_params = (mean, std)
@@ -73,8 +74,27 @@ PH2_indeces = sorted([int(str[-3:]) for str in glob.glob('/dtu/datasets1/02516/P
 
 PH2_train_no_transform = PH2(indeces = PH2_indeces[:170], transform = train_transform, train = True)
 PH2_train_no_transform_loader = DataLoader(PH2_train_no_transform, batch_size=batch_size, shuffle=True)
+def calculate_mean_std(dataloader):
+    """Calculate mean and std of images in a dataloader without masks."""
+    mean = 0.0
+    std = 0.0
+    count = 0
+
+    for images, _, _ in dataloader:
+        batch_samples = images.size(0)  # number of images in the batch
+        images = images.view(batch_samples, images.size(1), -1)  # Reshape to (batch, channels, H*W)
+        
+        # Incremental mean and std calculations
+        mean += images.mean(2).sum(0)  # Mean over each channel
+        std += images.std(2).sum(0)    # Std over each channel
+        count += batch_samples
+
+    mean /= count
+    std /= count
+
+    return mean, std
 # Calculate mean and std using the mask
-mean, std = calculate_mean_std_with_mask(retinal_train_no_transform_loader)
+mean, std = calculate_mean_std(retinal_train_no_transform_loader)
 normalize_params = (mean, std)
 PH2_train = PH2(indeces = PH2_indeces[:170], transform = train_transform,normalize=normalize_params, train = True,)
 PH2_test = PH2(indeces = PH2_indeces[170:], transform = test_transform,normalize=normalize_params, train= False)
