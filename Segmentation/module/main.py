@@ -19,6 +19,8 @@ from .losses.losses import bce_weighted, bce_loss, focal_loss
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f'Device: {device}')
 
+import matplotlib.pyplot as plt
+
 ## Dataloaders
 from .dataloaders.PH2_loader import PH2
 from .dataloaders.retinal_loader import retinal
@@ -57,10 +59,15 @@ def calculate_mean_std_with_mask(dataloader):
     std = torch.sqrt(std / count)  # Calculate final std
 
     return mean, std
+
 retinal_train_no_transform = retinal(indeces = np.arange(21,33), transform = train_transform, train = False)
 retinal_train_no_transform_loader = DataLoader(retinal_train_no_transform, batch_size=batch_size, shuffle=True)
+
 # Calculate mean and std using the mask
 mean, std = calculate_mean_std_with_mask(retinal_train_no_transform_loader)
+
+print(mean, std)
+
 normalize_params = (mean, std)
 retinal_train = retinal(indeces = np.arange(21,33), transform = train_transform, normalize=normalize_params, train = True)
 retinal_test = retinal(indeces = np.arange(33,41), transform = test_transform, normalize=normalize_params, train = False)
@@ -120,5 +127,3 @@ for train_loader, test_loader, dataset_name in loaders:
 
         # Save model weights
         torch.save(model_EncDec.state_dict(), f'Trained_models/EncDec_{loss_name}.pth')
-
-        
