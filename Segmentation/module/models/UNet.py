@@ -10,7 +10,6 @@ class UNet_orig(nn.Module):
         
         self.channels = channels
         c = channels #rename to write less
-        
 
         # encoder (downsampling)
         self.enc_conv0a = nn.Conv2d(c[0], c[1], 3, padding=1) #im_size -> im_size - 2
@@ -59,36 +58,55 @@ class UNet_orig(nn.Module):
         
         self.final_conv = nn.ConvTranspose2d(c[1], 1, 1) #1 by 1 conv
         
+        self.dropout1 = nn.Dropout(p = 0.4)
+        self.dropout2 = nn.Dropout(p = 0.4)
+        self.dropout3 = nn.Dropout(p = 0.4)
+        self.dropout4 = nn.Dropout(p = 0.4)
+        
+        self.dropout1_up = nn.Dropout(p = 0.2)
+        self.dropout2_up = nn.Dropout(p = 0.2)
+        self.dropout3_up = nn.Dropout(p = 0.2)
+        
+        self.bn0 = nn.BatchNorm2d(c[1])
+        self.bn1 = nn.BatchNorm2d(c[2])
+        self.bn2 = nn.BatchNorm2d(c[3])
+        self.bn3 = nn.BatchNorm2d(c[4])
+        self.bn4 = nn.BatchNorm2d(c[5])
+        
     def forward(self, x):
         #encoding
         x0 = x
         x0 = F.relu(self.enc_conv0a(x0))
-        x0 = F.relu(self.enc_conv0b(x0))
+        x0 = F.relu(self.bn0(self.enc_conv0b(x0)))
         
         #print(f'x0.shape: {x0.shape}')
         
         x1 = self.pool0(x0)
         x1 = F.relu(self.enc_conv1a(x1))
-        x1 = F.relu(self.enc_conv1b(x1))
+        x1 = F.relu(self.bn1(self.enc_conv1b(x1)))
+        x1 = self.dropout1(x1)
         
         #print(f'x1.shape: {x1.shape}')
         
         x2 = self.pool1(x1)
         x2 = F.relu(self.enc_conv2a(x2))
-        x2 = F.relu(self.enc_conv2b(x2))
+        x2 = F.relu(self.bn2(self.enc_conv2b(x2)))
+        x2 = self.dropout2(x2)
         
         #print(f'x2.shape: {x2.shape}')
         
         x3 = self.pool2(x2)
         x3 = F.relu(self.enc_conv3a(x3))
-        x3 = F.relu(self.enc_conv3b(x3))
+        x3 = F.relu(self.bn3(self.enc_conv3b(x3)))
+        x3 = self.dropout3(x3)
         
         #print(f'x3.shape: {x3.shape}')
         
         #bottleneck level
         x4 = self.pool3(x3)
         x4 = F.relu(self.bottleneck_conv_a(x4))
-        x4 = F.relu(self.bottleneck_conv_b(x4))
+        x4 = F.relu(self.bn4(self.bottleneck_conv_b(x4)))
+        x4 = self.dropout4(x4)
         
         #print(f'x4.shape: {x4.shape}')
         
@@ -108,6 +126,7 @@ class UNet_orig(nn.Module):
         x3_up = torch.cat((skip_conn_3, x3_up), 1)
         x3_up = self.dec_conv3a(x3_up)
         x3_up = self.dec_conv3b(x3_up)
+        x3_up = self.dropout3_up(x3_up)
         
         #print(f'x3_up.shape: {x3_up.shape}')
         
@@ -121,6 +140,7 @@ class UNet_orig(nn.Module):
         x2_up = torch.cat((skip_conn_2, x2_up), 1)
         x2_up = self.dec_conv2a(x2_up)
         x2_up = self.dec_conv2b(x2_up)
+        x2_up = self.dropout2_up(x2_up)
         
         #print(f'x2_up.shape: {x2_up.shape}')
         
@@ -134,6 +154,7 @@ class UNet_orig(nn.Module):
         x1_up = torch.cat((skip_conn_1, x1_up), 1)
         x1_up = self.dec_conv1a(x1_up)
         x1_up = self.dec_conv1b(x1_up)
+        x1_up = self.dropout1_up(x1_up)
         
         #print(f'x1_up.shape: {x1_up.shape}')
         
