@@ -57,9 +57,12 @@ def calculate_mean_std_with_mask(dataloader):
     std = torch.sqrt(std / count)  # Calculate final std
 
     return mean, std
-
-retinal_train = retinal(indeces = np.arange(21,33), transform = train_transform, train = True)
-retinal_test = retinal(indeces = np.arange(33,41), transform = test_transform, train = False)
+retinal_train_no_transform = retinal(indeces = np.arange(21,33), transform = train_transform, train = False)
+# Calculate mean and std using the mask
+mean, std = calculate_mean_std_with_mask(retinal_train_no_transform)
+normalize_params = (mean, std)
+retinal_train = retinal(indeces = np.arange(21,33), transform = train_transform, normalize=normalize_params, train = True)
+retinal_test = retinal(indeces = np.arange(33,41), transform = test_transform, normalize=normalize_params, train = False)
 
 retinal_train_loader = DataLoader(retinal_train, batch_size=batch_size, shuffle=True)
 retinal_test_loader = DataLoader(retinal_test, batch_size=batch_size, shuffle=False)
