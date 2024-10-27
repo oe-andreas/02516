@@ -135,4 +135,5 @@ def plot_predictions_weak(model, device, train_loader, NoA, model_name):
     plt.savefig(f'graphics/predictions_{model_name}.png')
 
 
-def plot 
+def plot_all_metrics():
+    pass
