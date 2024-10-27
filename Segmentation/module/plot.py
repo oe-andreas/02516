@@ -68,10 +68,13 @@ def plot_predictions(model, device, train_loader, dataset_name, model_name):
 
     fig, axs = plt.subplots(1, 4, figsize=(18, 5), gridspec_kw={'width_ratios': [1, 1, 1, 0.05]})
 
-    # Input image
+    # Input image processing: normalize per color channel
     original_image = X.cpu().squeeze()
-    original_image -= original_image.min(0)
-    original_image /= original_image.max(0)
+    for c in range(original_image.shape[0]):  # Loop over color channels
+        channel = original_image[c, :, :]
+        channel_min, channel_max = channel.min(), channel.max()
+        original_image[c, :, :] = (channel - channel_min) / (channel_max - channel_min)
+        
     axs[0].imshow(to_im_shape(original_image))
     axs[0].set_title('Input Image')
 
