@@ -83,11 +83,11 @@ loaders = [
     (PH2_train_loader, PH2_test_loader, "PH2")
 ]
 
-losses = [bce_weighted]
+losses = [(bce_weighted, 'bce_weighted')]
 
 ## Training for both datasets
 for train_loader, test_loader, dataset_name in loaders:
-    for loss in losses:
+    for loss, loss_name in losses:
         ## Full UNet
         model_Unet_orig = UNet_copy(im_size).to(device)
         optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001, weight_decay=1e-5)
@@ -97,12 +97,12 @@ for train_loader, test_loader, dataset_name in loaders:
         train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
 
         ## Plot results for Unet
-        plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_orig')
-        plot_metrics(observed_eval_metrics, dataset_name, model_name='Unet_orig')
-        plot_predictions(model_Unet_orig, device, train_loader, dataset_name, model_name='Unet_orig')
+        plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_orig_'+loss_name)
+        plot_metrics(observed_eval_metrics, dataset_name, model_name='Unet_orig_'+loss_name)
+        plot_predictions(model_Unet_orig, device, train_loader, dataset_name, model_name='Unet_orig_'+loss_name)
 
         # Save model weights
-        torch.save(model_Unet_orig.state_dict(), 'Trained_models/Unet_orig.pth')
+        torch.save(model_Unet_orig.state_dict(), f'Trained_models/Unet_orig_{loss_name}.pth')
 
         ## Encoder Decoder
         model_EncDec = EncDec(im_size).to(device)
@@ -114,11 +114,11 @@ for train_loader, test_loader, dataset_name in loaders:
         train_losses, test_losses, observed_eval_metrics = train(model_EncDec, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
 
         ## Plot results for Encoder Decoder
-        plot_losses(train_losses, test_losses, dataset_name, model_name='EncDec')
-        plot_metrics(observed_eval_metrics, dataset_name, model_name='EncDec')
-        plot_predictions(model_EncDec, device, train_loader, dataset_name, model_name='EncDec')
+        plot_losses(train_losses, test_losses, dataset_name, model_name='EncDec_'+loss_name)
+        plot_metrics(observed_eval_metrics, dataset_name, model_name='EncDec_'+loss_name)
+        plot_predictions(model_EncDec, device, train_loader, dataset_name, model_name='EncDec_'+loss_name)
 
         # Save model weights
-        torch.save(model_EncDec.state_dict(), 'Trained_models/EncDec.pth')
+        torch.save(model_EncDec.state_dict(), f'Trained_models/EncDec_{loss_name}.pth')
 
         
