@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 
 from .models.EncDec import EncDec
-from .models.UNet import UNet, UNet_orig
+from .models.UNet import UNet, UNet_orig, UNet_copy
 
 from .train2 import train
 from .plot import plot_losses, plot_metrics, plot_predictions
@@ -53,13 +53,13 @@ loaders = [
     (PH2_train_loader, PH2_test_loader, "PH2")
 ]
 
-losses = [focal_loss]
+losses = [bce_weighted]
 
 ## Training for both datasets
 for train_loader, test_loader, dataset_name in loaders:
     for loss in losses:
         ## Full UNet
-        model_Unet_orig = UNet_orig(im_size).to(device)
+        model_Unet_orig = UNet_copy(im_size).to(device)
         optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001, weight_decay=1e-5)
         # Initialize the scheduler
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)

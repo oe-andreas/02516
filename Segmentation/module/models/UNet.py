@@ -2,6 +2,115 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
+class UNet_copy(nn.Module):
+    def __init__(self, im_size=572, channels=[3, 64, 128, 256, 512, 1024]):
+        super(UNet_copy, self).__init__()
+
+        self.channels = channels
+        
+        # Encoder (Downsampling)
+        self.enc_conv0a = nn.Conv2d(channels[0], channels[1], kernel_size=3, padding=1)
+        self.enc_conv0b = nn.Conv2d(channels[1], channels[1], kernel_size=3, padding=1)
+        
+        self.pool0 = nn.MaxPool2d(kernel_size=2, stride=2)
+        
+        self.enc_conv1a = nn.Conv2d(channels[1], channels[2], kernel_size=3, padding=1)
+        self.enc_conv1b = nn.Conv2d(channels[2], channels[2], kernel_size=3, padding=1)
+
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.enc_conv2a = nn.Conv2d(channels[2], channels[3], kernel_size=3, padding=1)
+        self.enc_conv2b = nn.Conv2d(channels[3], channels[3], kernel_size=3, padding=1)
+
+        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.enc_conv3a = nn.Conv2d(channels[3], channels[4], kernel_size=3, padding=1)
+        self.enc_conv3b = nn.Conv2d(channels[4], channels[4], kernel_size=3, padding=1)
+
+        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.bottleneck_conv_a = nn.Conv2d(channels[4], channels[5], kernel_size=3, padding=1)
+        self.bottleneck_conv_b = nn.Conv2d(channels[5], channels[5], kernel_size=3, padding=1)
+
+        # Decoder (Upsampling)
+        self.up_conv3 = nn.ConvTranspose2d(channels[5], channels[4], kernel_size=2, stride=2)
+        self.dec_conv3a = nn.Conv2d(channels[4] * 2, channels[4], kernel_size=3, padding=1)
+        self.dec_conv3b = nn.Conv2d(channels[4], channels[4], kernel_size=3, padding=1)
+
+        self.up_conv2 = nn.ConvTranspose2d(channels[4], channels[3], kernel_size=2, stride=2)
+        self.dec_conv2a = nn.Conv2d(channels[3] * 2, channels[3], kernel_size=3, padding=1)
+        self.dec_conv2b = nn.Conv2d(channels[3], channels[3], kernel_size=3, padding=1)
+
+        self.up_conv1 = nn.ConvTranspose2d(channels[3], channels[2], kernel_size=2, stride=2)
+        self.dec_conv1a = nn.Conv2d(channels[2] * 2, channels[2], kernel_size=3, padding=1)
+        self.dec_conv1b = nn.Conv2d(channels[2], channels[2], kernel_size=3, padding=1)
+
+        self.up_conv0 = nn.ConvTranspose2d(channels[2], channels[1], kernel_size=2, stride=2)
+        self.dec_conv0a = nn.Conv2d(channels[1] * 2, channels[1], kernel_size=3, padding=1)
+        self.dec_conv0b = nn.Conv2d(channels[1], channels[1], kernel_size=3, padding=1)
+
+        self.final_conv = nn.Conv2d(channels[1], 1, kernel_size=1)
+
+        # Optional: Batch Normalization
+        self.bn = nn.ModuleList([nn.BatchNorm2d(ch) for ch in channels[1:]])
+
+    def forward(self, x):
+        # Encoding
+        x0 = F.relu(self.enc_conv0a(x))
+        x0 = F.relu(self.enc_conv0b(x0))
+        x1 = self.pool0(x0)
+
+        x1 = F.relu(self.enc_conv1a(x1))
+        x1 = F.relu(self.enc_conv1b(x1))
+        x1 = F.dropout(x1, p=0.4, training=self.training)
+        x2 = self.pool1(x1)
+
+        x2 = F.relu(self.enc_conv2a(x2))
+        x2 = F.relu(self.enc_conv2b(x2))
+        x2 = F.dropout(x2, p=0.4, training=self.training)
+        x3 = self.pool2(x2)
+
+        x3 = F.relu(self.enc_conv3a(x3))
+        x3 = F.relu(self.enc_conv3b(x3))
+        x3 = F.dropout(x3, p=0.4, training=self.training)
+        x4 = self.pool3(x3)
+
+        # Bottleneck
+        x4 = F.relu(self.bottleneck_conv_a(x4))
+        x4 = F.relu(self.bottleneck_conv_b(x4))
+        x4 = F.dropout(x4, p=0.4, training=self.training)
+
+        # Decoding
+        x3_up = self.up_conv3(x4)
+        x3_up = torch.cat((x3_up, x3), dim=1)
+        x3_up = F.relu(self.dec_conv3a(x3_up))
+        x3_up = F.relu(self.dec_conv3b(x3_up))
+        x3_up = F.dropout(x3_up, p=0.2, training=self.training)
+
+        x2_up = self.up_conv2(x3_up)
+        x2_up = torch.cat((x2_up, x2), dim=1)
+        x2_up = F.relu(self.dec_conv2a(x2_up))
+        x2_up = F.relu(self.dec_conv2b(x2_up))
+        x2_up = F.dropout(x2_up, p=0.2, training=self.training)
+
+        x1_up = self.up_conv1(x2_up)
+        x1_up = torch.cat((x1_up, x1), dim=1)
+        x1_up = F.relu(self.dec_conv1a(x1_up))
+        x1_up = F.relu(self.dec_conv1b(x1_up))
+        x1_up = F.dropout(x1_up, p=0.2, training=self.training)
+
+        x0_up = self.up_conv0(x1_up)
+        x0_up = torch.cat((x0_up, x0), dim=1)
+        x0_up = F.relu(self.dec_conv0a(x0_up))
+        x0_up = F.relu(self.dec_conv0b(x0_up))
+
+        # Final convolution
+        y = self.final_conv(x0_up)
+
+        return y
+
+
+
 class UNet_orig(nn.Module):
     #implementation to match the original paper
     
