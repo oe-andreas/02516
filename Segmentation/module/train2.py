@@ -1,11 +1,11 @@
 import torch
-from .losses.losses import dice_loss, iou_loss, accuracy, sensitivity, specificity
+from .losses.losses import dice_loss, iou_loss, accuracy, sensitivity, specificity, bce_weighted, bce_loss, focal_loss
 
 def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loader):
     
-    eval_metrics = [dice_loss, iou_loss, accuracy, sensitivity, specificity]
+    eval_metrics = [dice_loss, iou_loss, accuracy, sensitivity, specificity, bce_weighted, bce_loss, focal_loss]
     
-    observed_eval_metrics = []
+    observed_eval_metrics
     train_losses = []
     test_losses = []
     

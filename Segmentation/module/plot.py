@@ -138,5 +138,73 @@ def plot_predictions_weak(model, device, train_loader, NoA, model_name):
     plt.savefig(f'graphics/predictions_{model_name}.png')
 
 
-def plot_all_metrics():
-    pass
+def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels = None, model_labels = None, split_labels = None, metric_labels = None):
+    # Extract dimensions
+    num_losses, num_models, num_splits, num_metrics = observed_eval_metrics_array.shape
+    
+    # Create a figure with subplots and shared y-axis
+    fig, axes = plt.subplots(num_splits, num_metrics, figsize=(num_metrics * 2, num_splits * 2.5), sharey=True)
+    fig.suptitle(dataset_name if dataset_name else "")
+    
+    # Define labels
+    loss_labels = [f'Loss {i+1}' for i in range(num_losses)] if loss_labels is None else loss_labels
+    model_labels = [f'Model {i+1}' for i in range(num_models)] if model_labels is None else model_labels
+    split_labels = [f'Split {i+1}' for i in range(num_splits)] if split_labels is None else split_labels
+    metric_labels = [f'Metric {i+1}' for i in range(num_metrics)] if metric_labels is None else metric_labels
+    
+    # Colors for different models and losses
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+    
+    # Iterate through the array and plot the metrics
+    for k in range(num_splits):
+        for m in range(num_metrics):
+            ax = axes[k, m]
+            width = 0.2
+            
+            for j in range(num_models):
+                for i in range(num_losses):
+                    metric = observed_eval_metrics_array[i, j, k, m]
+                    
+                    label = f'{loss_labels[i]}' if j == 0 else None
+                    
+                    color = colors[i]
+                    alpha = 0.9 if j == 0 else 0.7
+                    placement = width*(num_losses + 0.5)*j + i * width + width/4
+                    
+                    ax.bar(placement, metric, width, color=color, alpha=alpha, label=label)
+            
+            # Add a black line between Model 1 and Model 2
+            if num_models > 1:
+                separation_position = width * (num_losses + 0.5)
+                ax.axvline(separation_position - width / 2, color='black', linewidth=.5, linestyle='--')
+            
+            if k == num_splits - 1:
+                # Model labels
+                ax.set_xticks([width*(num_losses + 0.5)*j + width*(num_losses - 1)/2 for j in range(num_models)])
+                ax.set_xticklabels(model_labels)
+            else:
+                ax.set_xticks([])
+                ax.set_title(metric_labels[m])
+            if m == 0:
+                ax.set_ylabel(split_labels[k])
+            else:
+                ax.yaxis.set_visible(False)  # Hide y-axis for all but the first column
+            
+            # Show only the bottom and left spines
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_visible(True if m == 0 else False)
+            ax.spines['bottom'].set_visible(True)
+            
+            # Set specific y-axis ticks
+            ax.set_yticks([0, 0.5, 1])
+    
+    # Add legend underneath the plot
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=num_losses, frameon=False)
+    
+    # Adjust layout
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.subplots_adjust(hspace=0.1, wspace=0.2)
+    
+    fig.savefig(f'graphics/all_metrics_{dataset_name}.png')

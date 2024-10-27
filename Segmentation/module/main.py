@@ -116,9 +116,13 @@ loaders = [
 
 losses = [(bce_weighted, 'bce_weighted')]
 
+#num_losses, num_models, num_splits, num_metrics
+all_final_observed_metrics = np.zeros(len(losses), 2, 2, 8)
+
 ## Training for both datasets
-for train_loader, test_loader, dataset_name in loaders:
-    for loss, loss_name in losses:
+for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
+    for loss_i (loss, loss_name) in enumerate(losses):
+        
         ## Full UNet
         model_Unet = UNet(im_size).to(device)
         optimizer = torch.optim.Adam(model_Unet.parameters(), lr=0.001, weight_decay=1e-5)
@@ -126,7 +130,9 @@ for train_loader, test_loader, dataset_name in loaders:
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
         # Train model
         train_losses, test_losses, observed_eval_metrics = train(model_Unet, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
-
+        
+        all_final_observed_metrics[loss_i, 0, :, :] = observed_eval_metrics[]
+        
         ## Plot results for Unet
         plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_'+loss_name)
         plot_metrics(observed_eval_metrics, dataset_name, model_name='Unet_'+loss_name)
