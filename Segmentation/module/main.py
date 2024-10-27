@@ -32,6 +32,32 @@ test_transform = transforms.Compose([transforms.Resize((im_size, im_size)),
                                     transforms.ToTensor()])
 
 ####DRIVE####
+def calculate_mean_std_with_mask(dataloader):
+    """Calculate mean and std of images in a dataloader using the provided masks."""
+    mean = 0.0
+    std = 0.0
+    count = 0
+
+    for images, _, masks in dataloader:
+        batch_samples = images.size(0)  # number of images in the batch
+        images = images.view(batch_samples, images.size(1), -1)  # Reshape to (batch, channels, H*W)
+        
+        # Reshape masks to the same dimensions as images (if necessary)
+        masks = masks.view(batch_samples, 1, -1)  # Reshape to (batch, 1, H*W)
+
+        # Masking: Only consider pixels where the mask is True (or > 0)
+        masked_images = images * masks
+        
+        # Calculate mean and std
+        mean += masked_images.sum(2).sum(0) / masks.sum(2).sum(0)  # Sum only over masked pixels
+        std += ((masked_images - mean.unsqueeze(0).unsqueeze(2)) ** 2).sum(2).sum(0) / masks.sum(2).sum(0)
+        count += batch_samples  # Count number of batches
+
+    mean /= count
+    std = torch.sqrt(std / count)  # Calculate final std
+
+    return mean, std
+
 retinal_train = retinal(indeces = np.arange(21,33), transform = train_transform, train = True)
 retinal_test = retinal(indeces = np.arange(33,41), transform = test_transform, train = False)
 
