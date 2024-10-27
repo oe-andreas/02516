@@ -18,10 +18,11 @@ class retinal(torch.utils.data.Dataset):
         self.label_paths = [os.path.join(data_path, '1st_manual', f'{i:02}_manual1.gif') for i in indeces]
         self.mask_paths = [os.path.join(data_path, 'mask', f'{i:02}_training_mask.gif') for i in indeces]
         # Define normalization transform
-        if normalize:
-            self.normalize_transform = transforms.Normalize(**normalize)
+        if normalize is not None:
+            # Unpack the mean and std from the tuple
+            self.normalize_transform = transforms.Normalize(mean=normalize[0], std=normalize[1])
         else:
-            self.normalize_transform = identity  # No normalization if not provided 
+            self.normalize_transform = identity 
     def __len__(self):
         'Returns the total number of samples'
         return len(self.image_paths)
@@ -75,10 +76,11 @@ class retinal_test_no_labels(torch.utils.data.Dataset):
         #not currently used
         self.mask_paths = [os.path.join(data_path, 'mask', f'{i:02}_test_mask.gif') for i in indeces]
         # Define normalization transform
-        if normalize:
-            self.normalize_transform = transforms.Normalize(**normalize)
+        if normalize is not None:
+            # Unpack the mean and std from the tuple
+            self.normalize_transform = transforms.Normalize(mean=normalize[0], std=normalize[1])
         else:
-            self.normalize_transform = identity  # No normalization if not provided
+            self.normalize_transform = identity 
     def __len__(self):
         'Returns the total number of samples'
         return len(self.image_paths)
@@ -92,6 +94,6 @@ class retinal_test_no_labels(torch.utils.data.Dataset):
 
         # Apply normalization
         X = self.normalize_transform(X)
-        
+
         return X
     
