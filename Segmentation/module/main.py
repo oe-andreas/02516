@@ -76,11 +76,11 @@ PH2_train_no_transform_loader = DataLoader(PH2_train_no_transform, batch_size=ba
 # Calculate mean and std using the mask
 mean, std = calculate_mean_std_with_mask(retinal_train_no_transform_loader)
 normalize_params = (mean, std)
-PH2_train = PH2(indeces = PH2_indeces[:170], transform = train_transform, train = True,)
-PH2_test = PH2(indeces = PH2_indeces[170:], transform = test_transform, train= False)
+PH2_train = PH2(indeces = PH2_indeces[:170], transform = train_transform,normalize=normalize_params, train = True,)
+PH2_test = PH2(indeces = PH2_indeces[170:], transform = test_transform,normalize=normalize_params, train= False)
 
-PH2_train_loader = DataLoader(PH2_train, batch_size=batch_size, normalize=normalize_params, shuffle=True)
-PH2_test_loader = DataLoader(PH2_test, batch_size=batch_size, normalize=normalize_params, shuffle=False)
+PH2_train_loader = DataLoader(PH2_train, batch_size=batch_size, shuffle=True)
+PH2_test_loader = DataLoader(PH2_test, batch_size=batch_size, shuffle=False)
 
 # Define the loaders and their corresponding dataset names
 loaders = [
