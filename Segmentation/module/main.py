@@ -12,7 +12,7 @@ from .models.EncDec import EncDec
 from .models.UNet import UNet, UNet_orig
 
 from .train2 import train
-from .plot import plot_losses, plot_metrics, plot_predictions
+from .plot import plot_losses, plot_metrics, plot_predictions, plot_all_metrics
 
 from .losses.losses import bce_weighted, bce_loss, focal_loss
 
@@ -101,7 +101,9 @@ def calculate_mean_std(dataloader):
     return mean, std
 # Calculate mean and std using the mask
 mean, std = calculate_mean_std(retinal_train_no_transform_loader)
+
 normalize_params = (mean, std)
+
 PH2_train = PH2(indeces = PH2_indeces[:170], transform = train_transform,normalize=normalize_params, train = True,)
 PH2_test = PH2(indeces = PH2_indeces[170:], transform = test_transform,normalize=normalize_params, train= False)
 
@@ -116,12 +118,15 @@ loaders = [
 
 losses = [(bce_weighted, 'bce_weighted')]
 
-#num_losses, num_models, num_splits, num_metrics
-all_final_observed_metrics = np.zeros(len(losses), 2, 2, 8)
+
 
 ## Training for both datasets
 for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
-    for loss_i (loss, loss_name) in enumerate(losses):
+    
+    #num_losses, num_models, num_splits, num_metrics
+    all_final_observed_metrics = np.zeros((len(losses), 2, 2, 8))
+    
+    for loss_i, (loss, loss_name) in enumerate(losses):
         
         ## Full UNet
         model_Unet = UNet(im_size).to(device)
@@ -129,13 +134,14 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
         # Initialize the scheduler
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
         # Train model
-        train_losses, test_losses, observed_eval_metrics = train(model_Unet, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
+        train_losses, test_losses, observed_eval_metrics_train, observed_eval_metrics_test = train(model_Unet, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
         
-        all_final_observed_metrics[loss_i, 0, :, :] = observed_eval_metrics[]
+        all_final_observed_metrics[loss_i, 0, 0, :] = observed_eval_metrics_train[-1]
+        all_final_observed_metrics[loss_i, 0, 1, :] = observed_eval_metrics_test[-1]
         
         ## Plot results for Unet
         plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_'+loss_name)
-        plot_metrics(observed_eval_metrics, dataset_name, model_name='Unet_'+loss_name)
+        plot_metrics(observed_eval_metrics_test, dataset_name, model_name='Unet_'+loss_name)
         plot_predictions(model_Unet, device, test_loader, dataset_name, model_name='Unet_'+loss_name)
 
         # Save model weights
@@ -148,12 +154,23 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
         
         # Train model
-        train_losses, test_losses, observed_eval_metrics = train(model_EncDec, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
+        train_losses, test_losses, observed_eval_metrics_train, observed_eval_metrics_test = train(model_EncDec, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
 
+        all_final_observed_metrics[loss_i, 0, 0, :] = observed_eval_metrics_train[-1]
+        all_final_observed_metrics[loss_i, 0, 1, :] = observed_eval_metrics_test[-1]
+        
         ## Plot results for Encoder Decoder
         plot_losses(train_losses, test_losses, dataset_name, model_name='EncDec_'+loss_name)
-        plot_metrics(observed_eval_metrics, dataset_name, model_name='EncDec_'+loss_name)
+        plot_metrics(observed_eval_metrics_test, dataset_name, model_name='EncDec_'+loss_name)
         plot_predictions(model_EncDec, device, train_loader, dataset_name, model_name='EncDec_'+loss_name)
 
         # Save model weights
         torch.save(model_EncDec.state_dict(), f'Trained_models/EncDec_{loss_name}.pth')
+    
+    plot_all_metrics(all_final_observed_metrics, dataset_name=dataset_name,
+                     loss_labels = [loss_name for (_, loss_name) in losses],
+                     model_labels = ['UNet', 'EncDec'],
+                     split_labels = ['Train', 'Test'],
+                     metric_labels = ["Dice", "IOU", "Accuracy", "Sensitivity", "Specificity", "BCE_w", "BCE", "Focal"])
+        
+    
