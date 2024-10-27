@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 
 from .models.EncDec import EncDec
-from .models.UNet import UNet, UNet_orig, UNet_copy
+from .models.UNet import UNet, UNet_orig
 
 from .train2 import train
 from .plot import plot_losses, plot_metrics, plot_predictions
@@ -89,20 +89,20 @@ losses = [(bce_weighted, 'bce_weighted')]
 for train_loader, test_loader, dataset_name in loaders:
     for loss, loss_name in losses:
         ## Full UNet
-        model_Unet_orig = UNet_copy(im_size).to(device)
-        optimizer = torch.optim.Adam(model_Unet_orig.parameters(), lr=0.001, weight_decay=1e-5)
+        model_Unet = UNet(im_size).to(device)
+        optimizer = torch.optim.Adam(model_Unet.parameters(), lr=0.001, weight_decay=1e-5)
         # Initialize the scheduler
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
         # Train model
-        train_losses, test_losses, observed_eval_metrics = train(model_Unet_orig, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
+        train_losses, test_losses, observed_eval_metrics = train(model_Unet, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
 
         ## Plot results for Unet
-        plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_orig_'+loss_name)
-        plot_metrics(observed_eval_metrics, dataset_name, model_name='Unet_orig_'+loss_name)
-        plot_predictions(model_Unet_orig, device, train_loader, dataset_name, model_name='Unet_orig_'+loss_name)
+        plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_'+loss_name)
+        plot_metrics(observed_eval_metrics, dataset_name, model_name='Unet_'+loss_name)
+        plot_predictions(model_Unet, device, train_loader, dataset_name, model_name='Unet_'+loss_name)
 
         # Save model weights
-        torch.save(model_Unet_orig.state_dict(), f'Trained_models/Unet_orig_{loss_name}.pth')
+        torch.save(model_Unet.state_dict(), f'Trained_models/Unet_{loss_name}.pth')
 
         ## Encoder Decoder
         model_EncDec = EncDec(im_size).to(device)

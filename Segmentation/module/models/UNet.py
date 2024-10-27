@@ -2,9 +2,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
-class UNet_copy(nn.Module):
+class UNet(nn.Module):
     def __init__(self, im_size=572, channels=[3, 64, 128, 256, 512, 1024]):
-        super(UNet_copy, self).__init__()
+        super(UNet, self).__init__()
 
         self.channels = channels
         
@@ -288,7 +288,8 @@ class UNet_orig(nn.Module):
         return y
     
 
-class UNet(nn.Module):
+
+class UNet_Legacy_1(nn.Module):
     def __init__(self, im_size = 128):
         super().__init__()
 
@@ -351,7 +352,7 @@ class UNet(nn.Module):
 
 
 
-class UNet2(nn.Module):
+class UNet_Legacy_2(nn.Module):
     def __init__(self):
         super().__init__()
         
