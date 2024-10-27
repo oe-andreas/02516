@@ -17,14 +17,22 @@ def iou_loss(y_real, y_pred_logits):
     iou = (intersection + 1) / (union + 1)
     return 1 - iou
 
-def focal_loss(y_real, y_pred_logits, gamma=2):
-    # expects logits
+def focal_loss(y_real, y_pred_logits, gamma=2.0, alpha=0.25, epsilon=1e-6):
+    # Apply sigmoid to logits to get probabilities
     y_pred = torch.sigmoid(y_pred_logits)
+
+    # Clamp predictions more conservatively to prevent log(0) calculations and NaNs
+    y_pred = torch.clamp(y_pred, min=epsilon, max=1 - epsilon)
+
+    # Calculate focal loss components for positive and negative samples
+    pos_loss = -alpha * (1 - y_pred) ** gamma * y_real * torch.log(y_pred)
+    neg_loss = -(1 - alpha) * y_pred ** gamma * (1 - y_real) * torch.log(1 - y_pred)
     
-    # calculate focal loss
-    loss = -y_real * (1 - y_pred)**gamma * torch.log(y_pred) - (1 - y_real) * y_pred**gamma * torch.log(1 - y_pred)
+    # Sum positive and negative losses
+    loss = pos_loss + neg_loss
     
     return torch.mean(loss)
+
 
 def bce_total_variation(y_real, y_pred_logits):
     
