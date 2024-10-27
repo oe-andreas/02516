@@ -33,6 +33,7 @@ class PH2(torch.utils.data.Dataset):
         
         
         image = Image.open(image_path)
+        image = self.normalize_transform(image)
         label = Image.open(label_path)
 
         if self.train:
@@ -87,6 +88,7 @@ class PH2_weak(torch.utils.data.Dataset):
         
         
         image = Image.open(image_path)
+        image = self.normalize_transform(image)
         label = Image.open(label_path)
 
         if self.train:
