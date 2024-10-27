@@ -62,11 +62,12 @@ def bce_weighted(y_real, y_pred_logits):
     
     # Compute the positive class weight: neg / pos
     pos_weight = num_negatives / (num_positives + 1e-8)  # Avoid division by zero
+    pos_weight = torch.tensor(pos_weight, device=y_real.device)  # Ensure pos_weight is a tensor on the same device
     
     # Compute binary cross-entropy with logits, applying the pos_weight to positive samples
     loss = F.binary_cross_entropy_with_logits(y_pred_logits, y_real, pos_weight=pos_weight)
     
-    return loss.mean()  # Return mean loss
+    return loss  # Return loss
 
 
 
