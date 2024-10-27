@@ -58,8 +58,9 @@ def calculate_mean_std_with_mask(dataloader):
 
     return mean, std
 retinal_train_no_transform = retinal(indeces = np.arange(21,33), transform = train_transform, train = False)
+retinal_train_no_transform_loader = DataLoader(retinal_train_no_transform, batch_size=batch_size, shuffle=True)
 # Calculate mean and std using the mask
-mean, std = calculate_mean_std_with_mask(retinal_train_no_transform)
+mean, std = calculate_mean_std_with_mask(retinal_train_no_transform_loader)
 normalize_params = (mean, std)
 retinal_train = retinal(indeces = np.arange(21,33), transform = train_transform, normalize=normalize_params, train = True)
 retinal_test = retinal(indeces = np.arange(33,41), transform = test_transform, normalize=normalize_params, train = False)
