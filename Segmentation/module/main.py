@@ -84,8 +84,8 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
         # Train model
         train_losses, test_losses, observed_eval_metrics_train, observed_eval_metrics_test = train(model_Unet, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
         
-        all_final_observed_metrics[loss_i, 0, 0, :] = observed_eval_metrics_train[-1]
-        all_final_observed_metrics[loss_i, 0, 1, :] = observed_eval_metrics_test[-1]
+        all_final_observed_metrics[loss_i, 0, 0, :] = np.array(observed_eval_metrics_train[-1])
+        all_final_observed_metrics[loss_i, 0, 1, :] = np.array(observed_eval_metrics_test[-1])
         
         ## Plot results for Unet
         plot_losses(train_losses, test_losses, dataset_name, model_name='Unet_'+loss_name)
@@ -104,8 +104,8 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
         # Train model
         train_losses, test_losses, observed_eval_metrics_train, observed_eval_metrics_test = train(model_EncDec, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
 
-        all_final_observed_metrics[loss_i, 1, 0, :] = observed_eval_metrics_train[-1]
-        all_final_observed_metrics[loss_i, 1, 1, :] = observed_eval_metrics_test[-1]
+        all_final_observed_metrics[loss_i, 1, 0, :] = np.array(observed_eval_metrics_train[-1])
+        all_final_observed_metrics[loss_i, 1, 1, :] = np.array(observed_eval_metrics_test[-1])
         
         ## Plot results for Encoder Decoder
         plot_losses(train_losses, test_losses, dataset_name, model_name='EncDec_'+loss_name)
