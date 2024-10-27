@@ -8,14 +8,20 @@ identity = lambda x : x
 
 class PH2(torch.utils.data.Dataset):
 
-    def __init__(self, train = True, transform = identity, label_transform = None, indeces = np.arange(2, 438), data_path = '/dtu/datasets1/02516/PH2_Dataset_images'):
+    def __init__(self, train = True, transform = identity, label_transform = None, 
+                 indeces = np.arange(2, 438), data_path = '/dtu/datasets1/02516/PH2_Dataset_images',normalize = None):
         'Initialization. Assumes the "lesion" folders contain the labels'
         self.transform = transform
         self.train = train
         self.label_transform = label_transform if label_transform is not None else transform
         self.image_paths = [os.path.join(data_path, f'IMD{i:03}', f'IMD{i:03}_Dermoscopic_Image', f'IMD{i:03}.bmp') for i in indeces]
         self.label_paths = [os.path.join(data_path, f'IMD{i:03}', f'IMD{i:03}_lesion', f'IMD{i:03}_lesion.bmp') for i in indeces]
-        
+        # Define normalization transform
+        if normalize is not None:
+            # Unpack the mean and std from the tuple
+            self.normalize_transform = transforms.Normalize(mean=normalize[0], std=normalize[1])
+        else:
+            self.normalize_transform = identity 
     def __len__(self):
         'Returns the total number of samples'
         return len(self.image_paths)
@@ -27,6 +33,7 @@ class PH2(torch.utils.data.Dataset):
         
         
         image = Image.open(image_path)
+        image = self.normalize_transform(image)
         label = Image.open(label_path)
 
         if self.train:
@@ -51,7 +58,9 @@ class PH2(torch.utils.data.Dataset):
 
 
 class PH2_weak(torch.utils.data.Dataset):
-    def __init__(self, sample_info = [5,0,0], train = True, transform = identity, label_transform = None, indeces = np.arange(2, 438), data_path = '/dtu/datasets1/02516/PH2_Dataset_images'):
+    def __init__(self, sample_info = [5,0,0], train = True, transform = identity, 
+                 label_transform = None, indeces = np.arange(2, 438), 
+                 data_path = '/dtu/datasets1/02516/PH2_Dataset_images', normalize = None):
         'Initialization. Assumes the "lesion" folders contain the labels'
         self.transform = transform
         self.train = train
@@ -61,7 +70,13 @@ class PH2_weak(torch.utils.data.Dataset):
         
         #stores information about weak annotation sampling
         self.sample_info = sample_info
-        
+
+        # Define normalization transform
+        if normalize is not None:
+            # Unpack the mean and std from the tuple
+            self.normalize_transform = transforms.Normalize(mean=normalize[0], std=normalize[1])
+        else:
+            self.normalize_transform = identity
     def __len__(self):
         'Returns the total number of samples'
         return len(self.image_paths)
@@ -73,6 +88,7 @@ class PH2_weak(torch.utils.data.Dataset):
         
         
         image = Image.open(image_path)
+        image = self.normalize_transform(image)
         label = Image.open(label_path)
 
         if self.train:
