@@ -33,7 +33,6 @@ class PH2(torch.utils.data.Dataset):
         
         
         image = Image.open(image_path)
-        image = self.normalize_transform(image)
         label = Image.open(label_path)
 
         if self.train:
@@ -54,6 +53,9 @@ class PH2(torch.utils.data.Dataset):
         Y = self.transform(label)
         X = self.transform(image)
         Z = np.ones_like(Y)
+
+        # Apply normalization
+        X = self.normalize_transform(X)
         return X, Y, Z
 
 
@@ -88,7 +90,6 @@ class PH2_weak(torch.utils.data.Dataset):
         
         
         image = Image.open(image_path)
-        image = self.normalize_transform(image)
         label = Image.open(label_path)
 
         if self.train:
@@ -109,6 +110,8 @@ class PH2_weak(torch.utils.data.Dataset):
         Y = self.transform(label)
         X = self.transform(image)
 
+        # Apply normalization
+        X = self.normalize_transform(X)
 
         #################################################################################
         # Computes weak annotations:
