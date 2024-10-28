@@ -6,12 +6,12 @@ def bce_loss(y_real, y_pred_logits):
     return torch.mean(torch.maximum(torch.tensor(0.0), y_pred_logits) - y_real*y_pred_logits + torch.log(1 + torch.exp(-torch.abs(y_pred_logits))))
 
 def dice_loss(y_real, y_pred_logits):
-    y_pred = torch.sigmoid(y_pred_logits)
+    y_pred = torch.sigmoid(y_pred_logits) > 0.5
     return 1 - torch.mean(2*y_real*y_pred) / (torch.mean(y_real + y_pred))
 
 def iou_loss(y_real, y_pred_logits):
     #intersection over union loss
-    y_pred = torch.sigmoid(y_pred_logits)  # Apply sigmoid to logits
+    y_pred = torch.sigmoid(y_pred_logits) > 0.5  # Apply sigmoid to logits
     intersection = torch.sum(y_real * y_pred)
     union = torch.sum(y_real) + torch.sum(y_pred) - intersection
     iou = (intersection + 1) / (union + 1)

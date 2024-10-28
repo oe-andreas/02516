@@ -141,9 +141,10 @@ def plot_predictions_weak(model, device, train_loader, NoA, model_name):
     plt.tight_layout()
 
     plt.savefig(f'graphics/predictions_{model_name}.png')
+    
 
 
-def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels = None, model_labels = None, split_labels = None, metric_labels = None):
+def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels=None, model_labels=None, split_labels=None, metric_labels=None, flip = None):
     # Extract dimensions
     num_losses, num_models, num_splits, num_metrics = observed_eval_metrics_array.shape
     
@@ -156,11 +157,13 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
     model_labels = [f'Model {i+1}' for i in range(num_models)] if model_labels is None else model_labels
     split_labels = [f'Split {i+1}' for i in range(num_splits)] if split_labels is None else split_labels
     metric_labels = [f'Metric {i+1}' for i in range(num_metrics)] if metric_labels is None else metric_labels
+    flip = [0] * num_metric if flip is None else flip
     
     # Colors for different models and losses
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
     
     # Iterate through the array and plot the metrics
+    handles, labels = [], []
     for k in range(num_splits):
         for m in range(num_metrics):
             ax = axes[k, m]
@@ -168,32 +171,42 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
             
             for j in range(num_models):
                 for i in range(num_losses):
-                    metric = 1 - observed_eval_metrics_array[i, j, k, m] #note: Flipping
+                    metric = observed_eval_metrics_array[i, j, k, m]
                     
-                    label = f'{loss_labels[i]}' if j == 0 else None
+                    if flip[j]:
+                        metric = 1 - metric
+                    
+                    label = f'{loss_labels[i]}' if j == num_models - 1 else None
                     
                     color = colors[i]
                     alpha = 0.9 if j == 0 else 0.7
                     placement = width*(num_losses + 0.5)*j + i * width + width/4
                     
-                    ax.bar(placement, metric, width, color=color, alpha=alpha, label=label)
+                    bar = ax.bar(placement, metric, width, color=color, alpha=alpha, label=label)
+                    
+                    if label and label not in labels:
+                        handles.append(bar)
+                        labels.append(label)
             
             # Add a black line between Model 1 and Model 2
             if num_models > 1:
                 separation_position = width * (num_losses + 0.5)
                 ax.axvline(separation_position - width / 2, color='black', linewidth=.5, linestyle='--')
             
-            if k == num_splits - 1:
+            if k == num_splits - 1: #in bottom row, put model labels on x axis
                 # Model labels
                 ax.set_xticks([width*(num_losses + 0.5)*j + width*(num_losses - 1)/2 for j in range(num_models)])
                 ax.set_xticklabels(model_labels)
-            else:
+            else: #in any other row, remove x axis
                 ax.set_xticks([])
+                
+            if k == 0: #in top row, put metric labels in title
                 ax.set_title(metric_labels[m])
-            if m == 0:
+                
+            if m == 0: #in first column, write train/test labels
                 ax.set_ylabel(split_labels[k])
-            else:
-                ax.yaxis.set_visible(False)  # Hide y-axis for all but the first column
+            else: #in all other columns, hide y-axis
+                ax.yaxis.set_visible(False) 
             
             # Show only the bottom and left spines
             ax.spines['top'].set_visible(False)
@@ -205,11 +218,12 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
             ax.set_yticks([0, 0.5, 1])
     
     # Add legend underneath the plot
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=num_losses, frameon=False)
+    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 0.1), ncol=num_losses, frameon=False)
     
     # Adjust layout
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.tight_layout(rect=[0, 0.1, 1, 0.96])
     plt.subplots_adjust(hspace=0.1, wspace=0.2)
+    
+    fig.canvas.draw()
     
     fig.savefig(f'graphics/all_metrics_{dataset_name}.png')

@@ -121,10 +121,10 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
         
 
     plot_all_metrics(all_final_observed_metrics, dataset_name=dataset_name,
-                     loss_labels = [loss_name for (_, loss_name) in losses],
+                     loss_labels = ["BCE", "BCEw", "Focal"],
                      model_labels = ['UNet', 'EncDec'],
                      split_labels = ['Train', 'Test'],
-                     metric_labels = ["Dice", "IOU", "Accuracy", "Sensitivity", "Specificity", "BCE_w", "BCE", "Focal"])
+                     metric_labels = ["Dice", "IOU", "Accuracy", "Sensitivity", "Specificity", "BCE_w", "BCE", "Focal"].
+                     flip = [1, 1, 1, 1, 1, 0, 0, 0])
     print(all_final_observed_metrics)
-        
     
