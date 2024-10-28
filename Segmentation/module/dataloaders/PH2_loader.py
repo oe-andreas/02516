@@ -50,7 +50,7 @@ class PH2(torch.utils.data.Dataset):
             image = transforms.functional.rotate(image, angle)
             label = transforms.functional.rotate(label, angle)
         
-        Y = self.transform(label)
+        Y = (self.transform(label) > 0.5).float()
         X = self.transform(image)
         Z = np.ones_like(Y)
 

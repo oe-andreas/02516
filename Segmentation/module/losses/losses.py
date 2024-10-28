@@ -6,18 +6,63 @@ def bce_loss(y_real, y_pred_logits):
     return torch.mean(torch.maximum(torch.tensor(0.0), y_pred_logits) - y_real*y_pred_logits + torch.log(1 + torch.exp(-torch.abs(y_pred_logits))))
 
 def dice_loss(y_real, y_pred_logits):
-    y_pred = torch.sigmoid(y_pred_logits)
-    return 1 - torch.mean(2*y_real*y_pred + 1) / (torch.mean(y_real + y_pred) + 1)
+    """
+    Compute Dice score between ground truth and predictions.
+
+    Args:
+        y_real (torch.Tensor): Ground truth binary mask, shape (N, H, W) or (N, 1, H, W)
+        y_pred_logits (torch.Tensor): Predicted logits, shape (N, H, W) or (N, 1, H, W)
+        threshold (float): Threshold for converting logits to binary mask
+        smooth (float): Small constant for numerical stability
+
+    Returns:
+        torch.Tensor: Dice score
+    """
+    # Convert logits to predicted binary mask
+    
+    threshold = 0.5
+    smooth = 1e-6
+    
+    y_pred = (torch.sigmoid(y_pred_logits) > threshold).float()
+    
+    # Flatten tensors
+    y_real_flat = y_real.view(-1)
+    y_pred_flat = y_pred.view(-1)
+    
+    # Calculate intersection and union
+    intersection = (y_real_flat * y_pred_flat).sum()
+    union = y_real_flat.sum() + y_pred_flat.sum()
+    
+    # Compute Dice score
+    dice = (2. * intersection + smooth) / (union + smooth)
+    
+    if dice > 1:
+        print(f"dice > 1!: {y_pred.min(), y_pred.max(), intersection, union}")
+    
+    return dice
 
 def iou_loss(y_real, y_pred_logits):
     #intersection over union loss
-    y_pred = torch.sigmoid(y_pred_logits)  # Apply sigmoid to logits
-    intersection = torch.sum(y_real * y_pred)
-    union = torch.sum(y_real) + torch.sum(y_pred) - intersection
-    iou = (intersection + 1) / (union + 1)
-    return 1 - iou
+    
+    threshold = 0.5
+    smooth = 1
+    
+    # Convert logits to predicted binary mask
+    y_pred = (torch.sigmoid(y_pred_logits) > threshold).float()
+    
+    # Flatten tensors
+    y_real_flat = y_real.view(-1)
+    y_pred_flat = y_pred.view(-1)
+    
+    # Calculate intersection and union
+    intersection = (y_real_flat * y_pred_flat).sum()
+    union = y_real_flat.sum() + y_pred_flat.sum() - intersection
+    
+    # Compute IoU score
+    iou = (intersection + smooth) / (union + smooth)
+    return iou
 
-def focal_loss(y_real, y_pred_logits, gamma=2.0, alpha=0.25, epsilon=1e-6):
+def focal_loss(y_real, y_pred_logits, gamma=2.0, alpha=0.8, epsilon=1e-6):
     # Apply sigmoid to logits to get probabilities
     y_pred = torch.sigmoid(y_pred_logits)
 
@@ -73,16 +118,16 @@ def bce_weighted(y_real, y_pred_logits):
 def accuracy(y_real, y_pred_logits):
     y_pred = torch.sigmoid(y_pred_logits) > 0.5
     correct = torch.sum(y_pred == y_real)
-    return correct / y_real.numel()
+    return 1 - correct / y_real.numel()
 
 def sensitivity(y_real, y_pred_logits):
     y_pred = torch.sigmoid(y_pred_logits) > 0.5
     true_positive = torch.sum((y_pred == 1) & (y_real == 1))
     actual_positive = torch.sum(y_real == 1)
-    return true_positive / actual_positive
+    return 1 - true_positive / actual_positive
 
 def specificity(y_real, y_pred_logits):
     y_pred = torch.sigmoid(y_pred_logits) > 0.5
     true_negative = torch.sum((y_pred == 0) & (y_real == 0))
     actual_negative = torch.sum(y_real == 0)
-    return true_negative / actual_negative
+    return 1 - true_negative / actual_negative

@@ -43,7 +43,7 @@ def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loa
             model.eval()
             with torch.no_grad():
                 for i, eval_metric in enumerate(eval_metrics):
-                    avg_eval_metrics[i] += eval_metric(Y_batch_masked, Y_pred_masked).cpu() / len(test_loader)
+                    avg_eval_metrics[i] += eval_metric(Y_batch_masked, Y_pred_masked).cpu() / len(train_loader)
             
                 
         observed_eval_metrics_train.append(avg_eval_metrics)
