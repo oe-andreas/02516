@@ -66,7 +66,7 @@ loaders = [
     (PH2_train_loader, PH2_test_loader, "PH2")
 ]
 
-losses = [(bce_weighted,'bce_weighted'), (bce_loss, 'bce_loss'), (focal_loss, 'focal_loss')]
+losses = [(bce_loss, 'bce_loss'), (bce_weighted,'bce_weighted'), (focal_loss, 'focal_loss')]
 
 ## Training for both datasets
 for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
