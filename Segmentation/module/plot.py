@@ -168,7 +168,7 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
             
             for j in range(num_models):
                 for i in range(num_losses):
-                    metric = observed_eval_metrics_array[i, j, k, m]
+                    metric = 1 - observed_eval_metrics_array[i, j, k, m] #note: Flipping
                     
                     label = f'{loss_labels[i]}' if j == 0 else None
                     

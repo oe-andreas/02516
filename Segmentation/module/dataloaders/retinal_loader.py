@@ -54,7 +54,7 @@ class retinal(torch.utils.data.Dataset):
             label = transforms.functional.rotate(label, angle)
             mask = transforms.functional.rotate(mask, angle)
 
-        Y = self.transform(label)
+        Y = (self.transform(label) > 0.5).float()
         X = self.transform(image)
         Z = self.transform(mask)
 

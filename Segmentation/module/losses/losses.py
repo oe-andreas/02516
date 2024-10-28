@@ -7,7 +7,7 @@ def bce_loss(y_real, y_pred_logits):
 
 def dice_loss(y_real, y_pred_logits):
     y_pred = torch.sigmoid(y_pred_logits)
-    return 1 - torch.mean(2*y_real*y_pred + 1) / (torch.mean(y_real + y_pred) + 1)
+    return 1 - torch.mean(2*y_real*y_pred) / (torch.mean(y_real + y_pred))
 
 def iou_loss(y_real, y_pred_logits):
     #intersection over union loss
@@ -73,16 +73,16 @@ def bce_weighted(y_real, y_pred_logits):
 def accuracy(y_real, y_pred_logits):
     y_pred = torch.sigmoid(y_pred_logits) > 0.5
     correct = torch.sum(y_pred == y_real)
-    return correct / y_real.numel()
+    return 1 - correct / y_real.numel()
 
 def sensitivity(y_real, y_pred_logits):
     y_pred = torch.sigmoid(y_pred_logits) > 0.5
     true_positive = torch.sum((y_pred == 1) & (y_real == 1))
     actual_positive = torch.sum(y_real == 1)
-    return true_positive / actual_positive
+    return 1 - true_positive / actual_positive
 
 def specificity(y_real, y_pred_logits):
     y_pred = torch.sigmoid(y_pred_logits) > 0.5
     true_negative = torch.sum((y_pred == 0) & (y_real == 0))
     actual_negative = torch.sum(y_real == 0)
-    return true_negative / actual_negative
+    return 1 - true_negative / actual_negative
