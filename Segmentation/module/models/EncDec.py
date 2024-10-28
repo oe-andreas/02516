@@ -51,7 +51,7 @@ class EncDec(nn.Module):
 class EncDec_reg(nn.Module):
     def __init__(self, im_size=128, dropout_prob=0.3):
         super(EncDec_reg, self).__init__()
-        channel = 256
+        channel = 128
         # encoder (downsampling)
         self.enc_conv0 = nn.Conv2d(3, channel, 3, padding=1)
         self.pool0 = nn.MaxPool2d(2, 2)  # 128 -> 64

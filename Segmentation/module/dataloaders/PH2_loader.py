@@ -176,8 +176,7 @@ def sample_pixels_dist(tensor, num_samples=5, min_distance=10, edge_distance=5, 
 
     def sample_with_distance(indices, num_samples, min_dist, max_attempts, relax_factor):
         """Sample num_samples indices ensuring they are min_dist apart, relaxing min_dist if necessary."""
-        seed = 42
-        torch.manual_seed(seed)
+        
         selected = []
         attempts = 0
         current_min_dist = min_dist
