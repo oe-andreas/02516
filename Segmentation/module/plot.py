@@ -144,12 +144,15 @@ def plot_predictions_weak(model, device, train_loader, NoA, model_name):
     
 
 
-def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels=None, model_labels=None, split_labels=None, metric_labels=None, flip = None):
+
+def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels=None, model_labels=None, split_labels=None, metric_labels=None):
     # Extract dimensions
     num_losses, num_models, num_splits, num_metrics = observed_eval_metrics_array.shape
     
-    # Create a figure with subplots and shared y-axis
-    fig, axes = plt.subplots(num_splits, num_metrics, figsize=(num_metrics * 2, num_splits * 2.5), sharey=True)
+    num_not_losses = num_metrics - num_losses
+    
+    # Create a figure with subplots
+    fig, axes = plt.subplots(num_splits, num_metrics, figsize=(num_metrics * 2.5, num_splits * 2.5))
     fig.suptitle(dataset_name if dataset_name else "")
     
     # Define labels
@@ -157,13 +160,14 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
     model_labels = [f'Model {i+1}' for i in range(num_models)] if model_labels is None else model_labels
     split_labels = [f'Split {i+1}' for i in range(num_splits)] if split_labels is None else split_labels
     metric_labels = [f'Metric {i+1}' for i in range(num_metrics)] if metric_labels is None else metric_labels
-    flip = [0] * num_metric if flip is None else flip
     
     # Colors for different models and losses
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
     
     # Iterate through the array and plot the metrics
     handles, labels = [], []
+    y_limits = [0, 0]  # To store the max y-limits for the top and bottom rows of the last columns
+    
     for k in range(num_splits):
         for m in range(num_metrics):
             ax = axes[k, m]
@@ -173,16 +177,20 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
                 for i in range(num_losses):
                     metric = observed_eval_metrics_array[i, j, k, m]
                     
-                    if flip[j]:
-                        metric = 1 - metric
-                    
-                    label = f'{loss_labels[i]}' if j == num_models - 1 else None
+                    label = f'{loss_labels[i]}' if j == num_models - 1 else None #only label once
                     
                     color = colors[i]
-                    alpha = 0.9 if j == 0 else 0.7
+                    
+                    is_loss_in_question = (m == num_not_losses + i)
+                    
+                    alpha = 0.4 if (m >= num_not_losses and not is_loss_in_question) else 0.9
                     placement = width*(num_losses + 0.5)*j + i * width + width/4
                     
-                    bar = ax.bar(placement, metric, width, color=color, alpha=alpha, label=label)
+                    # Highlight specific bars
+                    edgecolor = 'black' if is_loss_in_question else 'none'
+                    linewidth = 2 if is_loss_in_question else 0
+                    
+                    bar = ax.bar(placement, metric, width, color=color, alpha=alpha, label=label, edgecolor=edgecolor, linewidth=linewidth)
                     
                     if label and label not in labels:
                         handles.append(bar)
@@ -203,26 +211,42 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
             if k == 0: #in top row, put metric labels in title
                 ax.set_title(metric_labels[m])
                 
-            if m == 0: #in first column, write train/test labels
+            if m == 0: #in first column or third-to-last column, write train/test labels
                 ax.set_ylabel(split_labels[k])
-            else: #in all other columns, hide y-axis
+            elif m < num_not_losses: #in all other columns, hide y-axis
                 ax.yaxis.set_visible(False) 
             
             # Show only the bottom and left spines
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
-            ax.spines['left'].set_visible(True if m == 0 else False)
+            ax.spines['left'].set_visible(True if m == 0 or m >= num_not_losses else False)
             ax.spines['bottom'].set_visible(True)
             
             # Set specific y-axis ticks
-            ax.set_yticks([0, 0.5, 1])
+            if m < num_not_losses:
+                ax.set_yticks([0, 0.5, 1])
+            else:
+                pass
+            
+            
+    
+    # Set the same y-limits for the top and bottom rows of the last columns
+    for m in range(num_not_losses, num_metrics):
+        
+        ylims_this_column = [axes[k, m].get_ylim() for k in range(num_splits)]
+        smallest_y = min([y[0] for y in ylims_this_column])
+        biggest_y = max([y[1] for y in ylims_this_column])
+        
+        
+        for k in range(num_splits):
+            axes[k, m].set_ylim(smallest_y, biggest_y)
     
     # Add legend underneath the plot
     fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 0.1), ncol=num_losses, frameon=False)
     
     # Adjust layout
     plt.tight_layout(rect=[0, 0.1, 1, 0.96])
-    plt.subplots_adjust(hspace=0.1, wspace=0.2)
+    plt.subplots_adjust(hspace=0.3, wspace=0.3)
     
     fig.canvas.draw()
     

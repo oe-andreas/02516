@@ -62,8 +62,8 @@ PH2_test_loader = DataLoader(PH2_test, batch_size=batch_size, shuffle=False)
 
 # Define the loaders and their corresponding dataset names
 loaders = [
-    (retinal_train_loader, retinal_test_loader, "Retinal"),
-    (PH2_train_loader, PH2_test_loader, "PH2")
+    (PH2_train_loader, PH2_test_loader, "PH2"),
+    (retinal_train_loader, retinal_test_loader, "Retinal")
 ]
 
 losses = [(bce_loss, 'bce_loss'), (bce_weighted,'bce_weighted'), (focal_loss, 'focal_loss')]
@@ -120,11 +120,11 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
         torch.save(model_EncDec.state_dict(), f'Trained_models/EncDec_{loss_name}.pth')
         
 
+    print(all_final_observed_metrics)
     plot_all_metrics(all_final_observed_metrics, dataset_name=dataset_name,
                      loss_labels = ["BCE", "BCEw", "Focal"],
                      model_labels = ['UNet', 'EncDec'],
                      split_labels = ['Train', 'Test'],
-                     metric_labels = ["Dice", "IOU", "Accuracy", "Sensitivity", "Specificity", "BCE_w", "BCE", "Focal"].
-                     flip = [1, 1, 1, 1, 1, 0, 0, 0])
-    print(all_final_observed_metrics)
+                     metric_labels = ["Dice", "IOU", "Accuracy", "Sensitivity", "Specificity", "BCE_w", "BCE", "Focal"])
+    
     
