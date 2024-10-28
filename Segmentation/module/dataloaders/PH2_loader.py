@@ -148,6 +148,8 @@ def sample_pixels_dist(tensor, num_samples=5, min_distance=10, edge_distance=5):
         num_samples (int): Number of samples to pick for each class.
         min_distance (int): Minimum distance between sampled pixels.
         edge_distance (int): Minimum distance away from the edges for 0-value pixels.
+        max_attempts (int): Maximum attempts to sample valid pixels before relaxing distance.
+        relax_factor (float): Factor to reduce min_distance if sampling is unsuccessful.
         
     Returns:
         zero_sampled (torch.Tensor): Sampled 0-value pixel coordinates.
@@ -174,20 +176,32 @@ def sample_pixels_dist(tensor, num_samples=5, min_distance=10, edge_distance=5):
         distances = torch.norm(selected.float() - candidate.float(), dim=1)
         return torch.all(distances >= min_dist)
 
-    def sample_with_distance(indices, num_samples, min_dist):
-        """Sample num_samples indices ensuring they are min_dist apart."""
+    def sample_with_distance(indices, num_samples, min_dist, max_attempts, relax_factor):
+        """Sample num_samples indices ensuring they are min_dist apart, relaxing min_dist if necessary."""
         seed = 42
         torch.manual_seed(seed)
         selected = []
+        attempts = 0
+        current_min_dist = min_dist
+
         while len(selected) < num_samples:
             candidate = indices[torch.randint(0, indices.size(0), (1,))].squeeze(0)
-            if is_far_enough(torch.stack(selected) if selected else torch.empty((0, 2)), candidate, min_dist):
+            if is_far_enough(torch.stack(selected) if selected else torch.empty((0, 2)), candidate, current_min_dist):
                 selected.append(candidate)
+            
+            attempts += 1
+
+            # If max attempts reached, relax the distance and reset attempts
+            if attempts >= max_attempts:
+                current_min_dist *= relax_factor
+                attempts = 0
+                #print(f"Relaxing minimum distance to {current_min_dist:.2f} due to max attempts.")
+
         return torch.stack(selected)
     
     # Randomly sample 0-value and 1-value pixels with distance constraints
-    zero_sampled = sample_with_distance(zero_indices, num_samples, min_distance)
-    one_sampled = sample_with_distance(one_indices, num_samples, min_distance)
+    zero_sampled = sample_with_distance(zero_indices, num_samples, min_distance, max_attempts, relax_factor)
+    one_sampled = sample_with_distance(one_indices, num_samples, min_distance, max_attempts, relax_factor)
     
     return zero_sampled, one_sampled
 

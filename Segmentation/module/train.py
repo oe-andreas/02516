@@ -93,7 +93,7 @@ def train_weak_annotation(model, device, opt, epochs, train_loader, test_loader)
             Y_pred = model(X_batch)
             y_pred = torch.sigmoid(Y_pred)
 
-            loss = point_level_loss(y_pred, Y_batch, weight=0.5)
+            loss = point_level_loss(y_pred, Y_batch, weight=0.2)
             
             loss.backward()  # backward-pass
             opt.step()  # update weights
