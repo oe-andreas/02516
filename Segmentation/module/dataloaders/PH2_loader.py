@@ -134,8 +134,6 @@ class PH2_weak(torch.utils.data.Dataset):
 
         return X, Y, labeled_points
 
- 
-    
 
 # Samples pixels from ground truth image
 def sample_pixels_dist(tensor, num_samples=5, min_distance=10, edge_distance=5):
