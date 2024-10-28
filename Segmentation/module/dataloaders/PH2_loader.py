@@ -136,7 +136,7 @@ class PH2_weak(torch.utils.data.Dataset):
 
 
 # Samples pixels from ground truth image
-def sample_pixels_dist(tensor, num_samples=5, min_distance=10, edge_distance=5):
+def sample_pixels_dist(tensor, num_samples=5, min_distance=10, edge_distance=5, max_attempts=1000, relax_factor=0.9):
     """
     Samples pixels from the tensor, ensuring 0-value pixels are a certain distance from edges 
     and both 0-value and 1-value pixels are a minimum distance apart from each other.

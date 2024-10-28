@@ -49,6 +49,7 @@ test_transform = transforms.Compose([transforms.Resize((im_size, im_size)),
                                     transforms.ToTensor()])
 
 for n in range(4):
+    sample_info = [num_of_annotations[n], inbetween_dist , edge_dist]
     #Load PH2 Dataset
     PH2_indeces = sorted([int(str[-3:]) for str in glob.glob('/dtu/datasets1/02516/PH2_Dataset_images/IMD*')])
     PH2_train = PH2_weak(sample_info=sample_info,indeces = PH2_indeces[:170], transform = train_transform, train = False)
@@ -81,6 +82,7 @@ for n in range(4):
 # Training data on UNET
 #################################################################################
 for n in range(4):
+    sample_info = [num_of_annotations[n], inbetween_dist , edge_dist]
     # Define optimizer and send model to device
     model_EncDec = UNet_orig(im_size).to(device)
     optimizer = torch.optim.Adam(model_EncDec.parameters(), lr=0.001, weight_decay=0.0005)
