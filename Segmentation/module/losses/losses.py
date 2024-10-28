@@ -17,7 +17,7 @@ def iou_loss(y_real, y_pred_logits):
     iou = (intersection + 1) / (union + 1)
     return 1 - iou
 
-def focal_loss(y_real, y_pred_logits, gamma=2.0, alpha=0.25, epsilon=1e-6):
+def focal_loss(y_real, y_pred_logits, gamma=2.0, alpha=0.8, epsilon=1e-6):
     # Apply sigmoid to logits to get probabilities
     y_pred = torch.sigmoid(y_pred_logits)
 

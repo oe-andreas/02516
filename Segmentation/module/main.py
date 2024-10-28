@@ -38,8 +38,8 @@ retinal_train_no_transform_loader = DataLoader(retinal_train_no_transform, batch
 mean, std = calculate_mean_std_with_mask(retinal_train_no_transform_loader)
 normalize_params = (mean, std)
 
-retinal_train = retinal(indeces = np.arange(21,33), transform = train_transform, normalize=normalize_params, train = True)
-retinal_test = retinal(indeces = np.arange(33,41), transform = test_transform, normalize=normalize_params, train = False)
+retinal_train = retinal(indeces = np.arange(21,35), transform = train_transform, normalize=normalize_params, train = True)
+retinal_test = retinal(indeces = np.arange(35,41), transform = test_transform, normalize=normalize_params, train = False)
 
 retinal_train_loader = DataLoader(retinal_train, batch_size=batch_size, shuffle=True)
 retinal_test_loader = DataLoader(retinal_test, batch_size=batch_size, shuffle=False)
@@ -51,7 +51,7 @@ PH2_train_no_transform = PH2(indeces = PH2_indeces[:170], transform = train_tran
 PH2_train_no_transform_loader = DataLoader(PH2_train_no_transform, batch_size=batch_size, shuffle=True)
 
 # Calculate mean and std using the mask
-mean, std = calculate_mean_std(retinal_train_no_transform_loader)
+mean, std = calculate_mean_std(PH2_train_no_transform_loader)
 normalize_params = (mean, std)
 
 PH2_train = PH2(indeces = PH2_indeces[:170], transform = train_transform,normalize=normalize_params, train = True,)
@@ -76,11 +76,13 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
     
     for loss_i, (loss, loss_name) in enumerate(losses):
         
+        print(f"Training UNet with {loss_name} on {dataset_name}")
+        
         ## Full UNet
         model_Unet = UNet(im_size).to(device)
         optimizer = torch.optim.Adam(model_Unet.parameters(), lr=0.001, weight_decay=1e-5)
         # Initialize the scheduler
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
         # Train model
         train_losses, test_losses, observed_eval_metrics_train, observed_eval_metrics_test = train(model_Unet, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
         
@@ -95,11 +97,13 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
         # Save model weights
         torch.save(model_Unet.state_dict(), f'Trained_models/Unet_{loss_name}.pth')
 
+
+        print(f"Training EncDec with {loss_name} on {dataset_name}")
         ## Encoder Decoder
         model_EncDec = EncDec(im_size).to(device)
         optimizer = torch.optim.Adam(model_EncDec.parameters(), lr=0.001, weight_decay=1e-5)
         # Initialize the scheduler
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
         
         # Train model
         train_losses, test_losses, observed_eval_metrics_train, observed_eval_metrics_test = train(model_EncDec, device, optimizer, scheduler, loss, 30, train_loader, test_loader)
@@ -114,11 +118,13 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
 
         # Save model weights
         torch.save(model_EncDec.state_dict(), f'Trained_models/EncDec_{loss_name}.pth')
-    
+        
+
     plot_all_metrics(all_final_observed_metrics, dataset_name=dataset_name,
                      loss_labels = [loss_name for (_, loss_name) in losses],
                      model_labels = ['UNet', 'EncDec'],
                      split_labels = ['Train', 'Test'],
                      metric_labels = ["Dice", "IOU", "Accuracy", "Sensitivity", "Specificity", "BCE_w", "BCE", "Focal"])
+    print(all_final_observed_metrics)
         
     
