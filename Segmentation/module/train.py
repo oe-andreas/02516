@@ -63,7 +63,7 @@ def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loa
     return train_losses, test_losses, observed_eval_metrics
 
 
-def train_weak_annotation(model, device, opt, epochs, train_loader, test_loader):
+def train_weak_annotation(model, device, opt, scheduler, epochs, train_loader, test_loader):
 
     
     eval_metrics = [dice_loss, iou_loss, accuracy, sensitivity, specificity]
@@ -93,7 +93,7 @@ def train_weak_annotation(model, device, opt, epochs, train_loader, test_loader)
             Y_pred = model(X_batch)
             y_pred = torch.sigmoid(Y_pred)
 
-            loss = point_level_loss(y_pred, Y_batch, weight=0.2)
+            loss = point_level_loss(y_pred, Y_batch, weight=0)
             
             loss.backward()  # backward-pass
             opt.step()  # update weights
@@ -115,7 +115,7 @@ def train_weak_annotation(model, device, opt, epochs, train_loader, test_loader)
             with torch.no_grad():
                 Y_pred = model(X_batch)
                 y_pred = torch.sigmoid(Y_pred)
-                loss = point_level_loss(y_pred, Y_batch, weight=0.2)
+                loss = point_level_loss(y_pred, Y_batch, weight=0)
 
             avg_loss += loss.detach().cpu() / len(test_loader)
             
@@ -126,7 +126,9 @@ def train_weak_annotation(model, device, opt, epochs, train_loader, test_loader)
         observed_eval_metrics.append(avg_eval_metrics)
         print(' - val_loss: %f' % avg_loss)
         test_losses.append(avg_loss)
-    
+        
+        # Step the scheduler with the validation loss
+        scheduler.step(avg_loss)
     return train_losses, test_losses, observed_eval_metrics
 
 
