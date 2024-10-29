@@ -114,17 +114,19 @@ for dataset_i, (train_loader, test_loader, dataset_name) in enumerate(loaders):
         ## Plot results for Encoder Decoder
         plot_losses(train_losses, test_losses, dataset_name, model_name='EncDec_'+loss_name)
         plot_metrics(observed_eval_metrics_test, dataset_name, model_name='EncDec_'+loss_name)
-        plot_predictions(model_EncDec, device, train_loader, dataset_name, model_name='EncDec_'+loss_name)
+        plot_predictions(model_EncDec, device, test_loader, dataset_name, model_name='EncDec_'+loss_name)
 
         # Save model weights
         torch.save(model_EncDec.state_dict(), f'Trained_models/EncDec_{loss_name}.pth')
         
 
     print(all_final_observed_metrics)
+    include_legend = True if dataset_name == "Retinal" else False
     plot_all_metrics(all_final_observed_metrics, dataset_name=dataset_name,
                      loss_labels = ["BCE", "BCEw", "Focal"],
                      model_labels = ['UNet', 'EncDec'],
                      split_labels = ['Train', 'Test'],
-                     metric_labels = ["Dice", "IOU", "Accuracy", "Sensitivity", "Specificity", "BCE_w", "BCE", "Focal"])
+                     metric_labels = ["BCE", "BCEw", "Focal", "Dice", "IOU", "Accuracy", "Sensitivity", "Specificity"],
+                     include_legend = include_legend)
     
     

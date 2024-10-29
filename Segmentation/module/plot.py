@@ -66,7 +66,7 @@ def plot_predictions(model, device, train_loader, dataset_name, model_name):
     y_pred = model(X)
     y_pred = torch.sigmoid(y_pred).detach().cpu().numpy().squeeze()
 
-    fig, axs = plt.subplots(1, 4, figsize=(18, 5), gridspec_kw={'width_ratios': [1, 1, 1, 0.05]})
+    fig, axs = plt.subplots(1, 4, figsize=(12, 3.5), gridspec_kw={'width_ratios': [1, 1, 1, 0.05]})
 
     # Input image processing: normalize per color channel
     original_image = X.cpu().squeeze()
@@ -76,7 +76,7 @@ def plot_predictions(model, device, train_loader, dataset_name, model_name):
         original_image[c, :, :] = (channel - channel_min) / (channel_max - channel_min)
         
     axs[0].imshow(to_im_shape(original_image))
-    axs[0].set_title('Input Image')
+    axs[0].set_title('Normalized input Image')
 
     # Ground truth
     axs[1].imshow(to_im_shape(y), vmin=0, vmax=1)
@@ -85,6 +85,10 @@ def plot_predictions(model, device, train_loader, dataset_name, model_name):
     # Prediction
     im = axs[2].imshow(y_pred, vmin=0, vmax=1)
     axs[2].set_title('Prediction')
+    
+    for ax in axs[:-1]:
+        ax.axis('off')
+
 
     # Colorbar
     fig.colorbar(im, cax=axs[3])
@@ -145,14 +149,14 @@ def plot_predictions_weak(model, device, train_loader, NoA, model_name):
 
 
 
-def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels=None, model_labels=None, split_labels=None, metric_labels=None):
+def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels=None, model_labels=None, split_labels=None, metric_labels=None, include_legend = True):
     # Extract dimensions
     num_losses, num_models, num_splits, num_metrics = observed_eval_metrics_array.shape
     
     num_not_losses = num_metrics - num_losses
     
     # Create a figure with subplots
-    fig, axes = plt.subplots(num_splits, num_metrics, figsize=(num_metrics * 2.5, num_splits * 2.5))
+    fig, axes = plt.subplots(num_splits, num_metrics, figsize=(num_metrics * 1.7, num_splits * 1.7))
     fig.suptitle(dataset_name if dataset_name else "")
     
     # Define labels
@@ -181,9 +185,9 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
                     
                     color = colors[i]
                     
-                    is_loss_in_question = (m == num_not_losses + i)
+                    is_loss_in_question = (m == i)
                     
-                    alpha = 0.4 if (m >= num_not_losses and not is_loss_in_question) else 0.9
+                    alpha = 0.4 if (m < num_losses and not is_loss_in_question) else 0.9
                     placement = width*(num_losses + 0.5)*j + i * width + width/4
                     
                     # Highlight specific bars
@@ -192,7 +196,7 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
                     
                     bar = ax.bar(placement, metric, width, color=color, alpha=alpha, label=label, edgecolor=edgecolor, linewidth=linewidth)
                     
-                    if label and label not in labels:
+                    if label and label not in labels and m == num_metrics - 1:
                         handles.append(bar)
                         labels.append(label)
             
@@ -213,17 +217,17 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
                 
             if m == 0: #in first column or third-to-last column, write train/test labels
                 ax.set_ylabel(split_labels[k])
-            elif m < num_not_losses: #in all other columns, hide y-axis
+            elif m > num_losses: #in all other columns, hide y-axis
                 ax.yaxis.set_visible(False) 
             
             # Show only the bottom and left spines
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
-            ax.spines['left'].set_visible(True if m == 0 or m >= num_not_losses else False)
+            ax.spines['left'].set_visible(True if m <= num_losses else False)
             ax.spines['bottom'].set_visible(True)
             
             # Set specific y-axis ticks
-            if m < num_not_losses:
+            if m >= num_losses:
                 ax.set_yticks([0, 0.5, 1])
             else:
                 pass
@@ -231,7 +235,7 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
             
     
     # Set the same y-limits for the top and bottom rows of the last columns
-    for m in range(num_not_losses, num_metrics):
+    for m in range(num_losses):
         
         ylims_this_column = [axes[k, m].get_ylim() for k in range(num_splits)]
         smallest_y = min([y[0] for y in ylims_this_column])
@@ -242,12 +246,14 @@ def plot_all_metrics(observed_eval_metrics_array, dataset_name=None, loss_labels
             axes[k, m].set_ylim(smallest_y, biggest_y)
     
     # Add legend underneath the plot
-    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 0.1), ncol=num_losses, frameon=False)
+    if include_legend:
+        fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 0.1), ncol=num_losses, frameon=False)
     
     # Adjust layout
     plt.tight_layout(rect=[0, 0.1, 1, 0.96])
     plt.subplots_adjust(hspace=0.3, wspace=0.3)
     
     fig.canvas.draw()
+    
     
     fig.savefig(f'graphics/all_metrics_{dataset_name}.png')

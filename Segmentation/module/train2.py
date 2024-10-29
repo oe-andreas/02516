@@ -3,7 +3,7 @@ from .losses.losses import dice_loss, iou_loss, accuracy, sensitivity, specifici
 
 def train(model, device, opt, scheduler, loss_fn, epochs, train_loader, test_loader):
     
-    eval_metrics = [dice_loss, iou_loss, accuracy, sensitivity, specificity, bce_weighted, bce_loss, focal_loss]
+    eval_metrics = [bce_loss, bce_weighted, focal_loss, dice_loss, iou_loss, accuracy, sensitivity, specificity]
     
     observed_eval_metrics_train = []
     observed_eval_metrics_test = []
