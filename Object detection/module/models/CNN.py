@@ -2,12 +2,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class CNN(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size = 256):
 
         self.conv_1_channels = 16
         self.conv_2_channels = 32
         self.conv_3_channels = 64
         self.conv_4_channels = 128
+        self.input_size = input_size
 
         super(CNN, self).__init__()
 
@@ -25,7 +26,7 @@ class CNN(nn.Module):
         self.bn4 = nn.BatchNorm2d(self.conv_4_channels)  # BatchNorm
 
         # Define the fully connected layers
-        self.fc1 = nn.Linear(self.conv_4_channels * 8 * 8, 256)  # 32 output channels from conv3, each 4x4 in size
+        self.fc1 = nn.Linear(self.conv_4_channels * (self.input_size/16)**2, 256)  # 32 output channels from conv3, each 4x4 in size
         self.bn_fc1 = nn.BatchNorm1d(256)  # BatchNorm
         self.fc2 = nn.Linear(256, 128)
         self.bn_fc2 = nn.BatchNorm1d(128)
@@ -40,19 +41,19 @@ class CNN(nn.Module):
 
     def forward(self, x):
         # Apply the first convolutional layer, batch normalization, ReLU, and max pooling
-        x = self.pool(F.relu(self.bn1(self.conv1(x))))  # Output: 16 x 64 x 64
+        x = self.pool(F.relu(self.bn1(self.conv1(x))))  # Output: 16 x 128 x 128
         x = self.dropout_conv(x)  # Apply dropout
 
         # Apply the second convolutional layer, batch normalization, ReLU, and max pooling
-        x = self.pool(F.relu(self.bn2(self.conv2(x))))  # Output: 32 x 32 x 32
+        x = self.pool(F.relu(self.bn2(self.conv2(x))))  # Output: 32 x 64 x 64
         x = self.dropout_conv(x)  # Apply dropout
 
         # Apply the third convolutional layer, batch normalization, ReLU, and max pooling
-        x = self.pool(F.relu(self.bn3(self.conv3(x))))  # Output: 64 x 16 x 16
+        x = self.pool(F.relu(self.bn3(self.conv3(x))))  # Output: 64 x 32 x 32
         x = self.dropout_conv(x)  # Apply dropout
 
         # Apply the third convolutional layer, batch normalization, ReLU, and max pooling
-        x = self.pool(F.relu(self.bn4(self.conv4(x))))  # Output: 128 x 8 x 8
+        x = self.pool(F.relu(self.bn4(self.conv4(x))))  # Output: 128 x 16 x 16
         x = self.dropout_conv(x)  # Apply dropout
 
         # Flatten the tensor to feed into the fully connected layers
@@ -68,6 +69,7 @@ class CNN(nn.Module):
 
         # Apply final layer
         y = self.fc_label(x)
-        position = self.fc_position(x)
+        position = F.sigmoid( self.fc_position(x)) * self.input_size
+        
 
         return y, position
