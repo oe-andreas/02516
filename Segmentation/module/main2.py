@@ -40,9 +40,9 @@ batch_size = 32
 epoch = 30
 
 #Defines weak annotation sampling info:
-num_of_annotations = [45, 60, 100] #number of point collected for each class in the weak annotation set
+num_of_annotations = [5, 15, 30] #number of point collected for each class in the weak annotation set
 inbetween_dist = 5 # minimum Euclidean distance between points 
-edge_dist = 10 # minimum euclidean distance every point has to the edge of the image.
+edge_dist = 0 # minimum euclidean distance every point has to the edge of the image.
 
 #Define image argumentation for test and training data.
 train_transform = transforms.Compose([transforms.Resize((im_size, im_size)), 
@@ -88,12 +88,12 @@ for n in range(3):
     train_losses, test_losses, observed_eval_metrics = train_weak_annotation(model_EncDec, device, optimizer,  scheduler, epoch, PH2_train_loader, PH2_test_loader)
 
     ## Plot results for Encoder Decoder
-    plot_losses(train_losses, test_losses,dataset_name="PH2", model_name='EncDec_weak_v5_{}'.format(num_of_annotations[n]))
-    plot_metrics(observed_eval_metrics, dataset_name="PH2",model_name='EncDec_weak_v5_{}'.format(num_of_annotations[n]))
-    plot_predictions_weak(model_EncDec, device, PH2_test_loader,num_of_annotations[n], model_name='EncDec_weak_v5_{}'.format(num_of_annotations[n]))
+    plot_losses(train_losses, test_losses,dataset_name="PH2", model_name='EncDec_weak_v6_{}'.format(num_of_annotations[n]))
+    plot_metrics(observed_eval_metrics, dataset_name="PH2",model_name='EncDec_weak_v6_{}'.format(num_of_annotations[n]))
+    plot_predictions_weak(model_EncDec, device, PH2_test_loader,num_of_annotations[n], model_name='EncDec_weak_v6_{}'.format(num_of_annotations[n]))
 
     # Save model weights
-    torch.save(model_EncDec.state_dict(), 'Trained_models/EncDec_v5_{}.pth'.format(num_of_annotations[n]))
+    torch.save(model_EncDec.state_dict(), 'Trained_models/EncDec_v6_{}.pth'.format(num_of_annotations[n]))
 """
 #################################################################################
 # Training data on UNET
