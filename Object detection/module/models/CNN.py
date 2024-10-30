@@ -69,7 +69,8 @@ class CNN(nn.Module):
 
         # Apply final layer
         y = self.fc_label(x)
-        position = F.sigmoid( self.fc_position(x)) * self.input_size
+        position = self.fc_position(x)
+        #position = F.sigmoid( self.fc_position(x)) * self.input_size
         
 
         return y, position
