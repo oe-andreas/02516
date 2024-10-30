@@ -95,8 +95,6 @@ def selective_search_all():
         with open(f'Potholes/annotated-images/img-{i}_ss.json', "w") as file:
             json.dump(results_list, file)
 
-
-
 def load_test_and_train(path):
     # Load the JSON file
     with open(path, 'r') as f:
