@@ -2,6 +2,9 @@ import cv2
 import json
 from tqdm import tqdm
 import xml.etree.ElementTree as ET
+from PIL import Image
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 def parse_xml(xml_file):
     tree = ET.parse(xml_file)
@@ -174,41 +177,6 @@ def convert_bbox(x, y, width, height):
     xmax = x + width
     ymax = y + height
     return xmin, ymin, xmax, ymax
-
-def corerct_bbs(bbs):
-
-
-    def return_edge_box_proposals(image, max_boxes=100, min_score=0.01):
-    if image is None or not isinstance(image, np.ndarray):
-        return
-
-    if len(image.shape) == 3 and image.shape[2] == 3:
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    else:
-        image_rgb = image
-
-    edge_boxes = cv2.ximgproc.createEdgeBoxes()
-    edge_boxes.setMaxBoxes(max_boxes)
-    edge_boxes.setMinScore(min_score)
-
-    edges = cv2.Canny(image, 50, 150)
-    edges = edges.astype(np.float32)  # Convert edge map to CV_32F
-    orientation_map = np.zeros_like(edges, dtype=np.float32)  # Placeholder orientation map as CV_32F
-
-    bbs = edge_boxes.getBoundingBoxes(edges, orientation_map)[0]
-
-   
-    fig, ax = plt.subplots(1, figsize=(12, 8))
-    ax.imshow(image_rgb)
-
-    for bb in bbs:
-        x, y, w, h = bb
-        rect = plt.Rectangle((x, y), w, h, linewidth=2, edgecolor='r', facecolor='none')
-        ax.add_patch(rect)
-
-    plt.axis("off")
-    plt.show()
-    return bbs
 
 def calculate_iou(box1, box2):
     x1 = max(box1[0], box2[0])
