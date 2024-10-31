@@ -265,7 +265,7 @@ def compare_bb(image_path, bb, k1, k2):
 
 
 ## ____________ Dataset creation _______________________
-# functioner der bruges til at danne vores dataset
+# functions used fro creating the fina dataset.
 
 #reads json file from path "Potholes/annotated-images/"
 def read_json(file_path):
@@ -321,6 +321,10 @@ def create_1_0_none_splits():
         class_0 = merge_classes(class_0,cl_0)
         class_1 = merge_classes(class_1,cl_1)
         class_none = merge_classes(class_none,cl_none)
+
+    # class_0 has length:     621147
+    # class_1 has length:     5256
+    # class_none has length:  31028
 
     return class_0, class_1, class_none
 
