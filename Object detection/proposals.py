@@ -22,7 +22,7 @@ def required_proposals(threshold=0.7):
     
 
     # Proposal limits
-    proposal_limits = np.arange(10, 1501, 50)
+    proposal_limits = np.arange(10, 3001, 50)
     
     # Initialize list to store the results at each threshold
     positive_proposals_list = np.zeros((665,len(proposal_limits)))
