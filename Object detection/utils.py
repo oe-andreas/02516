@@ -5,6 +5,8 @@ import xml.etree.ElementTree as ET
 from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import random
+import re
 
 #Reads xml files
 def parse_xml(xml_file):
@@ -27,7 +29,7 @@ def parse_xml(xml_file):
     return pothole_bboxes
 
 # computes iou of two bounding boxes
-def iou(boxA, boxB):
+def calculate_iou(boxA, boxB):
     # Calculate the (x, y) coordinates of the intersection rectangle
     xA = max(boxA[0], boxB[0])
     yA = max(boxA[1], boxB[1])
@@ -300,7 +302,7 @@ def get_id(string):
         match = re.search(r'\d+', string)
         return int(match.group()) if match else None
     
-    id = [extract_number(s) for s in train]
+    id = [extract_number(s) for s in string]
     return id
 
 #reads all "img-1_ss.json" typed files in the training set and returns
