@@ -72,3 +72,8 @@ def required_proposals(threshold=0.7):
 
 # Run the function
 required_proposals()
+
+
+
+
+
