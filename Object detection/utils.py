@@ -49,7 +49,7 @@ def calculate_iou(boxA, boxB):
 
     return iou
 
-#?
+# Does selective search for a single image
 def selective_search(image):
     ss = cv2.ximgproc.segmentation.createSelectiveSearchSegmentation()
     ss.setBaseImage(image)
@@ -57,7 +57,7 @@ def selective_search(image):
     ss_results = ss.process()
     return ss_results
 
-#?
+# Does selective search for all images
 def selective_search_all():
     for i in tqdm(range(1, 666), desc="Processing Images", unit="image"):
         # Load the image
