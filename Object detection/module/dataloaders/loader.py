@@ -46,5 +46,76 @@ class load_images():
             list_with_all_boxes.append(list_with_single_boxes)
 
         return image, list_with_all_boxes
+    
+    
+class PotholesDataset(Dataset):
+    def __init__(self, train = True, transform, dir = "Potholes", k1 = 0.3, k2 = 0.7):
+        
+        assert k2 >= k1
+        
+        self.transform = transform
+
+        with open(os.path.join(dir, 'splits.json')) as f:
+            splits = json.load(f)
+            
+        # extract xml file names
+        keyword = "train" if train else "test"
+        xml_names = splits[keyword]
+        
+        #strip .xml
+        image_names = [xml_name[:-4] for xml_name in xml_names]
+        
+        background_boxes = []
+        pothole_boxes = []
+        
+
+        #read all bounding boxes from .json files
+        for image in image_names:
+            with open(os.path.join(dir, 'annotated_images', image + '.json')) as f:
+                boxes = json.load(f)
+                
+            for box in boxes:
+            
+                if box['iou'] >= k2:
+                    pothole_boxes.append(
+                        {"box": box['box'], "image": image}
+                        )
+                elif box['iou'] < k1:
+                    background_boxes.append(
+                        {"box": box['box'], "image": image}
+                        )
+                else: #don't import ambigious boxes
+                    pass
+
+        
+        self.boxes = background_boxes + pothole_boxes
+        self.n_background = len(background_boxes)
+        self.n_potholes = len(pothole_boxes)
+        
+    
+        
+    def __len__(self):
+        return len(self.boxes)
+    
+    def __getitem__(self, idx):
+        #when wrapping this in a dataloader, use
+        
+        # sampler = WeightedRandomSampler(weights=[self.n_potholes/self.__len__(), self.n_background/self.__len__()], num_samples=self.__len__, replacement=True)
+        
+        image_name = self.boxes[idx]['image']
+        box = self.boxes[idx]['box']
+        
+        image = cv2.imread(os.path.join(dir, 'annotated-images', image_name + '.jpg'))
+        
+        image = image[box[1]:box[3], box[0]:box[2]] #ymin:ymax, xmin:xmax
+        
+        image = transform(image)
+        
+        
+        
+        
+        
+    
+    
 
 name, boxes = read_content("file.xml")

@@ -52,8 +52,8 @@ def required_proposals(threshold=0.7):
             positive_proposals_list[img_index, next_limit_index] = positive_proposals
             next_limit_index += 1
 
-        # Calculate the mean positive proposals at each limit across all images
-        mean_positive_proposals = np.mean(positive_proposals_list, axis=0)
+    # Calculate the mean positive proposals at each limit across all images
+    mean_positive_proposals = np.mean(positive_proposals_list, axis=0)
 
     # Print the results
     print("Mean positive proposals at each limit:", mean_positive_proposals)
