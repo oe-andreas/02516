@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import random
 import re
+import torch
+import numpy as np
+
 
 #Reads xml files
 def parse_xml(xml_file):
@@ -342,6 +345,86 @@ def create_batch(class_0, class_1, batch_size, p1):
 
     return merge_classes(background,class1)
 
+
+
+# Loads image and takes all its proposals and makes crops of them. 
+#Returns batch of 75/25 split of negative/positive proposals
+#(also resizes)
+def load_and_crop_image(dim, path, class_1,class_0,id):
+    # Resize dimensions
+    n = dim[0]
+    m = dim[1]  # Replace with desired dimensions
+
+    #finds how many positive proposals and negative proposals so we have a 75/25 split
+    num_of_class_1 = len(class_1)
+    num_of_class_0 = 3*num_of_class_1
+
+    # Load the image
+    image = Image.open(path+"img-"+str(id)+".jpg")
+
+    class_0_ran = random.sample(class_0, num_of_class_0)
+
+    # Initialize X_batch and Y_batch
+    X_batch = []
+    Y_batch = []
+
+    # Process each annotation
+    for annotation in class_1:
+        bbox = annotation['bbox']
+        class_value = annotation['class']
+
+        # Crop the image using the bounding box
+        crop = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+            
+        # Resize the crop
+        
+        resized_crop = crop.resize((n, m), Image.LANCZOS)
+        # Convert to a tensor (normalizing pixel values to [0, 1])
+        tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0
+
+        # Add the tensor crop and class value to the respective batches
+        X_batch.append(tensor_crop)
+        Y_batch.append(class_value)
+
+    for annotation in class_0_ran:
+        bbox = annotation['bbox']
+        class_value = annotation['class']
+
+        # Crop the image using the bounding box
+        crop = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+        #print(f"Original crop size: {crop.size}")
+        # Resize the crop
+        # Resize the crop
+        
+        resized_crop = crop.resize((n, m), Image.LANCZOS)
+        
+        #print(f"Resized crop size: {resized_crop.size}")
+        #print("")
+        # Convert to a tensor (normalizing pixel values to [0, 1])
+        tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0
+
+        # Add the tensor crop and class value to the respective batches
+        X_batch.append(tensor_crop)
+        Y_batch.append(class_value)
+    
+
+
+    # Stack X_batch into a single tensor for batched processing
+    X_batch = torch.stack(X_batch)
+    Y_batch = torch.tensor(Y_batch, dtype=torch.long)
+
+    # Shuffle X_batch and Y_batch
+    indices = torch.randperm(X_batch.size(0))  # Generate shuffled indices
+    X_batch = X_batch[indices]
+    Y_batch = Y_batch[indices]
+
+    return X_batch, Y_batch
+
+
+#Extracts the number from a image name
+def extract_number(string):
+        match = re.search(r'\d+', string)
+        return int(match.group()) if match else None
 
 
 

@@ -1,53 +1,76 @@
 from xml.etree import ElementTree as ET
 import os
 
+from utils import read_json, split_json_by_class, read_content, extract_number
+from utils import load_and_crop_image, load_test_and_train
+
 class load_images():
-    def __init__(self, train = True, dir = "Potholes"):
-        # load splits.json
-        with open(os.path.join(dir, 'splits.json')) as f:
-            splits = json.load(f)
-            
-        # extract xml file names
-        keyword = "train" if train else "test"
-        self.xml_names = splits[keyword]        
+    def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128]):
+        """
+        Loads list of training or test image names. 
+        Also initializes the crop dimension
+        """
+
+        # loads a list of training image names and test image names
+        train_data, test_data = load_test_and_train()
+        
+        #given train input we define what data we use.
+        if train:
+            self.data = train_data
+        else:
+            self.data = test_data   
+        
+        self.dim = dim
     
     
     def __len__(self):
         'Returns the total number of samples'
-        return len(self.xml_names)
+        return len(self.data)
 
     def __getitem__(self, idx):
-        #open xml file
-        xml_file = self.xml_names[idx]
+        """
+        Return:
+
+        X_batch: size - tensor[n, 3, self.dim[0], self.dim[1]]
+        (n = number of negative and positive proposals so their is a 75/25 split between them)
+        - X_batch is a tensor of cropped and resized images taken from our original image
+
+        Y_batch: size - tensor[n]
+        - Y_batch is just our class value for the given crop
+
+        Note: X_batch and Y_batch are shuffled.
+        """
+
+        #loads name of image
+        image = self.data[idx]
+
+        #gets id number of image 
+        id = extract_number(image)
+
+        #Reads images corresponding "img-{id}_ss.json" file
+        json = read_json("img-"+str(id)+"_ss.json")
         
-        #parse xml file
-        tree = ET.parse(os.path.join(dir, 'annotated-images', xml_file))
-        root = tree.getroot()
+        #Reads "img-{id}.xml" file
+        path = "Potholes/annotated-images/"
+        _, list_with_all_boxes = read_content(path+image)
+
+        #splits all proposals into three. one for background, foreground and none
+        class_0, class_1, class_none = split_json_by_class(json)
+
+        #adds ground truth BB to the set of positive proposals.
+        # we give ground truth BB class=1 and IOU = 1
+        for bbox in list_with_all_boxes:
+            class_1.append({'bbox': bbox, 'class': 1, 'iou': 1.0})
         
-        filename = root.find('filename').text
+        #loads proposals and their class value
+        X_batch, Y_batch= load_and_crop_image(self.dim,path,class_1,class_0,id)
 
-        list_with_all_boxes = []
-        
-        #strip .xml and replace with .jpg
-        filename = filename[:-4] + ".jpg"
-        
-        image = cv2.imread(os.path.join(dir, 'annotated-images', filename))
 
-        for box in root.iter('object'):
+        return X_batch, Y_batch
 
-            ymin, xmin, ymax, xmax = None, None, None, None
 
-            ymin = int(box.find("bndbox/ymin").text)
-            xmin = int(box.find("bndbox/xmin").text)
-            ymax = int(box.find("bndbox/ymax").text)
-            xmax = int(box.find("bndbox/xmax").text)
 
-            list_with_single_boxes = [xmin, ymin, xmax, ymax]
-            list_with_all_boxes.append(list_with_single_boxes)
-
-        return image, list_with_all_boxes
-    
-    
+"""   
 class PotholesDataset(Dataset):
     def __init__(self, train = True, transform, dir = "Potholes", k1 = 0.3, k2 = 0.7):
         
@@ -119,3 +142,4 @@ class PotholesDataset(Dataset):
     
 
 name, boxes = read_content("file.xml")
+""" 

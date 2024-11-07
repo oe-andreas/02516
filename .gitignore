@@ -13,6 +13,6 @@ __pycache__/
 # Ignore all files in graphics
 Segmentation/graphics/*
 Object detection/graphics/*
-
+Object detection/submit.sh
 # Ignore all .pth files
 *.pth
