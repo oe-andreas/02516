@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 
 class EfficientNetWithBBox(nn.Module):
-    def __init__(self, model_name='efficientnet_b0', num_classes=1, bbox_output_size=4, pretrained=True):
+    def __init__(self, model_name='efficientnet_b5', num_classes=1, bbox_output_size=4, pretrained=True):
         super(EfficientNetWithBBox, self).__init__()
         
         # Load the model directly within the class
