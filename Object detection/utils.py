@@ -389,7 +389,7 @@ def load_and_crop_image(dim, path, class_1, class_0, id,gtbbox,t_vals):
     n = dim[0]
     m = dim[1]  # Replace with desired dimensions
 
-    #finds how many positive proposals and negative proposals so we have a 75/25 split
+    # Finds how many positive proposals and negative proposals so we have a 75/25 split
     num_of_class_1 = len(class_1)
     num_of_class_0 = 3*num_of_class_1
 
@@ -410,9 +410,9 @@ def load_and_crop_image(dim, path, class_1, class_0, id,gtbbox,t_vals):
         # Crop the image using the bounding box
         crop = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
         
-        # Resize the crop
-        
+        # Resize the cropped image to (n,m)
         resized_crop = crop.resize((n, m), Image.LANCZOS)
+
         # Convert to a tensor (normalizing pixel values to [0, 1])
         tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 #permute to Channels x Height x Width
 
@@ -427,9 +427,8 @@ def load_and_crop_image(dim, path, class_1, class_0, id,gtbbox,t_vals):
         # Crop the image using the bounding box
         crop = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
         #print(f"Original crop size: {crop.size}")
-        # Resize the crop
-        # Resize the crop
-        
+
+        # Resize the cropped image to (n,m)
         resized_crop = crop.resize((n, m), Image.LANCZOS)
         
         #print(f"Resized crop size: {resized_crop.size}")

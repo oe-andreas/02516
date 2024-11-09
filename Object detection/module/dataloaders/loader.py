@@ -78,7 +78,6 @@ class load_images():
 class load_images_fixed_batch():
     #as above, except for fixed batch size
     
-    
     def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128], batch_size = 64):
         """
         Loads list of training or test image names. 
@@ -87,10 +86,10 @@ class load_images_fixed_batch():
         self.dim = dim
         self.batch_size = batch_size
         
-        # loads a list of training image names and test image names
+        # Loads a list of training image names and test image names
         train_data, test_data = load_test_and_train()
     
-        #given train input we define what data we use.
+        # Given train input we define what data we use.
         if train:
             self.data = train_data
             self.len = len(train_data)
@@ -104,52 +103,52 @@ class load_images_fixed_batch():
         gtbbox_batch = []
         t_vals_batch = []
 
-        #Loops over each image
+        # Loops over each image
         for idx in range(self.len):
-            #loads name of image
+            # Loads name of image
             image = self.data[idx]  
 
             gtbbox = []
             t_vals = []
 
-            #gets id number of image 
+            # Gets id number of image 
             id = extract_number(image)
 
-            #Reads images corresponding "img-{id}_ss.json" file
+            # Reads images corresponding "img-{id}_ss.json" file
             json = read_json("img-"+str(id)+"_ss.json")
             
-            #Reads "img-{id}.xml" file
+            # Reads "img-{id}.xml" file
             path = "Potholes/annotated-images/"
             _, list_with_all_boxes = read_content(path+image)
 
-            #splits all proposals into three. one for background, foreground and none
+            # Splits all proposals into three. one for background, foreground and none
             class_0, class_1, class_none = split_json_by_class(json)
             
-            #loops over each positive proposal 
+            # Loops over each positive proposal 
             for prop in class_1:
-                #initialize best iou and gtbbox
+                # Initialize best iou and gtbbox
                 best_iou = 0
                 best_btbbox = 0
                 prop_bbox = prop['bbox']
                 
-                #loop over all gt bbox in image
+                # Loop over all gt bbox in image
                 for bbox in list_with_all_boxes:
-                    #computes the iou
+                    # Computes the iou
                     iou = calculate_iou(prop_bbox,bbox)
-                    #Updates best gtbbox
+                    # Updates best gtbbox
                     if iou > best_iou:
                         best_iou = iou
                         best_btbbox = bbox
                 
-                #saves the best bbox to a list
+                # Saves the best bbox to a list
                 gtbbox.append(torch.tensor(best_btbbox, dtype=torch.long))
-                #computes and saves the gt t-values
-                
-                t_vals.append( torch.tensor(compute_t(best_btbbox,prop_bbox), dtype=torch.long) )
+
+                # Computes and saves the gt t-values
+                t_vals.append(torch.tensor(compute_t(best_btbbox,prop_bbox), dtype=torch.long) )
 
 
-            #adds ground truth BB to the set of positive proposals.
-            # we give ground truth BB class=1 and IOU = 1
+            # Adds ground truth BB to the set of positive proposals.
+            # We give ground truth BB class=1 and IOU = 1
             for bbox in list_with_all_boxes:
                 class_1.append({'bbox': bbox, 'class': 1, 'iou': 1.0})
 
@@ -158,7 +157,7 @@ class load_images_fixed_batch():
                 t_vals.append(torch.tensor([0,0,0,0], dtype=torch.long)) #?? ved ik om vi skal gøre det på den her måde
             
             #loads proposals and their class value
-            X_batch, Y_batch, gtbbox, t_vals = load_and_crop_image(self.dim,path,class_1,class_0,id,gtbbox,t_vals)
+            X_batch, Y_batch, gtbbox, t_vals = load_and_crop_image(self.dim, path, class_1, class_0, id, gtbbox, t_vals)
             # Append tensors to the lists
             X_batches.append(X_batch)
             Y_batches.append(Y_batch)

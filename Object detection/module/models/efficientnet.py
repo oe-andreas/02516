@@ -1,24 +1,19 @@
 import timm
-import torch
 import torch.nn as nn
 
 class EfficientNetWithBBox(nn.Module):
     def __init__(self, model_name='efficientnet_b5', num_classes=1, bbox_output_size=4, pretrained=True):
         super(EfficientNetWithBBox, self).__init__()
         
-        # Load the model directly within the class
+        # Load the model using timm and set num_classes for classification output
         self.model = timm.create_model(model_name, pretrained=pretrained, num_classes=num_classes)
         
-        # Modify the classifier (if necessary) for binary classification
+        # Modify the classifier if it exists, for binary classification
         if hasattr(self.model, 'classifier'):
             self.model.classifier = nn.Linear(self.model.classifier.in_features, num_classes)
         
-        # Unfreeze the final layer (classifier) to allow fine-tuning
+        # Unfreeze final classifier layer for fine-tuning
         for param in self.model.classifier.parameters():
-            param.requires_grad = True
-        
-        # Optionally, unfreeze some layers in `features` for fine-tuning
-        for param in self.model.features.parameters():
             param.requires_grad = True
 
         # Add a bounding box regression head
@@ -28,8 +23,9 @@ class EfficientNetWithBBox(nn.Module):
         # Get classification score
         class_score = self.model(x)
         
-        # Get bounding box coordinates using global average pooling on feature maps
-        bbox = self.bbox_regressor(self.model.features(x).mean([2, 3]))
+        # Extract features using forward_features for bbox regression
+        features = self.model.forward_features(x)
+        bbox = self.bbox_regressor(features.mean([2, 3]))  # Apply global average pooling
 
         return class_score, bbox
 

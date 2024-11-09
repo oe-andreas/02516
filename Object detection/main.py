@@ -1,34 +1,38 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
 
-"""
-# Loads dataloader class
-# from module.dataloaders.loader import load_images
-
-#models input size
-#dim = [128,128]
-
-#Loads training data
-loader_train = load_images(train=True,dim=dim)
-#Loads test data
-loader_test = load_images(train=False,dim=dim)
-
-print("Number of training images: ", len(loader_train))
-print("Number of test images: ", len(loader_test))
-
-#Prints size of the first 5 batches in training data
-for i in range(5):
-    X_batch , Y_batch =  loader_train[i]
-    print(X_batch.shape)
-"""
-
-
+# Load local modules
 from module.dataloaders.loader import load_images_fixed_batch
-train = True
-batch_size = 64
-dim = [128,128]
-loader = load_images_fixed_batch(train,dim=dim,batch_size=batch_size)
+from module.models.efficientnet import EfficientNetWithBBox
+from module.losses.losses import conditional_bbox_mse_loss
+from train import train
 
-for X_batch, Y_batch, gt_batch, t_batch in loader:
-    print("X shape: ",X_batch.shape)
-    print("Y shape: ",Y_batch.shape)
-    print("gt shape: ",gt_batch.shape)
-    print("t shape: ",t_batch.shape)
+# Initialize model and data loader
+model = EfficientNetWithBBox(model_name='efficientnet_b5', num_classes=1, bbox_output_size=4, pretrained=True)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Load data loader
+train_data_loader = load_images_fixed_batch(train=True, dim=[128, 128], batch_size=64)
+
+# Define the loss functions
+classification_loss_fn = nn.BCEWithLogitsLoss()  # Binary classification loss
+bbox_loss_fn = conditional_bbox_mse_loss
+
+# Define optimizer
+optimizer = optim.Adam(model.parameters(), lr=1e-4)
+
+# Initialize the scheduler
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
+
+# Start training
+train(
+    model=model,
+    data_loader=train_data_loader,
+    optimizer=optimizer,
+    scheduler=scheduler,
+    classification_loss_fn=classification_loss_fn,
+    bbox_loss_fn=bbox_loss_fn,
+    epochs=5,
+    device=device
+)
