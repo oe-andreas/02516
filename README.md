@@ -5,8 +5,10 @@
 - [] Create a training loop. Note that loss should combine regression and classification loss.
 - [] Implement NMS for part 3
 - [] Consider making a flow chart of everything that goes on at test time (images goes into SS -> bboxes... Each bbox goes through Network... boxes are adjusted according to bbox regression... NMS... etc)
+- [] Consider smooth L1 Hubert loss for BBOX regression (suggested by ChatGPT)
 
 
 ## Questions
 - What recall/MABO is acceptable?
 - Is overall stratified sampling ok, or should it be per-batch?
+- How should we sub-select proposals from SS and EB? Apply the method also when plotting Recall/MABO
