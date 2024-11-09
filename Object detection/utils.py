@@ -427,4 +427,35 @@ def extract_number(string):
         return int(match.group()) if match else None
 
 
+def alter_box(proposal_box, t):
+    #proposal_box should be in [xmin, ymin, xmax, ymax] format
+    #t should be tx, ty, tw, th as defined on the slides
+    #see also compute_t
+    
+    px, py, pw, ph = minmax_to_wh(*proposal_box)
+    tx, ty, tw, th = t
+    
+    bx = px + pw*tx
+    by = py + ph*ty
+    bw = pw*np.exp(tw)
+    bh = ph*np.exp(th)
+    
+    return wh_to_minmax(bx, by, bw, bh)
+    
 
+def compute_t(true_box, proposal_box):
+    #both boxes should be in [xmin, ymin, xmax, ymax] format
+    #returns tx, ty, tw, th as defined on the slides
+    
+    bx, by, bw, bh = minmax_to_wh(*true_box)
+    px, py, pw, ph = minmax_to_wh(*proposal_box)
+    
+    tx = (bx - px)/pw
+    ty = (by - py)/ph
+    tw = np.log(bw/pw)
+    th = np.log(bh/ph)
+    
+    return tx, ty, tw, th
+    
+    
+    
