@@ -27,5 +27,8 @@ batch_size = 64
 dim = [128,128]
 loader = load_images_fixed_batch(train,dim=dim,batch_size=batch_size)
 
-for X_batch, Y_batch in loader:
-    print(X_batch.shape)
+for X_batch, Y_batch, gt_batch, t_batch in loader:
+    print("X shape: ",X_batch.shape)
+    print("Y shape: ",Y_batch.shape)
+    print("gt shape: ",gt_batch.shape)
+    print("t shape: ",t_batch.shape)

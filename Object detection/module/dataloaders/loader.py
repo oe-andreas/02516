@@ -4,6 +4,7 @@ import torch
 
 from utils import read_json, split_json_by_class, read_content, extract_number
 from utils import load_and_crop_image, load_test_and_train
+from utils import calculate_iou, compute_t
 
 class load_images():
     # a generator that yields batches. A batch consists of every positive proposal and a random sample of negative proposals FROM THE SAME IMAGE
@@ -100,10 +101,16 @@ class load_images_fixed_batch():
         # Initialize lists to collect tensors
         X_batches = []
         Y_batches = []
+        gtbbox_batch = []
+        t_vals_batch = []
 
+        #Loops over each image
         for idx in range(self.len):
             #loads name of image
-            image = self.data[idx]
+            image = self.data[idx]  
+
+            gtbbox = []
+            t_vals = []
 
             #gets id number of image 
             id = extract_number(image)
@@ -117,21 +124,62 @@ class load_images_fixed_batch():
 
             #splits all proposals into three. one for background, foreground and none
             class_0, class_1, class_none = split_json_by_class(json)
+            
+            #loops over each positive proposal 
+            for prop in class_1:
+                #initialize best iou and gtbbox
+                best_iou = 0
+                best_btbbox = 0
+                prop_bbox = prop['bbox']
+                
+                #loop over all gt bbox in image
+                for bbox in list_with_all_boxes:
+                    #computes the iou
+                    iou = calculate_iou(prop_bbox,bbox)
+                    #Updates best gtbbox
+                    if iou > best_iou:
+                        best_iou = iou
+                        best_btbbox = bbox
+                
+                #saves the best bbox to a list
+                gtbbox.append(torch.tensor(best_btbbox, dtype=torch.long))
+                #computes and saves the gt t-values
+                
+                t_vals.append( torch.tensor(compute_t(best_btbbox,prop_bbox), dtype=torch.long) )
+
 
             #adds ground truth BB to the set of positive proposals.
             # we give ground truth BB class=1 and IOU = 1
             for bbox in list_with_all_boxes:
                 class_1.append({'bbox': bbox, 'class': 1, 'iou': 1.0})
+
+                #?? ved ik om vi skal gøre det på den her måde
+                gtbbox.append(torch.tensor(bbox, dtype=torch.long))
+                t_vals.append(torch.tensor([0,0,0,0], dtype=torch.long)) #?? ved ik om vi skal gøre det på den her måde
             
             #loads proposals and their class value
-            X_batch, Y_batch = load_and_crop_image(self.dim,path,class_1,class_0,id)
+            X_batch, Y_batch, gtbbox, t_vals = load_and_crop_image(self.dim,path,class_1,class_0,id,gtbbox,t_vals)
             # Append tensors to the lists
             X_batches.append(X_batch)
             Y_batches.append(Y_batch)
 
+
+            #print("gtbos: ",gtbbox)
+            #print("t: ",t_vals)
+            gtbbox_batch.append(gtbbox)
+            t_vals_batch.append(t_vals)
+        #image loop ends:
+
+        
+       
+        
+        #print(X_batches[0])
+        #print(Y_batches[0])
         # Stack all tensors after the loop
         X_stacked = torch.cat(X_batches, dim=0)  # Concatenate along the batch dimension
         Y_stacked = torch.cat(Y_batches, dim=0)  # Concatenate along the batch dimension
+        gtbbox_stacked = torch.cat(gtbbox_batch, dim=0)  # Concatenate along the batch dimension
+        t_stacked = torch.cat(t_vals_batch, dim=0)  # Concatenate along the batch dimension
 
         # Shuffle the indices
         indices = torch.randperm(X_stacked.size(0))
@@ -143,8 +191,13 @@ class load_images_fixed_batch():
         X_batches = [X_stacked[batch] for batch in batches]
         Y_batches = [Y_stacked[batch] for batch in batches]
 
+        gtbbox_batches = [gtbbox_stacked[batch] for batch in batches]
+        t_batches = [t_stacked[batch] for batch in batches]
+
         self.X_data = X_batches
         self.Y_data = Y_batches
+        self.gtbbox = gtbbox_batches
+        self.t = t_batches
 
         # Output number of batches
         #print(f"Number of batches: {len(X_batches)}")
@@ -176,9 +229,11 @@ class load_images_fixed_batch():
         """
         X_batch = self.X_data[idx]
         Y_batch = self.Y_data[idx]
+        gtbbox_batch = self.gtbbox[idx] 
+        t_batch = self.t[idx] 
         
 
-        return X_batch, Y_batch
+        return X_batch, Y_batch, gtbbox_batch, t_batch
 
 
 

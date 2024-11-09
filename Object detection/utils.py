@@ -376,7 +376,7 @@ def create_batch(class_0, class_1, batch_size, p1):
 # Loads image and takes all its proposals and makes crops of them. 
 #Returns batch of 75/25 split of negative/positive proposals
 #(also resizes)
-def load_and_crop_image(dim, path, class_1, class_0, id):
+def load_and_crop_image(dim, path, class_1, class_0, id,gtbbox,t_vals):
     #inputs
     # dim: tuple of two integers, desired dimensions after resizing
     # path: path at which to find image files (i.e. "Potholes/annotated-images/")
@@ -437,11 +437,17 @@ def load_and_crop_image(dim, path, class_1, class_0, id):
         # Convert to a tensor (normalizing pixel values to [0, 1])
         tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0
 
+
+        #?? ved ik om vi skal gøre det på den her måde
+        gtbbox.append(torch.tensor(bbox, dtype=torch.long)) #So gtbbox is its own bbox
+        t_vals.append(torch.tensor([0,0,0,0], dtype=torch.long)) # tvals are zero
+
         # Add the tensor crop and class value to the respective batches
         X_batch.append(tensor_crop)
         Y_batch.append(class_value)
     
-
+    gtbbox = torch.stack(gtbbox)
+    t_vals = torch.stack(t_vals)
 
     # Stack X_batch into a single tensor for batched processing
     X_batch = torch.stack(X_batch)
@@ -452,7 +458,10 @@ def load_and_crop_image(dim, path, class_1, class_0, id):
     X_batch = X_batch[indices]
     Y_batch = Y_batch[indices]
 
-    return X_batch, Y_batch
+    gtbbox_batch = gtbbox[indices]
+    t_vals_batch = t_vals[indices]
+
+    return X_batch, Y_batch, gtbbox_batch, t_vals_batch
 
 
 #Extracts the number from a image name
