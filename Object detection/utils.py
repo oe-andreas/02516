@@ -13,6 +13,9 @@ import numpy as np
 
 #Reads xml files
 def parse_xml(xml_file):
+    #input: xml_file object
+    #output: list of bounding boxes for potholes in [xmin, ymin, xmax, ymax] format
+    
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
@@ -33,6 +36,9 @@ def parse_xml(xml_file):
 
 # computes iou of two bounding boxes
 def calculate_iou(boxA, boxB):
+    #input: two bounding boxes in [xmin, ymin, xmax, ymax] format
+    #output: iou value
+    
     # Calculate the (x, y) coordinates of the intersection rectangle
     xA = max(boxA[0], boxB[0])
     yA = max(boxA[1], boxB[1])
@@ -54,6 +60,9 @@ def calculate_iou(boxA, boxB):
 
 # Does selective search for a single image
 def selective_search(image):
+    #input: image object
+    #output: list of bounding boxes in [x, y, width, height] format. OBS! NOT [xmin, ymin, xmax, ymax]
+    
     ss = cv2.ximgproc.segmentation.createSelectiveSearchSegmentation()
     ss.setBaseImage(image)
     ss.switchToSelectiveSearchFast()
@@ -62,14 +71,24 @@ def selective_search(image):
 
 # Does selective search for all images
 def selective_search_all():
+    #computes SS proposals for all images and saves them in json files
+    #storage format: For image i, stores 'img-i_ss.json', which contains a list of dicts. Each dict is
+    #{
+    #           'bbox': [x_min, y_min, x_max, y_max], #list of ints
+    #           'class': pothole_class,  #0, 1 or None. 0 if max_iou < 0.3, 1 if max_iou > 0.7, None otherwise
+    #           'iou': max_iou #the max iou value between the bbox and any GT pothole bbox
+    #       }
+    
+    
+    
     for i in tqdm(range(1, 666), desc="Processing Images", unit="image"):
         # Load the image
-        image = cv2.imread(f'Potholes/annotated-images/img-{i}.jpg', 1)
+        image = cv2.imread(f'Potholes/annotated-images/img-{i}.jpg', 1) #,1 means read as color image
 
         # Run selective search
         ss_results = selective_search(image)
 
-        # Parse the XML to get the pothole bounding box
+        # Parse the XML to get the pothole bounding boxes
         xml_file = f'Potholes/annotated-images/img-{i}.xml'
         pothole_bboxes = parse_xml(xml_file)
 
@@ -105,9 +124,45 @@ def selective_search_all():
             json.dump(results_list, file)
 
 
+
+def return_edge_box_proposals(image, max_boxes=100, min_score=0.01, Canny_lower_threshold=50, Canny_upper_threshold=150):
+    # Finds edge box proposals for a single image
+    #input:
+    # image: image object (np array)
+    # max_boxes: maximum number of boxes to return
+    # min_score: minimum score for a box to be considered
+    # Canny_lower_threshold: lower threshold for Canny edge detection
+    # Canny_upper_threshold: upper threshold for Canny edge detection
+    #output: list of bounding boxes in [x, y, width, height] format. OBS! NOT [xmin, ymin, xmax, ymax]
+    
+    
+    
+    if image is None or not isinstance(image, np.ndarray):
+        raise ValueError("Image must be a valid NumPy array.")
+
+    if len(image.shape) == 3 and image.shape[2] == 3:
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    else:
+        image_rgb = image
+
+    edge_boxes = cv2.ximgproc.createEdgeBoxes()
+    edge_boxes.setMaxBoxes(max_boxes)
+    edge_boxes.setMinScore(min_score)
+
+    edges = cv2.Canny(image, Canny_lower_threshold, Canny_upper_threshold)
+    edges = edges.astype(np.float32)  # Convert edge map to CV_32F
+    orientation_map = np.zeros_like(edges, dtype=np.float32)  # Placeholder orientation map as CV_32F
+
+    bbs = edge_boxes.getBoundingBoxes(edges, orientation_map)[0]
+
+    return bbs
+
+
+
 # Loads the train and test splist from the "splits" json file
 def load_test_and_train():
     # Loads the train and test splist from the "splits" json file
+    #output: train_data, test_data where each is a list of strings
 
     #path to file
     path = "Potholes/splits.json"
@@ -126,6 +181,8 @@ def load_test_and_train():
 def read_content(xml_file: str):
     # Reads content of given xml file
     # Return image name and list of bounding box values
+    
+    # duplicate of parse_xml function, except this one returns image name as well
 
     tree = ET.parse(xml_file)
     root = tree.getroot()
@@ -149,17 +206,19 @@ def read_content(xml_file: str):
     return filename, list_with_all_boxes
 
 # plots image from data with its ground truth bounding boxes
-def plot_image_with_boxes(image_path):
+def plot_image_with_boxes(image_path, additional_boxes = None):
     """
-    Plots an image with bounding boxes in xmin, ymin, xmax, ymax format.
+    Plots an image with GT bounding boxes in xmin, ymin, xmax, ymax format.
     
     Parameters:
-    - image_path (str): Path to the image file.
-    - boxes (list): List of bounding boxes, where each box is [xmin, ymin, xmax, ymax].
+    - image_path (str): Basename of the image file, such as "img-1.jpg".
+    - additional_boxes (list of lists): List of additional bounding boxes to plot, each in [xmin, ymin, xmax, ymax] format.
     """
     path = "Potholes/annotated-images/"
     name, boxes = read_content(path + image_path)
 
+    boxes = boxes + additional_boxes if additional_boxes is not None else boxes
+    
     # Load image
     image = Image.open(path + name)
     fig, ax = plt.subplots(1)
@@ -193,7 +252,7 @@ def return_image_path(image_path):
 
 #converts from [x,y,w,h] to [xmin, ymin, xmax, ymax]
 def wh_to_minmax(x, y, width, height):
-    # Converts the bounding box values, x, y, width to xmin, ymin, xmax, ymax
+    # Converts the bounding box values, x, y, width, height to xmin, ymin, xmax, ymax
     xmin = x
     ymin = y
     xmax = x + width
@@ -202,12 +261,13 @@ def wh_to_minmax(x, y, width, height):
 
 #converts from [xmin, ymin, xmax, ymax] to [x,y,w,h] 
 def minmax_to_wh(xmin, ymin, xmax, ymax):
-    # Converts the bounding box values [xmin, ymin, xmax, ymax] to  ]x, y, width]
+    # Converts the bounding box values [xmin, ymin, xmax, ymax] to  [x, y, width, height]
     x = xmin
     y = ymin
     w = xmax - xmin
     h = ymax - ymin
     return x, y, w, h
+
 
 # compares proposal BB with all GT BB from image. Also sorts them using k1 and k2
 def compare_bb(image_path, bb, k1, k2):
@@ -217,7 +277,6 @@ def compare_bb(image_path, bb, k1, k2):
 
     path = "Potholes/annotated-images/"
     name, boxes = read_content(path + image_path)
-
 
     # Load image
     image = Image.open(path + name)
@@ -337,6 +396,7 @@ def create_1_0_none_splits():
 # with p1 % background proposals and 1-p1 pothole proposals.
 def create_batch(class_0, class_1, batch_size, p1):
 
+
     num_background = int(batch_size * (p1))
     num_class = batch_size - num_background
 
@@ -346,11 +406,18 @@ def create_batch(class_0, class_1, batch_size, p1):
     return merge_classes(background,class1)
 
 
-
 # Loads image and takes all its proposals and makes crops of them. 
 #Returns batch of 75/25 split of negative/positive proposals
 #(also resizes)
-def load_and_crop_image(dim, path, class_1,class_0,id):
+def load_and_crop_image(dim, path, class_1, class_0, id):
+    #inputs
+    # dim: tuple of two integers, desired dimensions after resizing
+    # path: path at which to find image files (i.e. "Potholes/annotated-images/")
+    # class_1: list of dictionaries with 'bbox' and 'class' keys for positive proposals
+    # class_0: list of dictionaries with 'bbox' and 'class' keys for negative proposals
+    # id: integer, image id number
+    
+    
     # Resize dimensions
     n = dim[0]
     m = dim[1]  # Replace with desired dimensions
@@ -375,12 +442,12 @@ def load_and_crop_image(dim, path, class_1,class_0,id):
 
         # Crop the image using the bounding box
         crop = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
-            
+        
         # Resize the crop
         
         resized_crop = crop.resize((n, m), Image.LANCZOS)
         # Convert to a tensor (normalizing pixel values to [0, 1])
-        tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0
+        tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 #permute to Channels x Height x Width
 
         # Add the tensor crop and class value to the respective batches
         X_batch.append(tensor_crop)
@@ -423,8 +490,10 @@ def load_and_crop_image(dim, path, class_1,class_0,id):
 
 #Extracts the number from a image name
 def extract_number(string):
-        match = re.search(r'\d+', string)
-        return int(match.group()) if match else None
+    #as get_id function, but for a single string
+    
+    match = re.search(r'\d+', string)
+    return int(match.group()) if match else None
 
 
 def alter_box(proposal_box, t):

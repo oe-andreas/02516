@@ -6,6 +6,8 @@ from utils import read_json, split_json_by_class, read_content, extract_number
 from utils import load_and_crop_image, load_test_and_train
 
 class load_images():
+    # a generator that yields batches. A batch consists of every positive proposal and a random sample of negative proposals FROM THE SAME IMAGE
+    
     def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128]):
         """
         Loads list of training or test image names. 
@@ -73,6 +75,9 @@ class load_images():
 
 
 class load_images_fixed_batch():
+    #as above, except for fixed batch size
+    
+    
     def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128], batch_size = 64):
         """
         Loads list of training or test image names. 
@@ -80,10 +85,10 @@ class load_images_fixed_batch():
         """
         self.dim = dim
         self.batch_size = batch_size
+        
         # loads a list of training image names and test image names
         train_data, test_data = load_test_and_train()
-        
-
+    
         #given train input we define what data we use.
         if train:
             self.data = train_data
