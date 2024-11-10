@@ -9,20 +9,27 @@ from utils import calculate_iou, compute_t
 class load_images():
     # a generator that yields batches. A batch consists of every positive proposal and a random sample of negative proposals FROM THE SAME IMAGE
     
-    def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128]):
+    def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128], xmls = None):
         """
         Loads list of training or test image names. 
         Also initializes the crop dimension
-        """
-
-        # loads a list of training image names and test image names
-        train_data, test_data = load_test_and_train()
         
-        #given train input we define what data we use.
-        if train:
-            self.data = train_data
+        xmls: If None, use train/test split. Otherwise, list of xml file names to load: ['img-1.xml', 'img-2.xml', ...].
+        """
+        
+        if xmls is None:
+            # loads a list of training image names and test image names
+            train_data, test_data = load_test_and_train()
+            
+            #given train input we define what data we use.
+            if train:
+                self.data = train_data
+            else:
+                self.data = test_data   
+                
+        
         else:
-            self.data = test_data   
+            self.data = xmls
         
         self.dim = dim
     
@@ -78,24 +85,30 @@ class load_images():
 class load_images_fixed_batch():
     #as above, except for fixed batch size
     
-    def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128], batch_size = 64):
+    def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128], batch_size = 64, xmls = None):
         """
         Loads list of training or test image names. 
         Also initializes the crop dimension
+        
+        xmls: If None, use train/test split. Otherwise, list of xml file names to load: ['img-1.xml', 'img-2.xml', ...].
         """
         self.dim = dim
         self.batch_size = batch_size
         
-        # Loads a list of training image names and test image names
-        train_data, test_data = load_test_and_train()
-    
-        # Given train input we define what data we use.
-        if train:
-            self.data = train_data
-            self.len = len(train_data)
+        if xmls is None:
+            # Loads a list of training image names and test image names
+            train_data, test_data = load_test_and_train()
+        
+            # Given train input we define what data we use.
+            if train:
+                self.data = train_data
+            else:
+                self.data = test_data 
         else:
-            self.data = test_data 
-            self.len = len(test_data)  
+            self.data = xmls
+        
+        
+        self.len = len(self.data)
         
         # Initialize lists to collect tensors
         X_batches = []
