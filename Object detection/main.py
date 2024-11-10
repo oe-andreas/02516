@@ -36,3 +36,5 @@ train(
     epochs=5,
     device=device
 )
+
+torch.save(model.state_dict(), f'Trained_models/model.pth')
