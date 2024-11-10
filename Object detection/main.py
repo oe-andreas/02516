@@ -53,7 +53,7 @@ train_oe(
     scheduler=scheduler,
     #classification_loss_fn=classification_loss_fn,
     #bbox_loss_fn=bbox_loss_fn,
-    loss = combined_loss,
+    combined_loss = combined_loss,
     epochs=5,
     device=device
 )
