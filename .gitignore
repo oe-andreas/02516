@@ -1,6 +1,8 @@
 Segmentation/submit.sh
 Segmentation/submit_test_oe.sh
 
+
+
 # Ignore all __pycache__ directories
 __pycache__/
 # Ignore all .pyc files in the repository
