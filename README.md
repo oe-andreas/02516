@@ -1,6 +1,8 @@
 ## ToDo Object Detection
 - [] Visualize some images with GT boxes, SS boxes and EB boxes, to understand the poor recall/MABO.
 - [] Play around with input parameters for edge boxes and SS, since our recall/MABO is not very impressive right now. Most easily done like in the section 'edge boxes' in test_oe.ipynb (should probably be moved to HPC for speed though). Should probably reduce to a subset of images so that different parameters can easily be tested
+- [] Make validation set and change code to use it
+- [] Create a test loop and implement some score functions
 
 - [] Start training seriously, and visualize results to see if we can improve anything. Stuff to play around with
     - Weighting between Classification Loss and Regression loss
