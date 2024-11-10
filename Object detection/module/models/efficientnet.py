@@ -20,12 +20,17 @@ class EfficientNetWithBBox(nn.Module):
         self.bbox_regressor = nn.Linear(self.model.classifier.in_features, bbox_output_size)
 
     def forward(self, x):
+        # Extract features using forward_features
+        features = self.model.forward_features(x)
+        
+        # Global average pooling
+        features = self.model.global_pool(features)
+        
         # Get classification score
-        class_score = self.model(x)
+        class_score = self.model.classifier(features)
         
         # Extract features using forward_features for bbox regression
-        features = self.model.forward_features(x)
-        bbox = self.bbox_regressor(features.mean([2, 3]))  # Apply global average pooling
+        bbox = self.bbox_regressor(features)  # Apply global average pooling
 
         return class_score, bbox
 
