@@ -46,5 +46,5 @@ class MultiTaskLoss(nn.Module):
         
         # Combine losses
         total_loss = self.classification_weight * class_loss + self.bbox_weight * bbox_loss
-        return total_losss
+        return total_loss
 
