@@ -85,7 +85,7 @@ class load_images():
 class load_images_fixed_batch():
     #as above, except for fixed batch size
     
-    def __init__(self, train = True, dir = "Potholes/splits.json", dim = [128,128], batch_size = 64, xmls = None):
+    def __init__(self, train = "train", dir = "Potholes/splits.json", dim = [128,128], batch_size = 64, xmls = None):
         """
         Loads list of training or test image names. 
         Also initializes the crop dimension
@@ -98,12 +98,18 @@ class load_images_fixed_batch():
         if xmls is None:
             # Loads a list of training image names and test image names
             train_data, test_data = load_test_and_train()
-        
+            
+            #splits test_data into two parts
+            mid = len(test_data) // 2
+            test = test_data[:mid]
+            val = test_data[mid:]
             # Given train input we define what data we use.
-            if train:
+            if train == "train":
                 self.data = train_data
+            elif train == "test":
+                self.data = test 
             else:
-                self.data = test_data 
+                self.data = val 
         else:
             self.data = xmls
         

@@ -24,7 +24,9 @@ t = time()
 
 
 # Load data loader
-train_data_loader = load_images_fixed_batch(train=True, dim=[128, 128], batch_size=64)
+data_type ="train" # ["train", "test", "val"]
+
+train_data_loader = load_images_fixed_batch(train=data_type, dim=[128, 128], batch_size=64)
 
 print(f"Initialized Data Loader in {time() - t:.2}s")
 print("Define loss etc")
