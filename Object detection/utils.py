@@ -9,7 +9,7 @@ import random
 import re
 import torch
 import numpy as np
-
+import os
 
 #Reads xml files
 def parse_xml(xml_file):
@@ -503,3 +503,40 @@ def compute_t(true_box, proposal_box):
     
     
     
+
+def update_json_classes(folder_path, k1, k2, custom_ending="_updated"):
+# Define the path to the annotated images folder
+    annotated_folder = os.path.join(folder_path, "annotated-images")
+    
+    # Iterate over each JSON file in the annotated-images folder
+    for filename in os.listdir(annotated_folder):
+        if filename.endswith("_ss.json"):
+            file_path = os.path.join(annotated_folder, filename)
+            
+            # Open and load the JSON data
+            with open(file_path, 'r') as file:
+                data = json.load(file)
+            
+            # Update the class field based on iou values
+            for obj in data:
+                if obj['iou'] < k1:
+                    obj['class'] = 0
+                elif obj['iou'] > k2:
+                    obj['class'] = 1
+                else:
+                    obj['class'] = None
+            
+            # Create the new filename with the custom ending
+            new_filename = filename.replace("_ss.json", f"{custom_ending}.json")
+            new_file_path = os.path.join(annotated_folder, new_filename)
+            
+            # Save the updated data to the new file
+            with open(new_file_path, 'w') as file:
+                json.dump(data, file, indent=4)
+
+    print("JSON files updated successfully.")
+
+
+
+
+

@@ -9,7 +9,7 @@
 #BSUB -n 4
 
 # Initialize Python environment
-source ../../../../02516_env/bin/activate
+source /zhome/66/4/156534/venv_1/bin/activate
 
 # Run Python script
-python3 main.py
+python3 test_F.py

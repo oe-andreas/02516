@@ -18,3 +18,4 @@ Object detection/graphics/*
 Object detection/submit.sh
 # Ignore all .pth files
 *.pth
+Object detection/submit.sh
