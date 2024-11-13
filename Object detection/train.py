@@ -72,7 +72,7 @@ def train_oe(model, train_loader, val_loader, optimizer, scheduler, combined_los
         total_epoch_loss = 0  # Track total loss for the epoch
         class_epoch_loss = 0  # Track class loss for the epoch
         bbox_epoch_loss = 0   # Track bbox regression loss for the epoch
-
+        n = 0
         # Loop over training batches
         for X_batch, Y_batch, gt_bbox, t_batch in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
             # Move data to device
@@ -96,6 +96,11 @@ def train_oe(model, train_loader, val_loader, optimizer, scheduler, combined_los
             total_epoch_loss += total_loss.item()
             class_epoch_loss += class_loss.item()
             bbox_epoch_loss += bbox_loss.item()
+            n += 1
+        # Noramlize loss
+        total_epoch_loss /= n
+        class_epoch_loss /= n
+        bbox_epoch_loss /= n
 
         # Store training losses for this epoch
         all_losses_train.append([total_epoch_loss, class_epoch_loss, bbox_epoch_loss])
@@ -105,7 +110,7 @@ def train_oe(model, train_loader, val_loader, optimizer, scheduler, combined_los
         val_total_loss = 0
         val_class_loss = 0
         val_bbox_loss = 0
-
+        n = 0
         with torch.no_grad():  # No gradients needed for validation
             for X_val, Y_val, gt_bbox_val, t_batch_val in val_loader:
                 # Move data to device
@@ -122,7 +127,12 @@ def train_oe(model, train_loader, val_loader, optimizer, scheduler, combined_los
                 val_total_loss += val_loss.item()
                 val_class_loss += val_class.item()
                 val_bbox_loss += val_bbox.item()
-
+                n += 1
+        
+        # Noramlize loss
+        val_total_loss /= n
+        val_class_loss /= n
+        val_bbox_loss /= n
         # Store validation losses for this epoch
         all_losses_val.append([val_total_loss, val_class_loss, val_bbox_loss])
 
