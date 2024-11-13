@@ -11,12 +11,16 @@
 
 
 ## TASKS
-- Implement AP
-- Train some selected models for a long time and save detailed loss history, including accuracy. Maybe IOU before and after bbox adjustment?
-- Make "different steps"-plot that we can reference. Ideas for steps (probably don't include all): Initial image --> Image with GT -->  Image with proposals --> Proposals classified and adjusted --> Final detection after NMS
+- Implement AP (Ø)
+- Clean up dataloader for RAM (Frederik)
+- Try to understand what goes wrong in Loss/train/main (Mads)
+- Make "different steps"-plot that we can reference. Ideas for steps (probably don't include all): Initial image --> Image with GT -->  Image with proposals --> Proposals classified and adjusted --> Final detection after NMS (Alex)
 - Make architecture flow chart graphic (Image -> proposal generator -> stack of proposals -> efficient net w two heads -> classification + t-values
 - Make plot of recall/mabo
-- Make plot of train/validation loss history. Consider splitting into 
+- Make plot of train/validation loss history (Alex)
+- Make final test plots given a model (Ø)
+
+- Train some selected models for a long time and save detailed loss history, including accuracy. Maybe IOU before and after bbox adjustment?
 
 
 ## Stuff to include on the poster
@@ -32,5 +36,5 @@
 - Is overall stratified sampling ok, or should it be per-batch?
 - How should we sub-select proposals from SS and EB? Apply the method also when plotting Recall/MABO. I wrote about an idea in test_oe
 - Should we create our own CNN
-- Exactly what is meant by 'evaluate classification'
 - Can we 'flip' the presentation, i.e. start with results
+    - Brief answer: depends on the lecturer, but always start with task definition ('we want to solve this task'. Maybe one full sentence)
