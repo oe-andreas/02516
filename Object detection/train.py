@@ -107,18 +107,18 @@ def train_oe(model, train_loader, val_loader, optimizer, scheduler, combined_los
         val_bbox_loss = 0
 
         with torch.no_grad():  # No gradients needed for validation
-            for X_val, Y_val, gt_bbox_val, t_val in val_loader:
+            for X_val, Y_val, gt_bbox_val, t_batch_val in val_loader:
                 # Move data to device
                 X_val = X_val.to(device)
                 Y_val = Y_val.to(device).float()
                 gt_bbox_val = gt_bbox_val.to(device)
-                t_val = t_val.to(device)
+                t_batch_val = t_batch_val.to(device)
 
                 # Forward pass
                 class_score_val, t_vals_val = model(X_val)
 
                 # Compute validation loss
-                val_loss, val_class, val_bbox = combined_loss(class_score_val.squeeze(), Y_val, t_vals_val, t_val)
+                val_loss, val_class, val_bbox = combined_loss(class_score_val.squeeze(), Y_val, t_vals_val, t_batch_val)
                 val_total_loss += val_loss.item()
                 val_class_loss += val_class.item()
                 val_bbox_loss += val_bbox.item()
