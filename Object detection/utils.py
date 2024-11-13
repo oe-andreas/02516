@@ -11,6 +11,29 @@ import torch
 import numpy as np
 import os
 
+
+#map from efficientnet models to good input sizes
+def get_input_size(model_name):
+    match model_name:
+        case "efficientnet_b0":
+            return 224
+        case "efficientnet_b1":
+            return 240
+        case "efficientnet_b2":
+            return 260
+        case "efficientnet_b3":
+            return 300
+        case "efficientnet_b4":
+            return 380
+        case "efficientnet_b5":
+            return 456
+        case "efficientnet_b6":
+            return 528
+        case "efficientnet_b7":
+            return 600
+        case _:
+            raise ValueError("Invalid model name. Please choose from 'efficientnet_b0' to 'efficientnet_b7', or add another model to get_input_size.")
+
 #Reads xml files
 def parse_xml(xml_file):
     #input: xml_file object
@@ -461,6 +484,7 @@ def load_and_crop_image(dim, path, class_1, class_0, id,gtbbox,t_vals):
     t_vals_batch = t_vals[indices]
 
     return X_batch, Y_batch, gtbbox_batch, t_vals_batch
+
 
 
 #Extracts the number from a image name

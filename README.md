@@ -1,13 +1,22 @@
 ## ToDo Object Detection
-- [] Visualize some images with GT boxes, SS boxes and EB boxes, to understand the poor recall/MABO.
-- [] Play around with input parameters for edge boxes and SS, since our recall/MABO is not very impressive right now. Most easily done like in the section 'edge boxes' in test_oe.ipynb (should probably be moved to HPC for speed though). Should probably reduce to a subset of images so that different parameters can easily be tested
-- [] Make validation set and change code to use it
-- [] Create a test loop and implement some score functions
+- [x] Visualize some images with GT boxes, SS boxes and EB boxes, to understand the poor recall/MABO.
+- [x] Play around with input parameters for edge boxes and SS, since our recall/MABO is not very impressive right now. Most easily done like in the section 'edge boxes' in test_oe.ipynb (should probably be moved to HPC for speed though). Should probably reduce to a subset of images so that different parameters can easily be tested
+- [x] Make validation set and change code to use it
+- [x] Create a test loop and implement some score functions
 
-- [] Start training seriously, and visualize results to see if we can improve anything. Stuff to play around with
+- [x] Start training seriously, and visualize results to see if we can improve anything. Stuff to play around with
     - Weighting between Classification Loss and Regression loss
     - Consider smooth L1 Hubert loss for BBOX regression (suggested by ChatGPT)
     - Thresholds for background/foreground IOU at train and test time
+
+
+## TASKS
+- Implement AP
+- Train some selected models for a long time and save detailed loss history, including accuracy
+- Make "different steps"-plot that we can reference. Ideas for steps (probably don't include all): Initial image --> Image with GT -->  Image with proposals --> Proposals classified and adjusted --> Final detection after NMS
+- Make architecture flow chart graphic (Image -> proposal generator -> stack of proposals -> efficient net w two heads -> classification + t-values
+- Make plot of recall/mabo
+- Make plot of train/validation loss history. Consider splitting into 
 
 
 ## Stuff to include on the poster
@@ -22,3 +31,6 @@
 - What recall/MABO is acceptable?
 - Is overall stratified sampling ok, or should it be per-batch?
 - How should we sub-select proposals from SS and EB? Apply the method also when plotting Recall/MABO. I wrote about an idea in test_oe
+- Should we create our own CNN
+- Exactly what is meant by 'evaluate classification'
+- Can we 'flip' the presentation, i.e. start with results
