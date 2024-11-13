@@ -11,6 +11,7 @@ from module.dataloaders.loader import load_images_fixed_batch
 from module.models.efficientnet import EfficientNetWithBBox
 from module.losses.losses import conditional_bbox_mse_loss, MultiTaskLoss
 from train import train, train_oe
+from plots import plot_losses
 
 print("Creating TIMM model")
 t = time()
@@ -22,19 +23,12 @@ print(f"Created TIMM model in {time() - t:.2}s")
 print("Initialize data loader")
 t = time()
 
-
-# Load data loader
-data_type ="train" # ["train", "test", "val"]
-
-train_data_loader = load_images_fixed_batch(train=data_type, dim=[128, 128], batch_size=64)
+train_loader = load_images_fixed_batch(train="train", dim=[128, 128], batch_size=64)
+val_loader = load_images_fixed_batch(train="val", dim=[128, 128], batch_size=64)
 
 print(f"Initialized Data Loader in {time() - t:.2}s")
 print("Define loss etc")
 t = time()
-
-# Define the loss functions
-#classification_loss_fn = nn.BCEWithLogitsLoss()  # Binary classification loss
-#bbox_loss_fn = conditional_bbox_mse_loss
 
 # Define optimizer
 optimizer = optim.Adam(model.parameters(), lr=1e-4)
@@ -48,20 +42,20 @@ combined_loss = MultiTaskLoss()
 print(f"Defined loss etc in {time() - t:.2}s")
 print(f"Train")
 
-train_oe(
-    model=model,
-    data_loader=train_data_loader,
-    optimizer=optimizer,
-    scheduler=scheduler,
-    #classification_loss_fn=classification_loss_fn,
-    #bbox_loss_fn=bbox_loss_fn,
-    combined_loss = combined_loss,
-    epochs=5,
-    device=device
-)
+all_losses_train, all_losses_val = train_oe(
+                                   model=model,
+                                   train_loader=train_loader,
+                                   val_loader=val_loader,
+                                   optimizer=optimizer,
+                                   scheduler=scheduler,
+                                   combined_loss = combined_loss,
+                                   epochs=5,
+                                   device=device
+                                )
+
+plot_losses(all_losses_train, all_losses_val)
 
 current_time = datetime.now().strftime("%Y%m%d_%H%M")
-
 
 print("Saving model")
 t = time()
