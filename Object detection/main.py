@@ -9,7 +9,7 @@ from time import time
 # Load local modules
 from module.dataloaders.loader import load_images_fixed_batch
 from module.models.efficientnet import EfficientNetWithBBox
-from module.losses.losses import conditional_bbox_mse_loss, MultiTaskLoss
+from module.losses.losses import MultiTaskLoss
 from train import train
 from plots import plot_losses
 from utils import get_input_size
@@ -17,7 +17,7 @@ from utils import get_input_size
 print("Creating TIMM model")
 t = time()
 # Initialize model and data loader
-model_name = 'efficientnet_b5'
+model_name = 'efficientnet_b0'
 
 model = EfficientNetWithBBox(model_name=model_name, num_classes=1, bbox_output_size=4, pretrained=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
