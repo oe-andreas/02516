@@ -1,62 +1,36 @@
 from tqdm import tqdm  # For progress bar
 import torch
 
-def train(model, data_loader, optimizer, scheduler, classification_loss_fn, bbox_loss_fn, epochs=10, device='cpu'):
-    """
-    Trains the EfficientNetWithBBox model.
+class EarlyStopping:
+    def __init__(self, patience=5, min_delta=0, path='best_model.pth'):
+        self.patience = patience  # Number of epochs to wait before stopping
+        self.min_delta = min_delta  # Minimum change to qualify as improvement
+        self.best_score = None  # Track best score so far
+        self.epochs_no_improve = 0  # Counter for non-improving epochs
+        self.early_stop = False  # Flag to trigger early stopping
+        self.path = path  # Path to save the best model
 
-    Parameters:
-    - model: The EfficientNetWithBBox model to train.
-    - data_loader: DataLoader providing batches of (X_batch, Y_batch, gt_bbox, t_batch). gt_bbox unused
-    - classification_loss_fn: Loss function for classification.
-    - bbox_loss_fn: Loss function for bounding box regression.
-    - epochs: Number of training epochs.
-    - scheduler: Learning rate scheduler (e.g., ReduceLROnPlateau).
-    - device: Device to run training on ('cpu' or 'cuda').
-    """
-    # Move model to the specified device
-    model = model.to(device)
+    def __call__(self, val_loss, model):
+        # Initialize best_score if it's the first call
+        if self.best_score is None:
+            self.best_score = val_loss
+            self.save_checkpoint(model)
+        elif val_loss < self.best_score - self.min_delta:
+            # Improvement found; reset counter and save model
+            self.best_score = val_loss
+            self.epochs_no_improve = 0
+            self.save_checkpoint(model)
+        else:
+            # No improvement; increment counter
+            self.epochs_no_improve += 1
+            if self.epochs_no_improve >= self.patience:
+                self.early_stop = True
 
-    # Training loop
-    for epoch in range(epochs):
-        model.train()
-        epoch_loss = 0  # Track total loss for the epoch
+    def save_checkpoint(self, model):
+        """Save the best model checkpoint."""
+        torch.save(model.state_dict(), self.path)
 
-        # Loop over batches
-        for X_batch, Y_batch, gt_bbox, t_batch in tqdm(data_loader, desc=f"Epoch {epoch+1}/{epochs}"):
-            # Move data to device
-            X_batch = X_batch.to(device)
-            Y_batch = Y_batch.to(device).float()  # Ensure target is float for BCE loss
-            gt_bbox = gt_bbox.to(device)
-            t_batch = t_batch.to(device)
-
-            # Forward pass
-            class_score, t_vals = model(X_batch)
-
-            # Compute losses
-            class_loss = classification_loss_fn(class_score.squeeze(), Y_batch)
-            bbox_loss = bbox_loss_fn(t_vals, t_batch, Y_batch)
-
-            # Combine losses (you could tune the weighting between classification and bbox losses)
-            total_loss = class_loss + bbox_loss
-
-            # Backward pass and optimization
-            optimizer.zero_grad()
-            total_loss.backward()
-            optimizer.step()
-
-            # Track the total loss for this epoch
-            epoch_loss += total_loss.item()
-
-        # Optionally, print the epoch's total loss
-        print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss / len(data_loader)}")
-
-        # Reduce LR based on the total loss for the epoch
-        scheduler.step(epoch_loss)
-
-
-
-def train_oe(model, train_loader, val_loader, optimizer, scheduler, combined_loss, epochs=10, device='cpu'):
+def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, epochs=10, device='cpu'):
     """
     Training function with evaluation on validation set after each epoch.
     """
@@ -65,6 +39,9 @@ def train_oe(model, train_loader, val_loader, optimizer, scheduler, combined_los
 
     # Move model to the specified device
     model = model.to(device)
+
+    # Initialize EarlyStopping instance
+    early_stopping = EarlyStopping(patience=5, min_delta=0, path='best_model.pth')
 
     # Training loop
     for epoch in range(epochs):
@@ -125,6 +102,16 @@ def train_oe(model, train_loader, val_loader, optimizer, scheduler, combined_los
 
         # Store validation losses for this epoch
         all_losses_val.append([val_total_loss, val_class_loss, val_bbox_loss])
+
+        # Check for early stopping
+        early_stopping(val_total_loss, model)
+    
+        if early_stopping.early_stop:
+            print("Early stopping triggered")
+            break
+
+        # Load the best model after training
+        model.load_state_dict(torch.load('best_model.pth'))
 
         # Adjust learning rate
         scheduler.step(total_epoch_loss)

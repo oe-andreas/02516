@@ -10,21 +10,26 @@ from time import time
 from module.dataloaders.loader import load_images_fixed_batch
 from module.models.efficientnet import EfficientNetWithBBox
 from module.losses.losses import conditional_bbox_mse_loss, MultiTaskLoss
-from train import train, train_oe
+from train import train
 from plots import plot_losses
+from utils import get_input_size
 
 print("Creating TIMM model")
 t = time()
 # Initialize model and data loader
-model = EfficientNetWithBBox(model_name='efficientnet_b5', num_classes=1, bbox_output_size=4, pretrained=True)
+model_name = 'efficientnet_b5'
+
+model = EfficientNetWithBBox(model_name=model_name, num_classes=1, bbox_output_size=4, pretrained=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 print(f"Created TIMM model in {time() - t:.2}s")
 print("Initialize data loader")
 t = time()
 
-train_loader = load_images_fixed_batch(train="train", dim=[128, 128], batch_size=64)
-val_loader = load_images_fixed_batch(train="val", dim=[128, 128], batch_size=64)
+
+input_size = get_input_size(model_name)
+train_loader = load_images_fixed_batch(train="train", dim=[input_size, input_size], batch_size=64)
+val_loader = load_images_fixed_batch(train="val", dim=[input_size, input_size], batch_size=64)
 
 print(f"Initialized Data Loader in {time() - t:.2}s")
 print("Define loss etc")
@@ -42,7 +47,7 @@ combined_loss = MultiTaskLoss()
 print(f"Defined loss etc in {time() - t:.2}s")
 print(f"Train")
 
-all_losses_train, all_losses_val = train_oe(
+all_losses_train, all_losses_val = train(
                                    model=model,
                                    train_loader=train_loader,
                                    val_loader=val_loader,
