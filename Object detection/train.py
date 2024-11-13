@@ -2,7 +2,7 @@ from tqdm import tqdm  # For progress bar
 import torch
 
 class EarlyStopping:
-    def __init__(self, patience=5, min_delta=0, path='best_model.pth'):
+    def __init__(self, patience=5, min_delta=0, path='Trained_models/best_model.pth'):
         self.patience = patience  # Number of epochs to wait before stopping
         self.min_delta = min_delta  # Minimum change to qualify as improvement
         self.best_score = None  # Track best score so far
@@ -121,7 +121,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
             break
 
         # Load the best model after training
-        model.load_state_dict(torch.load('best_model.pth'))
+        model.load_state_dict(torch.load('Trained_models/best_model.pth'))
 
         # Adjust learning rate
         scheduler.step(total_epoch_loss)

@@ -11,7 +11,7 @@ from module.dataloaders.loader import load_images_fixed_batch
 from module.models.efficientnet import EfficientNetWithBBox
 from module.losses.losses import MultiTaskLoss
 from train import train
-from plots import plot_losses
+from plots import plot_losses, plot_steps
 from utils import get_input_size
 
 print("Creating TIMM model")
