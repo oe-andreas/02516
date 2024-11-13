@@ -12,15 +12,10 @@
 
 ## TASKS
 - Implement AP
-
 - Train some selected models for a long time and save detailed loss history, including accuracy
-
 - Make "different steps"-plot that we can reference. Ideas for steps (probably don't include all): Initial image --> Image with GT -->  Image with proposals --> Proposals classified and adjusted --> Final detection after NMS
-
 - Make architecture flow chart graphic (Image -> proposal generator -> stack of proposals -> efficient net w two heads -> classification + t-values
-
 - Make plot of recall/mabo
-
 - Make plot of train/validation loss history. Consider splitting into 
 
 
