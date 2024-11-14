@@ -362,13 +362,13 @@ class Dataloader():
                 }
                 image_proposals.append(proposal)
             
+            #Shuffle proposals from image around
             random.shuffle(image_proposals)
-            num_of_proposals.append(len(image_proposals))
+            #add proposals to the list of all proposals
             total_proposals = total_proposals + image_proposals
 
-        
-        batch_size = 64
-        batches = [total_proposals[i:i + batch_size] for i in range(0, len(total_proposals), batch_size)]
+        #create batches from total_proposals list
+        batches = [total_proposals[i:i + self.batch_size] for i in range(0, len(total_proposals), self.batch_size)]
 
         self.batch = batches
         
@@ -379,8 +379,10 @@ class Dataloader():
 
     def __getitem__(self, idx):
         
+        #Gets batch corresponding to idx 
         batch = self.batch[idx]
 
+        #length of batch
         n = len(batch)
 
         #initialization: 
@@ -389,10 +391,10 @@ class Dataloader():
         bbox_batch = []
         gt_bbox_batch = []
         tvals_batch = []
-        id_batch = []
 
         #loop over proposals in batch
         for i in range(n):
+            #gets info from proposal i in the batch
             id = batch[i]["id"]
             bbox = batch[i]["bbox"]
             gt_bbox = batch[i]["gtbbox"]
@@ -402,25 +404,31 @@ class Dataloader():
             # Load the image
             path = "Potholes/annotated-images/"
             image = Image.open(path+"img-"+str(id)+".jpg")
-            crop = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
-            resized_crop = crop.resize((self.dim[0], self.dim[1]), Image.LANCZOS)
-            tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0
 
+            #Crop image
+            crop = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+
+            #Rezise crop
+            resized_crop = crop.resize((self.dim[0], self.dim[1]), Image.LANCZOS)
+
+            #Trun rezised crop into tensor and normalize values
+            tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0
+            
+            #Save all info as tensors
             X_batch.append(tensor_crop)
             Y_batch.append(torch.tensor(y))
             bbox_batch.append(torch.tensor(bbox))
             gt_bbox_batch.append(torch.tensor(gt_bbox))
             tvals_batch.append(torch.tensor(t_val))
-            id_batch.append(torch.tensor(id))
 
+        #Stack everything
         X_batch = torch.stack(X_batch)
         Y_batch =  torch.stack(Y_batch)
         bbox_batch =  torch.stack(bbox_batch)
         gt_bbox_batch =  torch.stack(gt_bbox_batch)
         tvals_batch =  torch.stack(tvals_batch)
-        id_batch = torch.stack(id_batch)
 
-        return X_batch, Y_batch, bbox_batch, gt_bbox_batch, tvals_batch, id_batch
+        return X_batch, Y_batch, bbox_batch, gt_bbox_batch, tvals_batch
 
 
 
