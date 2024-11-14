@@ -1,7 +1,9 @@
 from xml.etree import ElementTree as ET
 import os
 import torch
-
+import random
+from PIL import Image
+import numpy as np
 from utils import read_json, split_json_by_class, read_content, extract_number
 from utils import load_and_crop_image, load_test_and_train
 from utils import calculate_iou, compute_t
@@ -252,6 +254,173 @@ class load_images_fixed_batch():
         
 
         return X_batch, Y_batch, gtbbox_batch, t_batch
+
+
+
+
+
+class Dataloader():
+    # a generator that yields batches. A batch consists of every positive proposal and a random sample of negative proposals FROM THE SAME IMAGE
+    
+    def __init__(self, train = "train", dir = "Potholes/splits.json", dim = [128,128], batch_size = 64, xmls = None):
+        
+        self.dim = dim
+        self.batch_size = batch_size
+
+        #Load list with training and test images
+        train_data, test_data = load_test_and_train()
+        
+        #saves test, train or val as our data
+        if train == "train":
+            self.data = train_data
+        elif train == "test":
+            mid = len(test_data) // 2
+            self.data = test_data[:mid]
+        else:
+            mid = len(test_data) // 2
+            self.data =test_data[mid:]
+        
+        self.len = len(self.data)
+
+        #Shuffles data images around. 
+        random.shuffle(self.data)
+        total_proposals = []
+        num_of_proposals = []
+        #Loop over all images:
+        for idx in range(self.len):
+            image_proposals = []
+            # Loads name of image
+            image_name = self.data[idx]
+            #extracs id number of image:
+            id = extract_number(image_name)
+
+            # Reads images corresponding "img-{id}_ss.json" file
+            json = read_json("img-"+str(id)+"_ss.json")
+
+            # Reads "img-{id}.xml" file
+            path = "Potholes/annotated-images/"
+            _, list_with_all_gtboxes = read_content(path+image_name)
+
+            # Splits all proposals into three. one for background, foreground and none
+            class_0, class_1, class_none = split_json_by_class(json)
+
+            n_pos = len(class_1) + len(list_with_all_gtboxes)
+
+            #loop over positive proposals:
+            for annotation in class_1:
+                bbox = annotation['bbox']
+                class_value = annotation['class']
+
+                best_iou = 0
+                best_gtbbox = 0
+                prop_bbox = bbox
+                
+                # Loop over all gt bbox in image
+                for gtbbox in list_with_all_gtboxes:
+                    # Computes the iou
+                    iou = calculate_iou(prop_bbox,gtbbox)
+                    # Updates best gtbbox
+                    if iou > best_iou:
+                        best_iou = iou
+                        best_gtbbox = gtbbox
+
+                tvals = compute_t(best_gtbbox,prop_bbox)
+
+                proposal = {
+                    "id": id,
+                    "bbox" : bbox,
+                    "gtbbox": best_gtbbox,
+                    "class" : class_value,
+                    "t_val" : tvals
+                }
+                image_proposals.append(proposal)
+
+            #loop over gt bbox and add dem as proposals:
+            for gtbbox in list_with_all_gtboxes:
+                proposal = {
+                    "id": id,
+                    "bbox" : gtbbox,
+                    "gtbbox": gtbbox,
+                    "class" : 1,
+                    "t_val" : [0,0,0,0]
+                }
+                image_proposals.append(proposal)
+
+            n_neg = 3*n_pos
+            class_0_ran = random.sample(class_0, n_neg)
+
+            for annotation in class_0_ran:
+                bbox = annotation['bbox']
+                class_value = annotation['class']
+
+                proposal = {
+                    "id": id,
+                    "bbox" : bbox,
+                    "gtbbox": bbox,
+                    "class" : class_value,
+                    "t_val" : [0,0,0,0]
+                }
+                image_proposals.append(proposal)
+            
+            random.shuffle(image_proposals)
+            num_of_proposals.append(len(image_proposals))
+            total_proposals = total_proposals + image_proposals
+
+        
+        batch_size = 64
+        batches = [total_proposals[i:i + batch_size] for i in range(0, len(total_proposals), batch_size)]
+
+        self.batch = batches
+        
+
+    def __len__(self):
+        'Returns the total number of samples'
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        
+        batch = self.batch[idx]
+
+        n = len(batch)
+
+        #initialization: 
+        X_batch = []
+        Y_batch = []
+        bbox_batch = []
+        gt_bbox_batch = []
+        tvals_batch = []
+        id_batch = []
+
+        #loop over proposals in batch
+        for i in range(n):
+            id = batch[i]["id"]
+            bbox = batch[i]["bbox"]
+            gt_bbox = batch[i]["gtbbox"]
+            y = batch[i]["class"]
+            t_val = batch[i]["t_val"]
+
+            # Load the image
+            path = "Potholes/annotated-images/"
+            image = Image.open(path+"img-"+str(id)+".jpg")
+            crop = image.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
+            resized_crop = crop.resize((self.dim[0], self.dim[1]), Image.LANCZOS)
+            tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0
+
+            X_batch.append(tensor_crop)
+            Y_batch.append(torch.tensor(y))
+            bbox_batch.append(torch.tensor(bbox))
+            gt_bbox_batch.append(torch.tensor(gt_bbox))
+            tvals_batch.append(torch.tensor(t_val))
+            id_batch.append(torch.tensor(id))
+
+        X_batch = torch.stack(X_batch)
+        Y_batch =  torch.stack(Y_batch)
+        bbox_batch =  torch.stack(bbox_batch)
+        gt_bbox_batch =  torch.stack(gt_bbox_batch)
+        tvals_batch =  torch.stack(tvals_batch)
+        id_batch = torch.stack(id_batch)
+
+        return X_batch, Y_batch, bbox_batch, gt_bbox_batch, tvals_batch, id_batch
 
 
 
