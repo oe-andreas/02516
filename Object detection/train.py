@@ -1,5 +1,8 @@
 from tqdm import tqdm  # For progress bar
 import torch
+import matplotlib.pyplot as plt
+from utils import alter_box, calculate_iou
+
 
 class EarlyStopping:
     def __init__(self, patience=5, min_delta=0, path='Trained_models/best_model.pth'):
@@ -43,6 +46,10 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
     # Initialize EarlyStopping instance
     early_stopping = EarlyStopping(patience=5, min_delta=0, path='best_model.pth')
 
+    total_train_acc = []
+    total_val_acc = []
+    total_train_iou = []
+    total_val_iou = []
     # Training loop
     for epoch in range(epochs):
         model.train()
@@ -51,15 +58,31 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         bbox_epoch_loss = 0   # Track bbox regression loss for the epoch
         n = 0
         # Loop over training batches
+        correct_predictions = 0
+        train_acc = []
+        train_iou = []
         for X_batch, Y_batch, bbox_batch, gt_bbox_batch, tvals_batch in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
             # Move data to device
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device).float()  # Ensure target is float for BCE loss
             gt_bbox = gt_bbox_batch.to(device)
             t_batch = tvals_batch.to(device)
+            bbox = bbox_batch.to(device)
 
             # Forward pass
             class_score, t_vals = model(X_batch)  # y_pred, t_pred
+
+            #Compute classifier accuracy:
+            predicted_labels = (class_score > 0).float()
+            correct_predictions = ((predicted_labels[:,0] == Y_batch).sum().item() ) / Y_batch.size(0)
+            train_acc.append(correct_predictions)
+
+            #Compute bbox accuracy: TO DO
+            for i in range(Y_batch.size(0)):
+                if Y_batch[i].cpu().numpy() == 1:
+                    alt_box = alter_box(bbox[i].cpu().numpy(), t_vals[i].detach().cpu().numpy())
+                    iou = calculate_iou(alt_box,gt_bbox[i].cpu().numpy())
+                    train_iou.append(iou)
 
             # Compute combined loss
             total_loss, class_loss, bbox_loss = combined_loss(class_score.squeeze(), Y_batch, t_vals, t_batch)
@@ -74,6 +97,10 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
             class_epoch_loss += class_loss.item()
             bbox_epoch_loss += bbox_loss.item()
             n += 1
+        
+        total_train_acc.append( sum(train_acc)/len(train_acc) )
+        total_train_iou.append( sum(train_iou)/len(train_iou) )
+
         # Noramlize loss
         total_epoch_loss /= n
         class_epoch_loss /= n
@@ -88,6 +115,9 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         val_class_loss = 0
         val_bbox_loss = 0
         n = 0
+        correct_predictions = 0
+        val_acc = []
+        val_iou = []
         with torch.no_grad():  # No gradients needed for validation
             for X_val, Y_val, bbox_val, gt_bbox_val, tvals_val in val_loader:
                 # Move data to device
@@ -99,6 +129,19 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
                 # Forward pass
                 class_score_val, t_vals_val = model(X_val)
 
+                #Compute classifier accuracy:
+                predicted_labels = (class_score_val > 0).float()
+                correct_predictions = ((predicted_labels[:,0] == Y_val).sum().item() ) / Y_val.size(0)
+                val_acc.append(correct_predictions)
+
+                #Compute bbox accuracy: TO DO
+                #Compute bbox accuracy: TO DO
+                for i in range(Y_batch.size(0)):
+                    if Y_batch[i].cpu().numpy() == 1:
+                        alt_box = alter_box(bbox[i].cpu().numpy(), t_vals[i].detach().cpu().numpy())
+                        iou = calculate_iou(alt_box,gt_bbox[i].cpu().numpy())
+                        val_iou.append(iou)
+                        
                 # Compute validation loss
                 val_loss, val_class, val_bbox = combined_loss(class_score_val.squeeze(), Y_val, t_vals_val, t_batch_val)
                 val_total_loss += val_loss.item()
@@ -106,6 +149,8 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
                 val_bbox_loss += val_bbox.item()
                 n += 1
         
+        total_val_acc.append( sum(val_acc)/len(val_acc) )
+        total_val_iou.append( sum(val_iou)/len(val_iou) )
         # Noramlize loss
         val_total_loss /= n
         val_class_loss /= n
@@ -126,4 +171,33 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         # Adjust learning rate
         scheduler.step(total_epoch_loss)
 
+    plot_and_save(total_train_acc, total_val_acc, xlabel="Epoch", ylabel="Accuracy", title="classifier Accuracy")
+    plot_and_save(total_train_iou, total_val_iou, xlabel="Epoch", ylabel="IOU", title="Bbox Accuracy", path="graphics/iou_plot.png")
+    
     return all_losses_train, all_losses_val
+
+
+
+def plot_and_save(list1, list2, xlabel="X-axis", ylabel="Y-axis", title="Plot", path="graphics/acc_plot.png"):
+    """
+    Plots two lists on the same graph and saves the plot as acc_plot.png.
+    
+    Parameters:
+        list1 (list): First dataset for plotting.
+        list2 (list): Second dataset for plotting.
+        xlabel (str): Label for the X-axis.
+        ylabel (str): Label for the Y-axis.
+        title (str): Title of the plot.
+    """
+    plt.figure(figsize=(8, 6))
+    plt.plot(list1, label="train", marker='o')
+    plt.plot(list2, label="val", marker='s')
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(path)
+    plt.close()
+    print("Plot saved as acc_plot.png")

@@ -35,13 +35,15 @@ for X_val, Y_val, bbox_val, gt_bbox_val, tvals_val in test_loader:
     
     # Forward pass
     class_score_val, t_vals_val = model(X_val)
-    
+    print("class score",  class_score_val.shape)
+    print("yval ",Y_val.shape)
     # Compute predictions (apply threshold of 0.5)
     predicted_labels = (class_score_val > 0).float()  # Thresholding at 0 for logits
-    
+    print("pred val ",predicted_labels.shape)
+    print((predicted_labels[:,0] == Y_val).shape)
     # Compare with ground truth
-    correct_predictions += (predicted_labels == Y_val).sum().item()
-    print(correct_predictions)
+    correct_predictions += (predicted_labels[:,0] == Y_val).sum().item()
+    print("correct_pred : ",correct_predictions)
     total_samples += Y_val.size(0)
 
 # Calculate overall accuracy
