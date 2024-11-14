@@ -12,7 +12,7 @@
 
 ## TASKS
 - Implement AP (Ø)
-- Clean up dataloader for RAM (Frederik)
+- Clean up dataloader for RAM (Frederik) ---DONE ---
 - Try to understand what goes wrong in Loss/train/main (Mads)
 - Make "different steps"-plot that we can reference. Ideas for steps (probably don't include all): Initial image --> Image with GT -->  Image with proposals --> Proposals classified and adjusted --> Final detection after NMS (Alex)
 - Make architecture flow chart graphic (Image -> proposal generator -> stack of proposals -> efficient net w two heads -> classification + t-values

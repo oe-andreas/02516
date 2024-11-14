@@ -7,7 +7,7 @@ from datetime import datetime
 from time import time
 
 # Load local modules
-from module.dataloaders.loader import load_images_fixed_batch
+from module.dataloaders.loader import Dataloader
 from module.models.efficientnet import EfficientNetWithBBox
 from module.losses.losses import MultiTaskLoss
 from train import train
@@ -28,8 +28,8 @@ t = time()
 
 
 input_size = get_input_size(model_name)
-train_loader = load_images_fixed_batch(train="train", dim=[input_size, input_size], batch_size=64)
-val_loader = load_images_fixed_batch(train="val", dim=[input_size, input_size], batch_size=64)
+train_loader = Dataloader(train="train", dim=[input_size, input_size], batch_size=64)
+val_loader = Dataloader(train="val", dim=[input_size, input_size], batch_size=64)
 
 print(f"Initialized Data Loader in {time() - t:.2}s")
 print("Define loss etc")
@@ -54,7 +54,7 @@ all_losses_train, all_losses_val = train(
                                    optimizer=optimizer,
                                    scheduler=scheduler,
                                    combined_loss = combined_loss,
-                                   epochs=5,
+                                   epochs=10,
                                    device=device
                                 )
 

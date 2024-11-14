@@ -51,12 +51,12 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         bbox_epoch_loss = 0   # Track bbox regression loss for the epoch
         n = 0
         # Loop over training batches
-        for X_batch, Y_batch, gt_bbox, t_batch in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
+        for X_batch, Y_batch, bbox_batch, gt_bbox_batch, tvals_batch in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
             # Move data to device
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device).float()  # Ensure target is float for BCE loss
-            gt_bbox = gt_bbox.to(device)
-            t_batch = t_batch.to(device)
+            gt_bbox = gt_bbox_batch.to(device)
+            t_batch = tvals_batch.to(device)
 
             # Forward pass
             class_score, t_vals = model(X_batch)  # y_pred, t_pred
@@ -89,12 +89,12 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         val_bbox_loss = 0
         n = 0
         with torch.no_grad():  # No gradients needed for validation
-            for X_val, Y_val, gt_bbox_val, t_batch_val in val_loader:
+            for X_val, Y_val, bbox_val, gt_bbox_val, tvals_val in val_loader:
                 # Move data to device
                 X_val = X_val.to(device)
                 Y_val = Y_val.to(device).float()
                 gt_bbox_val = gt_bbox_val.to(device)
-                t_batch_val = t_batch_val.to(device)
+                t_batch_val = tvals_val.to(device)
 
                 # Forward pass
                 class_score_val, t_vals_val = model(X_val)
