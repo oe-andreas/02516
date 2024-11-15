@@ -110,7 +110,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         
         total_train_acc.append( sum(train_acc)/len(train_acc) )
         total_train_iou.append( sum(train_iou)/len(train_iou) )
-
+        
         # Noramlize loss
         total_epoch_loss /= n
         class_epoch_loss /= n
@@ -172,6 +172,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         
         total_val_acc.append( sum(val_acc)/len(val_acc) )
         total_val_iou.append( sum(val_iou)/len(val_iou) )
+        
         # Noramlize loss
         val_total_loss /= n
         val_class_loss /= n

@@ -77,7 +77,13 @@ def calculate_iou(boxA, boxB):
 
     # Compute the intersection over union by taking the intersection area
     # and dividing it by the sum of prediction + ground truth areas - the interection area
-    iou = interArea / float(boxAArea + boxBArea - interArea)
+    # Ensure the denominator is not zero before performing the division
+    denominator = float(boxAArea + boxBArea - interArea)
+    if denominator > 0:
+        iou = interArea / denominator
+    else:
+        print("!!!!!!!!!!!Something bad happend!!!!!!!!!!!")
+        iou = 0  # or set it to a default value (e.g., 0 if no intersection)
 
     return iou
 
