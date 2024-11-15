@@ -73,10 +73,15 @@ def load_GT_boxes(image_id):
     with open(os.path.join('Potholes', 'annotated-images', f"img-{image_id}.xml")) as f:
         return parse_xml(f)
 
-def load_SS_boxes(image_id, num_GT_boxes, num_class_0):
+def load_SS_boxes(image_id, num_GT_boxes, num_class_0, all_boxes=False):
     """Loads selective search boxes and filters by class."""
     with open(os.path.join('Potholes', 'annotated-images', f"img-{image_id}_ss.json")) as f:
         boxes = json.load(f)
+    
+    if all_boxes:
+        # Return all boxes regardless of class
+        all_ss_boxes = [box['bbox'] for box in boxes]
+        return all_ss_boxes
     
     # Separate boxes by class
     class_1_boxes = [box['bbox'] for box in boxes if box['class'] == 1]
@@ -162,6 +167,33 @@ def plot_altered_NMS(image, boxes, model, dim, device, discard_threshold, consid
         plot_boxes([box], color='r', linestyle=linestyle, linewidth=linewidth, label=label)
 
 
+def plot_altered_NMS_positive(image, boxes, model, dim, device, discard_threshold, consideration_threshold, linestyle='-', linewidth=3):
+    """Applies NMS to all altered boxes that the model predicts to be potholes and plots results."""    
+    boxes_w_probs = []
+    for box in boxes:
+        crop = image.crop(box)
+        resized_crop = crop.resize(dim, Image.LANCZOS)
+        tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 
+        tensor_crop = tensor_crop.unsqueeze(0).to(device)  # Ensure tensor_crop is on the same device
+        
+        class_prob_logit, t_values = model(tensor_crop)
+        
+        class_prob = torch.sigmoid(class_prob_logit)
+        t_values = t_values.squeeze().tolist()
+
+        # Alter the box using the t_values
+        altered_box = alter_box(box, t_values)
+        if class_prob > 0.5:
+            boxes_w_probs.append((altered_box, class_prob))
+
+    # Apply NMS with chosen thresholds
+    nms_boxes = non_maximum_suppression(boxes_w_probs, discard_threshold, consideration_threshold)
+    # Plot the resulting boxes after NMS
+    for i, (box, class_prob) in enumerate(nms_boxes):
+        label = f'Altered, {"positive" if class_prob > 0.5 else "negative"}' if i == 0 else None
+        plot_boxes([box], color='r', linestyle=linestyle, linewidth=linewidth, label=label)
+
+
 def plot_steps(image_id, steps, model_path, model_name, device, num_class_0 = 5, discard_threshold = 0.5, consideration_threshold = None):
     path = "graphics/"
     image = load_image(image_id)
@@ -169,6 +201,8 @@ def plot_steps(image_id, steps, model_path, model_name, device, num_class_0 = 5,
     
     # Load SS boxes with the specified number of GT and class 0 boxes
     SS_boxes = load_SS_boxes(image_id, num_GT_boxes=len(GT_boxes), num_class_0=num_class_0)
+
+    SS_boxes_all = load_SS_boxes(image_id, num_GT_boxes=len(GT_boxes), num_class_0=num_class_0, all_boxes=True)
 
     # Load the model
     model = EfficientNetWithBBox(model_name, pretrained=False, num_classes=1)
@@ -222,5 +256,12 @@ def plot_steps(image_id, steps, model_path, model_name, device, num_class_0 = 5,
             plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=3, label='GT')
             plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='SS')
             plot_altered_NMS(image, SS_boxes, model, dim, device, discard_threshold=discard_threshold, consideration_threshold=consideration_threshold)
+            plt.legend()
+            save_img(save_path)
+        
+        elif step == 7:
+            plot_image(image)
+            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=3, label='GT')
+            plot_altered_NMS_positive(image, SS_boxes_all, model, dim, device, discard_threshold=discard_threshold, consideration_threshold=consideration_threshold)
             plt.legend()
             save_img(save_path)
