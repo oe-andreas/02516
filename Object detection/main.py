@@ -54,7 +54,7 @@ all_losses_train, all_losses_val = train(
                                    optimizer=optimizer,
                                    scheduler=scheduler,
                                    combined_loss = combined_loss,
-                                   epochs=2,
+                                   epochs=3,
                                    device=device
                                 )
 

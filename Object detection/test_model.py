@@ -10,7 +10,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model =  EfficientNetWithBBox(model_name=model_name, num_classes=1, bbox_output_size=4, pretrained=True)  # Replace with your model initialization
 model = model.to(device)
 # Load the saved state dictionary
-checkpoint_path = "Trained_models/model_20241114_1358.pth"
+checkpoint_path = "Trained_models/model_20241115_0814.pth"
 model.load_state_dict(torch.load(checkpoint_path, map_location=device))
 
 # Set the model to evaluation mode (important for inference)
@@ -20,32 +20,40 @@ model.eval()
 input_size = get_input_size(model_name)
 test_loader = Dataloader(train="test", dim=[input_size, input_size], batch_size=64)
 
-
-print("hello")
 # Initialize accuracy tracking variables
 total_samples = 0
 correct_predictions = 0
 
+train_iou = []
+train_acc = []
+
 for X_val, Y_val, bbox_val, gt_bbox_val, tvals_val in test_loader:
     # Move data to device
-    X_val = X_val.to(device)
-    Y_val = Y_val.to(device).float()
-    gt_bbox_val = gt_bbox_val.to(device)
-    t_batch_val = tvals_val.to(device)
+    X_batch = X_val.to(device)
+    Y_batch = Y_val.to(device).float()  # Ensure target is float for BCE loss
+    gt_bbox = gt_bbox_val.to(device)
+    t_batch = tvals_val.to(device)
+    bbox = bbox_val.to(device)
     
     # Forward pass
     class_score_val, t_vals_val = model(X_val)
-    print("class score",  class_score_val.shape)
-    print("yval ",Y_val.shape)
-    # Compute predictions (apply threshold of 0.5)
-    predicted_labels = (class_score_val > 0).float()  # Thresholding at 0 for logits
-    print("pred val ",predicted_labels.shape)
-    print((predicted_labels[:,0] == Y_val).shape)
-    # Compare with ground truth
-    correct_predictions += (predicted_labels[:,0] == Y_val).sum().item()
-    print("correct_pred : ",correct_predictions)
-    total_samples += Y_val.size(0)
+
+    #Compute classifier accuracy:
+    predicted_labels = (class_score > 0).float()
+    correct_predictions = ((predicted_labels[:,0] == Y_batch).sum().item() ) / Y_batch.size(0)
+    train_acc.append(correct_predictions)
+
+    #Compute bbox accuracy:
+    for i in range(Y_batch.size(0)):
+        if Y_batch[i].cpu().numpy() == 1:
+            alt_box = alter_box(bbox[i].cpu().numpy(), t_vals[i].detach().cpu().numpy())
+            iou = calculate_iou(alt_box,gt_bbox[i].cpu().numpy())
+            train_iou.append(iou)
+
+avg_train_acc = sum(train_acc)/len(train_acc) 
+avg_train_iou = sum(train_iou)/len(train_iou)
 
 # Calculate overall accuracy
-accuracy = correct_predictions / total_samples
-print(f"Accuracy: {accuracy * 100:.2f}%")
+
+print(f"Accuracy: {avg_train_acc * 100:.2f}%")
+print(f"Iou     : {avg_train_iou :.2f}")

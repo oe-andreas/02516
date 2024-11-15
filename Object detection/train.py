@@ -77,7 +77,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
             correct_predictions = ((predicted_labels[:,0] == Y_batch).sum().item() ) / Y_batch.size(0)
             train_acc.append(correct_predictions)
 
-            #Compute bbox accuracy: TO DO
+            #Compute bbox accuracy: 
             for i in range(Y_batch.size(0)):
                 if Y_batch[i].cpu().numpy() == 1:
                     alt_box = alter_box(bbox[i].cpu().numpy(), t_vals[i].detach().cpu().numpy())
@@ -134,8 +134,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
                 correct_predictions = ((predicted_labels[:,0] == Y_val).sum().item() ) / Y_val.size(0)
                 val_acc.append(correct_predictions)
 
-                #Compute bbox accuracy: TO DO
-                #Compute bbox accuracy: TO DO
+                #Compute bbox accuracy: 
                 for i in range(Y_batch.size(0)):
                     if Y_batch[i].cpu().numpy() == 1:
                         alt_box = alter_box(bbox[i].cpu().numpy(), t_vals[i].detach().cpu().numpy())
@@ -170,6 +169,11 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
 
         # Adjust learning rate
         scheduler.step(total_epoch_loss)
+
+    print("train acc",total_train_acc)
+    print("val acc",total_val_acc)
+    print("train iou",total_train_iou)
+    print("val iou",total_val_iou)
 
     plot_and_save(total_train_acc, total_val_acc, xlabel="Epoch", ylabel="Accuracy", title="classifier Accuracy")
     plot_and_save(total_train_iou, total_val_iou, xlabel="Epoch", ylabel="IOU", title="Bbox Accuracy", path="graphics/iou_plot.png")
