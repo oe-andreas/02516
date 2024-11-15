@@ -22,7 +22,7 @@ def conditional_bbox_mse_loss(t_vals, t_batch, Y_batch):
 
 # Define the multi-task loss function
 class MultiTaskLoss(nn.Module):
-    def __init__(self, classification_weight=1.0, bbox_weight=1.0, ignore_negative_for_bbox = True):
+    def __init__(self, classification_weight=1, bbox_weight=1.0, ignore_negative_for_bbox = True):
         super(MultiTaskLoss, self).__init__()
         self.classification_loss = nn.BCEWithLogitsLoss()  # Binary classification loss
         self.bbox_loss = nn.SmoothL1Loss()  # Bounding box regression loss
@@ -34,7 +34,7 @@ class MultiTaskLoss(nn.Module):
     def forward(self, class_pred, class_true, bbox_pred, bbox_true):
         # Classification loss 
         class_loss = self.classification_loss(class_pred, class_true)
-        
+        #print("class: ",class_loss)
         # Bounding box loss
         if self.ignore_negative_for_bbox:
             # Create a mask to ignore negative samples for bbox loss
@@ -42,8 +42,21 @@ class MultiTaskLoss(nn.Module):
             bbox_pred = bbox_pred[bbox_mask]
             bbox_true = bbox_true[bbox_mask]
         
-        bbox_loss = self.bbox_loss(bbox_pred, bbox_true)
         
+        bbox_loss = self.bbox_loss(bbox_pred, bbox_true)
+        #print("bbox: ",bbox_loss)
+
+        #Normalize loss
+        loss_1_normalized = class_loss / (class_loss + bbox_loss).mean()
+        loss_2_normalized = bbox_loss / (class_loss + bbox_loss).mean()
+        #print(loss_1_normalized)
+        #print(loss_2_normalized)
+        # Combine the losses
+
         # Combine losses
-        total_loss = self.classification_weight * class_loss + self.bbox_weight * bbox_loss
+        total_loss = loss_2_normalized * class_loss + loss_1_normalized * bbox_loss
+        #print("weight class: ",loss_2_normalized * class_loss) 
+        #print("weight box: ",loss_1_normalized * bbox_loss) 
+        #print("total: ",total_loss)
+        #print(" ")
         return total_loss, class_loss, bbox_loss

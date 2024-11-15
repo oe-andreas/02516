@@ -77,15 +77,25 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
             correct_predictions = ((predicted_labels[:,0] == Y_batch).sum().item() ) / Y_batch.size(0)
             train_acc.append(correct_predictions)
 
-            #Compute bbox accuracy: 
-            for i in range(Y_batch.size(0)):
-                if Y_batch[i].cpu().numpy() == 1:
+            # Save altered boxes
+            altered_boxes_list = []
+
+            # Compute bbox accuracy
+            for i in range(Y_batch.size(0)):  
+                if Y_batch[i].cpu().item() == 1:  # Filter for positive samples
                     alt_box = alter_box(bbox[i].cpu().numpy(), t_vals[i].detach().cpu().numpy())
-                    iou = calculate_iou(alt_box,gt_bbox[i].cpu().numpy())
+                    altered_boxes_list.append(alt_box)
+                    iou = calculate_iou(alt_box, gt_bbox[i].cpu().numpy())
                     train_iou.append(iou)
+                else:
+                    # Append a placeholder (e.g., zeros) for non-positive samples to keep alignment
+                    altered_boxes_list.append([0, 0, 0, 0])
+            
+            # Convert altered_boxes_list to a tensor
+            altered_boxes_tensor = torch.tensor(altered_boxes_list).to(device)
 
             # Compute combined loss
-            total_loss, class_loss, bbox_loss = combined_loss(class_score.squeeze(), Y_batch, t_vals, t_batch)
+            total_loss, class_loss, bbox_loss = combined_loss(class_score.squeeze(), Y_batch, altered_boxes_tensor, gt_bbox)
 
             # Backward pass and optimization
             optimizer.zero_grad()
@@ -125,6 +135,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
                 Y_val = Y_val.to(device).float()
                 gt_bbox_val = gt_bbox_val.to(device)
                 t_batch_val = tvals_val.to(device)
+                bbox = bbox_val.to(device)
 
                 # Forward pass
                 class_score_val, t_vals_val = model(X_val)
@@ -134,15 +145,26 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
                 correct_predictions = ((predicted_labels[:,0] == Y_val).sum().item() ) / Y_val.size(0)
                 val_acc.append(correct_predictions)
 
-                #Compute bbox accuracy: 
-                for i in range(Y_batch.size(0)):
-                    if Y_batch[i].cpu().numpy() == 1:
-                        alt_box = alter_box(bbox[i].cpu().numpy(), t_vals[i].detach().cpu().numpy())
-                        iou = calculate_iou(alt_box,gt_bbox[i].cpu().numpy())
+
+                # Save altered boxes
+                altered_boxes_list = []
+
+                # Compute bbox accuracy
+                for i in range(Y_val.size(0)):  
+                    if Y_val[i].cpu().item() == 1:  # Filter for positive samples
+                        alt_box = alter_box(bbox[i].cpu().numpy(), t_vals_val[i].detach().cpu().numpy())
+                        altered_boxes_list.append(alt_box)
+                        iou = calculate_iou(alt_box, gt_bbox_val[i].cpu().numpy())
                         val_iou.append(iou)
-                        
+                    else:
+                        # Append a placeholder (e.g., zeros) for non-positive samples to keep alignment
+                        altered_boxes_list.append([0, 0, 0, 0])
+                
+                # Convert altered_boxes_list to a tensor
+                altered_boxes_tensor = torch.tensor(altered_boxes_list).to(device)
+
                 # Compute validation loss
-                val_loss, val_class, val_bbox = combined_loss(class_score_val.squeeze(), Y_val, t_vals_val, t_batch_val)
+                val_loss, val_class, val_bbox = combined_loss(class_score_val.squeeze(), Y_val, altered_boxes_tensor, gt_bbox_val)
                 val_total_loss += val_loss.item()
                 val_class_loss += val_class.item()
                 val_bbox_loss += val_bbox.item()
@@ -176,13 +198,13 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
     print("val iou",total_val_iou)
 
     plot_and_save(total_train_acc, total_val_acc, xlabel="Epoch", ylabel="Accuracy", title="classifier Accuracy")
-    plot_and_save(total_train_iou, total_val_iou, xlabel="Epoch", ylabel="IOU", title="Bbox Accuracy", path="graphics/iou_plot.png")
+    plot_and_save(total_train_iou, total_val_iou, xlabel="Epoch", ylabel="IOU", title="Bbox Accuracy", path="graphics/iou_plot_b0.png")
     
     return all_losses_train, all_losses_val
 
 
 
-def plot_and_save(list1, list2, xlabel="X-axis", ylabel="Y-axis", title="Plot", path="graphics/acc_plot.png"):
+def plot_and_save(list1, list2, xlabel="X-axis", ylabel="Y-axis", title="Plot", path="graphics/acc_plot_b0.png"):
     """
     Plots two lists on the same graph and saves the plot as acc_plot.png.
     

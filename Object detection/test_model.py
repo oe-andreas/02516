@@ -1,14 +1,16 @@
 from module.dataloaders.loader import Dataloader
-from utils import get_input_size
+from utils import get_input_size, alter_box, calculate_iou
 
 model_name = 'efficientnet_b0'
 
 import torch
 from module.models.efficientnet import EfficientNetWithBBox  # Replace with your actual model class
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# Initialize your model
+
+# Initialize model
 model =  EfficientNetWithBBox(model_name=model_name, num_classes=1, bbox_output_size=4, pretrained=True)  # Replace with your model initialization
 model = model.to(device)
+
 # Load the saved state dictionary
 checkpoint_path = "Trained_models/model_20241115_0814.pth"
 model.load_state_dict(torch.load(checkpoint_path, map_location=device))
@@ -16,14 +18,12 @@ model.load_state_dict(torch.load(checkpoint_path, map_location=device))
 # Set the model to evaluation mode (important for inference)
 model.eval()
 
-
+#Load test data (batch size 8 to save memory)
 input_size = get_input_size(model_name)
-test_loader = Dataloader(train="test", dim=[input_size, input_size], batch_size=64)
+test_loader = Dataloader(train="test", dim=[input_size, input_size], batch_size=8)
 
-# Initialize accuracy tracking variables
-total_samples = 0
-correct_predictions = 0
 
+#Initialize
 train_iou = []
 train_acc = []
 
@@ -36,7 +36,7 @@ for X_val, Y_val, bbox_val, gt_bbox_val, tvals_val in test_loader:
     bbox = bbox_val.to(device)
     
     # Forward pass
-    class_score_val, t_vals_val = model(X_val)
+    class_score, t_vals = model(X_batch)
 
     #Compute classifier accuracy:
     predicted_labels = (class_score > 0).float()
@@ -50,10 +50,14 @@ for X_val, Y_val, bbox_val, gt_bbox_val, tvals_val in test_loader:
             iou = calculate_iou(alt_box,gt_bbox[i].cpu().numpy())
             train_iou.append(iou)
 
+    #_______ Add AP calculations here:____________________
+
+    #________________________________________________
+
+# Computes average accuracy and iuo across entire test set
 avg_train_acc = sum(train_acc)/len(train_acc) 
 avg_train_iou = sum(train_iou)/len(train_iou)
 
-# Calculate overall accuracy
 
-print(f"Accuracy: {avg_train_acc * 100:.2f}%")
-print(f"Iou     : {avg_train_iou :.2f}")
+print(f"Average test Accuracy: {avg_train_acc * 100:.2f}%")
+print(f"Average test Iou     : {avg_train_iou :.2f}")
