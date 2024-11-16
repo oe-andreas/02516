@@ -33,7 +33,7 @@ class EarlyStopping:
         """Save the best model checkpoint."""
         torch.save(model.state_dict(), self.path)
 
-def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, epochs=10, device='cpu', print_memory_usage = False):
+def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, epochs=10, device='cpu', print_memory_usage = False, return_losses_dict = False):
     """
     Training function with evaluation on validation set after each epoch.
     """
@@ -207,6 +207,9 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
 
     plot_and_save(total_train_acc, total_val_acc, xlabel="Epoch", ylabel="Accuracy", title="classifier Accuracy", path="graphics/acc_plot_b0_test.png")
     plot_and_save(total_train_iou, total_val_iou, xlabel="Epoch", ylabel="IOU", title="Bbox Accuracy", path="graphics/iou_plot_b0_test.png")
+    
+    if return_losses_dict:
+        return {"train_loss": all_losses_train, "val_loss": all_losses_val, "train_acc": total_train_acc, "val_acc": total_val_acc, "train_iou": total_train_iou, "val_iou": total_val_iou}
     
     return all_losses_train, all_losses_val
 

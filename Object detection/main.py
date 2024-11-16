@@ -49,7 +49,7 @@ combined_loss = MultiTaskLoss()
 print(f"Defined loss etc in {time() - t:.2}s")
 print(f"Train")
 
-all_losses_train, all_losses_val = train(
+hist = train(
                                    model=model,
                                    train_loader=train_loader,
                                    val_loader=val_loader,
@@ -58,17 +58,17 @@ all_losses_train, all_losses_val = train(
                                    combined_loss = combined_loss,
                                    epochs=2,
                                    device=device,
-                                   print_memory_usage = True
+                                   print_memory_usage = True,
+                                   return_losses_dict = True
                                 )
 
-
-
+all_losses_train, all_losses_val = hist['train_loss'], hist['val_loss']
 
 plot_losses(all_losses_train, all_losses_val)
 
 current_time = datetime.now().strftime("%Y%m%d_%H%M")
 
-pickle.dump((all_loses_train, all_losses_val), open(f"dumps/all_losses_{current_time}.pkl", "wb"))
+pickle.dump(hist, open(f"dumps/all_losses_{current_time}.pkl", "wb"))
 
 print("Saving model")
 
