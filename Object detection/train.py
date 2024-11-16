@@ -33,7 +33,7 @@ class EarlyStopping:
         """Save the best model checkpoint."""
         torch.save(model.state_dict(), self.path)
 
-def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, epochs=10, device='cpu'):
+def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, epochs=10, device='cpu', print_memory_usage = False):
     """
     Training function with evaluation on validation set after each epoch.
     """
@@ -62,12 +62,19 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         train_acc = []
         train_iou = []
         for X_batch, Y_batch, bbox_batch, gt_bbox_batch, tvals_batch in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}"):
+            
+
             # Move data to device
             X_batch = X_batch.to(device)
             Y_batch = Y_batch.to(device).float()  # Ensure target is float for BCE loss
             gt_bbox = gt_bbox_batch.to(device)
             t_batch = tvals_batch.to(device)
             bbox = bbox_batch.to(device)
+            
+            if print_memory_usage:
+                print(f"Memory allocated for X: {X_batch.element_size() * X_batch.nelement()  / 1024**3}")
+                print(f"Total memory allocated: {torch.cuda.memory_allocated(device)  / 1024**3}")
+            
 
             # Forward pass
             class_score, t_vals = model(X_batch)  # y_pred, t_pred

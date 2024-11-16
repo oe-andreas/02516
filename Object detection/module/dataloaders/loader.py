@@ -378,7 +378,7 @@ class Dataloader():
 
     def __len__(self):
         'Returns the total number of samples'
-        return len(self.data)
+        return len(self.batches) #changed from self.data
 
     def __getitem__(self, idx):
         
