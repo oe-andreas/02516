@@ -198,14 +198,23 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
     print("train iou",total_train_iou)
     print("val iou",total_val_iou)
 
-    plot_and_save(total_train_acc, total_val_acc, xlabel="Epoch", ylabel="Accuracy", title="classifier Accuracy")
-    plot_and_save(total_train_iou, total_val_iou, xlabel="Epoch", ylabel="IOU", title="Bbox Accuracy", path="graphics/iou_plot_b0.png")
+    plot_and_save(total_train_acc, total_val_acc, xlabel="Epoch", ylabel="Accuracy", title="classifier Accuracy", path="graphics/acc_plot_b0_test.png")
+    plot_and_save(total_train_iou, total_val_iou, xlabel="Epoch", ylabel="IOU", title="Bbox Accuracy", path="graphics/iou_plot_b0_test.png")
     
     return all_losses_train, all_losses_val
 
 
 
-def plot_and_save(list1, list2, xlabel="X-axis", ylabel="Y-axis", title="Plot", path="graphics/acc_plot_b0.png"):
+def plot_and_save(
+    list1, 
+    list2, 
+    xlabel="X-axis", 
+    ylabel="Y-axis", 
+    title="Plot", 
+    path="graphics/acc_plot_b0.png",
+    avg_val_iou=0.697, 
+    avg_train_iou=0.686
+):
     """
     Plots two lists on the same graph and saves the plot as acc_plot.png.
     
@@ -215,16 +224,29 @@ def plot_and_save(list1, list2, xlabel="X-axis", ylabel="Y-axis", title="Plot", 
         xlabel (str): Label for the X-axis.
         ylabel (str): Label for the Y-axis.
         title (str): Title of the plot.
+        path (str): Path to save the plot.
+        avg_val_iou (float): Average IoU for validation set to plot as a horizontal line.
+        avg_train_iou (float): Average IoU for training set to plot as a horizontal line.
     """
     plt.figure(figsize=(8, 6))
-    plt.plot(list1, label="train", marker='o')
-    plt.plot(list2, label="val", marker='s')
+    
+    # Plot train and val datasets
+    train_line, = plt.plot(list1, label="Train", marker='o')
+    val_line, = plt.plot(list2, label="Validation", marker='s')
+    
+    # Plot horizontal lines for average IoU
+    plt.axhline(avg_train_iou, color=train_line.get_color(), linestyle='--', alpha=0.5, label=f"Avg Train IoU: {avg_train_iou}")
+    plt.axhline(avg_val_iou, color=val_line.get_color(), linestyle='--', alpha=0.5, label=f"Avg Val IoU: {avg_val_iou}")
+    
+    # Add labels, title, legend, and grid
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
+    
+    # Save the plot
     plt.savefig(path)
     plt.close()
-    print("Plot saved as acc_plot.png")
+    print(f"Plot saved as {path}")

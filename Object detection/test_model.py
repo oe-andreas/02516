@@ -1,6 +1,6 @@
 from module.dataloaders.loader import Dataloader
 from utils import get_input_size, alter_box, calculate_iou
-
+import numpy as np
 model_name = 'efficientnet_b0'
 
 import torch
@@ -12,7 +12,7 @@ model =  EfficientNetWithBBox(model_name=model_name, num_classes=1, bbox_output_
 model = model.to(device)
 
 # Load the saved state dictionary
-checkpoint_path = "Trained_models/model_20241115_0814.pth"
+checkpoint_path = "Trained_models/b0_model_20241116_0939.pth"
 model.load_state_dict(torch.load(checkpoint_path, map_location=device))
 
 # Set the model to evaluation mode (important for inference)
@@ -22,6 +22,33 @@ model.eval()
 input_size = get_input_size(model_name)
 test_loader = Dataloader(train="test", dim=[input_size, input_size], batch_size=8)
 
+def AP(gt_boxes, proposed_boxes, proposed_box_probs, threshold=0.5):
+    #gt_boxes: Actual positive class boxes in [xmin, ymin, xmax, ymax] format
+    #proposed_boxes: All proposed boxes, in [xmin, ymin, xmax, ymax] format
+    #proposed_box_probs: Probability of each proposed box being positive class
+    #threshold: IOU threshold for a correct detection
+    
+    # Sort proposed boxes by probability
+    order = np.argsort(proposed_box_probs)[::-1]
+    proposed_boxes = np.array(proposed_boxes)[order]
+    proposed_box_probs = np.array(proposed_box_probs)[order]
+    
+    # Use IoU to determine if a box is a true positive
+    ious = np.array([[calculate_iou(gt_box, proposed_box) for gt_box in gt_boxes] for proposed_box in proposed_boxes])
+    max_ious = ious.max(axis=1)
+    matches_gt_box = max_ious > threshold
+    
+    # Calculate precision and recall
+    TP = np.cumsum(matches_gt_box)
+    FP = np.cumsum(~matches_gt_box)
+    
+    precision = TP / (TP + FP)
+    recall = TP / len(gt_boxes)
+    
+    # Calculate AP
+    AP = np.sum(precision * np.diff([0, *recall]))
+    
+    return AP
 
 #Initialize
 train_iou = []
@@ -51,7 +78,8 @@ for X_val, Y_val, bbox_val, gt_bbox_val, tvals_val in test_loader:
             train_iou.append(iou)
 
     #_______ Add AP calculations here:____________________
-
+    ap = AP(gt_bbox.cpu(), bbox.cpu(), class_score.detach().cpu())
+    print(AP)
     #________________________________________________
 
 # Computes average accuracy and iuo across entire test set

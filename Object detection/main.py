@@ -28,7 +28,7 @@ t = time()
 
 
 input_size = get_input_size(model_name)
-train_loader = Dataloader(train="train", dim=[input_size, input_size], batch_size=64)
+train_loader = Dataloader(train="test", dim=[input_size, input_size], batch_size=64)
 val_loader = Dataloader(train="val", dim=[input_size, input_size], batch_size=64)
 
 print(f"Initialized Data Loader in {time() - t:.2}s")
@@ -54,7 +54,7 @@ all_losses_train, all_losses_val = train(
                                    optimizer=optimizer,
                                    scheduler=scheduler,
                                    combined_loss = combined_loss,
-                                   epochs=10,
+                                   epochs=2,
                                    device=device
                                 )
 
