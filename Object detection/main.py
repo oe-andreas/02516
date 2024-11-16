@@ -56,9 +56,8 @@ hist = train(
                                    optimizer=optimizer,
                                    scheduler=scheduler,
                                    combined_loss = combined_loss,
-                                   epochs=2,
+                                   epochs=20,
                                    device=device,
-                                   print_memory_usage = True,
                                    return_losses_dict = True
                                 )
 
