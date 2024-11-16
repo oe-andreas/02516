@@ -1,7 +1,7 @@
 from utils import calculate_iou
 import numpy as np
 
-def AP(gt_boxes, proposed_boxes, proposed_box_probs, threshold=0.5):
+def AP(gt_boxes, proposed_boxes, proposed_box_probs, threshold=0.5, return_precision_recall=False):
     #gt_boxes: Actual positive class boxes in [xmin, ymin, xmax, ymax] format
     #proposed_boxes: All proposed boxes, in [xmin, ymin, xmax, ymax] format
     #proposed_box_probs: Probability of each proposed box being positive class
@@ -26,5 +26,8 @@ def AP(gt_boxes, proposed_boxes, proposed_box_probs, threshold=0.5):
     
     # Calculate AP
     AP = np.sum(precision * np.diff([0, *recall]))
+    
+    if return_precision_recall:
+        return AP, precision, recall
     
     return AP
