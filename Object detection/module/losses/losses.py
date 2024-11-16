@@ -36,6 +36,7 @@ class MultiTaskLoss(nn.Module):
         class_loss = self.classification_loss(class_pred, class_true)
         #print("class: ",class_loss)
         # Bounding box loss
+        
         if self.ignore_negative_for_bbox:
             # Create a mask to ignore negative samples for bbox loss
             bbox_mask = class_true > 0
@@ -49,9 +50,6 @@ class MultiTaskLoss(nn.Module):
         #Normalize loss
         loss_1_normalized = class_loss / (class_loss + bbox_loss).mean()
         loss_2_normalized = bbox_loss / (class_loss + bbox_loss).mean()
-        #print(loss_1_normalized)
-        #print(loss_2_normalized)
-        # Combine the losses
 
         # Combine losses
         total_loss = loss_2_normalized * class_loss + loss_1_normalized * bbox_loss

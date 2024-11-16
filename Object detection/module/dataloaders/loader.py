@@ -300,6 +300,9 @@ class Dataloader():
             # Reads "img-{id}.xml" file
             path = "Potholes/annotated-images/"
             _, list_with_all_gtboxes = read_content(path+image_name)
+            
+            #filter tiny boxes
+            list_with_all_gtboxes = [box for box in list_with_all_gtboxes if (box[2]-box[0]) >= 1 and (box[3]-box[1]) >= 1]
 
             # Splits all proposals into three. one for background, foreground and none
             class_0, class_1, class_none = split_json_by_class(json)
