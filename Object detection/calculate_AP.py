@@ -33,8 +33,9 @@ all_gt_bboxs = []
 all_positive_proposal_bboxs = []
 all_positive_proposals_probs = []
 
+
 for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
-    
+
     Xs = Xs.to(device)
     
     #check memory size
@@ -69,15 +70,14 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
     print("Managed to NMS")
     
     #get the proposals that were selected
-    proposals = proposals[selected_indeces]
     probs = probs[selected_indeces]
     bboxs = bboxs[selected_indeces]
     
     print("Managed to do second masking")
     
     all_gt_bboxs.extend(gt_bboxs)
-    all_positive_proposal_bboxs.extend(bboxs)
-    all_positive_proposals_probs.extend(probs)
+    all_positive_proposal_bboxs.extend(bboxs.cpu())
+    all_positive_proposals_probs.extend(probs.cpu())
     
     print("Managed to extend lists")
     
@@ -90,7 +90,7 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
 
 
 current_time = datetime.now().strftime("%Y%m%d_%H%M")
-pickle.dump((all_gt_bboxs.cpu(), all_positive_proposal_bboxs.cpu(), all_positive_proposals_probs.cpu()), open(f"dumps/ap_input_{current_time}.pkl", "wb"))
+pickle.dump((all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs), open(f"dumps/ap_input_{current_time}.pkl", "wb"))
 
 
 ap = AP(all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs)
