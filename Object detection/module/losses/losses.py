@@ -19,7 +19,7 @@ def conditional_bbox_mse_loss(t_vals, t_batch, Y_batch):
     loss = elementwise_loss.sum(dim=1).mean()
     return loss
 
-s
+
 # Define the multi-task loss function
 class MultiTaskLoss(nn.Module):
     def __init__(self, classification_weight=1, bbox_weight=1.0, ignore_negative_for_bbox = True):

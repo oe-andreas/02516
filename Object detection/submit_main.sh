@@ -1,10 +1,10 @@
-#BSUB -J CalcAP
+#BSUB -J main
 #BSUB -q c02516
 #BSUB -gpu "num=1:mode=exclusive_process"
-#BSUB -W 60
+#BSUB -W 120
 #BSUB -R "rusage[mem=4GB]"
-#BSUB -o CalcAP.out
-#BSUB -e CalcAP.err
+#BSUB -o main.out
+#BSUB -e main.err
 #BSUB -R "span[hosts=1]"
 #BSUB -n 2
 
@@ -12,4 +12,4 @@
 source ../../../02516_env/bin/activate
 
 # Run Python script
-python calculate_AP.py
+python main.py

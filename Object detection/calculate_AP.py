@@ -23,6 +23,10 @@ print(f'Using device {device}')
 model = EfficientNetWithBBox(model_name, pretrained=False, num_classes=1)
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.to(device)
+model.eval()
+
+print(f"Total memory: {torch.cuda.get_device_properties(device).total_memory / 1024**3}")
+print(f"Total memory allocated after loading model: {torch.cuda.memory_allocated(device) / 1024**3}")
 
 
 all_gt_bboxs = []
@@ -34,9 +38,9 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
     Xs = Xs.to(device)
     
     #check memory size
-    print(f"Memory allocated for Xs: {Xs.element_size() * Xs.nelement()}")
-    print(f"Total memory: {torch.cuda.get_device_properties(device).total_memory}")
-    print(f"Total memory allocated: {torch.cuda.memory_allocated(device)}")
+    print(f"Memory allocated for Xs: {Xs.element_size() * Xs.nelement() / 1024**3}")
+    print(f"Total memory allocated: {torch.cuda.memory_allocated(device) / 1024**3}")
+    print(f"Total memory reserved: {torch.cuda.memory_reserved(device) / 1024**3}")
     
     
     proposals = Xs[:max_proposals]

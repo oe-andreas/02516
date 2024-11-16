@@ -14,6 +14,8 @@ from train import train
 from plots import plot_losses, plot_steps
 from utils import get_input_size
 
+import pickle
+
 print("Creating TIMM model")
 t = time()
 # Initialize model and data loader
@@ -55,12 +57,18 @@ all_losses_train, all_losses_val = train(
                                    scheduler=scheduler,
                                    combined_loss = combined_loss,
                                    epochs=2,
-                                   device=device
+                                   device=device,
+                                   print_memory_usage = True
                                 )
+
+
+
 
 plot_losses(all_losses_train, all_losses_val)
 
 current_time = datetime.now().strftime("%Y%m%d_%H%M")
+
+pickle.dump((all_loses_train, all_losses_val), open(f"dumps/all_losses_{current_time}.pkl", "wb"))
 
 print("Saving model")
 # Extract the shortened model name (e.g., 'b0')
