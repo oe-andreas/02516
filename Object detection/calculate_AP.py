@@ -42,34 +42,49 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
     print(f"Total memory allocated: {torch.cuda.memory_allocated(device) / 1024**3}")
     print(f"Total memory reserved: {torch.cuda.memory_reserved(device) / 1024**3}")
     
-    
     proposals = Xs[:max_proposals]
+    print("Managed to define proposals")
     
     bboxs = bboxs[:max_proposals]
+    print("Managed to define bboxs")
     
     class_score_logits, t_vals = model(proposals)
+    print("Managed to run model")
     
     probs = torch.sigmoid(class_score_logits).squeeze().detach()
+    print("Managed to calc probs")
 
     
     #extract only positive examples
     proposals = proposals[probs > 0.5]
     probs = probs[probs > 0.5]
+    print("Managed to masking")
     
     boxes_w_probs = list(zip(bboxs, probs))
 
     #NMS
     _, selected_indeces = non_maximum_suppression(boxes_w_probs, 0.5, return_indeces=True)
 
+    print("Managed to NMS")
     
     #get the proposals that were selected
     proposals = proposals[selected_indeces]
     probs = probs[selected_indeces]
     bboxs = bboxs[selected_indeces]
     
+    print("Managed to do second masking")
+    
     all_gt_bboxs.extend(gt_bboxs)
     all_positive_proposal_bboxs.extend(bboxs)
     all_positive_proposals_probs.extend(probs)
+    
+    print("Managed to extend lists")
+    
+    print(f"Memory allocated for Xs end: {Xs.element_size() * Xs.nelement() / 1024**3}")
+    print(f"Total memory allocated end: {torch.cuda.memory_allocated(device) / 1024**3}")
+    print(f"Total memory reserved end: {torch.cuda.memory_reserved(device) / 1024**3}")
+    
+    
     
 
 
