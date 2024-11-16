@@ -120,9 +120,38 @@ def plot_boxes(boxes, color, linestyle, linewidth, label=None):
         # Add label only to the first box of each type to avoid duplicates in the legend
         plt.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], color=color, linestyle=linestyle, linewidth=linewidth, label=label if i == 0 else None)
     
+def plot_probability_text(box, class_prob, color, offset=-5):
+    """
+    Plots the probability text above the top-left corner of a bounding box.
+
+    Parameters:
+        box (list or tuple): The bounding box coordinates (x1, y1, x2, y2).
+        class_prob (torch.Tensor or float): The predicted class probability.
+        color (str): The color of the text.
+        offset (int): Vertical offset for the text position (default is -5).
+    """
+    # Get top-left corner of the box
+    x1, y1, _, _ = box
+
+    # Ensure class_prob is a float
+    prob = class_prob.item() if isinstance(class_prob, torch.Tensor) else class_prob
+
+    # Plot the probability text
+    plt.text(
+        x1, y1 + offset,  # Position above the top-left corner with offset
+        f'{prob:.2f}',  # Display probability with 2 decimal points
+        color=color,
+        fontsize=10,
+        backgroundcolor='white',
+        verticalalignment='bottom',
+        horizontalalignment='left',
+        bbox=dict(facecolor='white', alpha=0.5, edgecolor='none')
+    )
+
 def plot_altered(image, boxes, model, dim, device, linestyle='-', linewidth=3):
     """Plots altered boxes based on model predictions."""
-    for i, box in enumerate(boxes):
+    used_labels = set()  # Set to track labels that have already been used
+    for box in boxes:
         crop = image.crop(box)
         resized_crop = crop.resize(dim, Image.LANCZOS)
         tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 
@@ -137,18 +166,24 @@ def plot_altered(image, boxes, model, dim, device, linestyle='-', linewidth=3):
         altered_box = [alter_box(box, t_values)] # Wrap in list for plot_boxes to interpret as a single box
 
         color = 'g' if class_prob > 0.5 else 'r'
-        label = f'Altered, {"positive" if class_prob > 0.5 else "negative"}' if i == 0 else None
-        plot_boxes(altered_box, color=color, linestyle=linestyle, linewidth=linewidth, label=label)
+        label = f'Altered, {"positive" if class_prob > 0.5 else "negative"}'
+        if label not in used_labels:
+            plot_boxes(altered_box, color=color, linestyle=linestyle, linewidth=linewidth, label=label)
+            used_labels.add(label)  # Mark this label as used
+        else:
+            plot_boxes(altered_box, color=color, linestyle=linestyle, linewidth=linewidth, label=None)
+
+        plot_probability_text(altered_box[0], class_prob, color)
 
 def plot_altered_NMS(image, boxes, model, dim, device, discard_threshold, consideration_threshold, linestyle='-', linewidth=3):
     """Applies NMS to altered boxes based on model predictions and plots results."""
     boxes_w_probs = []
+    used_labels = set()  # Set to track labels that have already been used
     for box in boxes:
         crop = image.crop(box)
         resized_crop = crop.resize(dim, Image.LANCZOS)
         tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 
         tensor_crop = tensor_crop.unsqueeze(0).to(device)  # Ensure tensor_crop is on the same device
-        
         class_prob_logit, t_values = model(tensor_crop)
         
         class_prob = torch.sigmoid(class_prob_logit)
@@ -162,20 +197,26 @@ def plot_altered_NMS(image, boxes, model, dim, device, discard_threshold, consid
     # Apply NMS with chosen thresholds
     nms_boxes = non_maximum_suppression(boxes_w_probs, discard_threshold, consideration_threshold)
     # Plot the resulting boxes after NMS
-    for i, (box, class_prob) in enumerate(nms_boxes):
-        label = f'Altered, {"positive" if class_prob > 0.5 else "negative"}' if i == 0 else None
-        plot_boxes([box], color='r', linestyle=linestyle, linewidth=linewidth, label=label)
-
-
+    for (box, class_prob) in nms_boxes:
+        color = 'g' if class_prob > 0.5 else 'r'
+        label = f'Altered, {"positive" if class_prob > 0.5 else "negative"}'
+        # Add the label only if it hasn't been used before
+        if label not in used_labels:
+            plot_boxes([box], color=color, linestyle=linestyle, linewidth=linewidth, label=label)
+            used_labels.add(label)  # Mark this label as used
+        else:
+            plot_boxes([box], color=color, linestyle=linestyle, linewidth=linewidth, label=None)  # No label
+        plot_probability_text(box, class_prob, color)
+    
 def plot_altered_NMS_positive(image, boxes, model, dim, device, discard_threshold, consideration_threshold, linestyle='-', linewidth=3):
     """Applies NMS to all altered boxes that the model predicts to be potholes and plots results."""    
     boxes_w_probs = []
+    used_labels = set()  # Set to track labels that have already been used
     for box in boxes:
-        crop = image.crop(box)
+        crop = image.crop((box[0],box[1],box[2],box[3]))
         resized_crop = crop.resize(dim, Image.LANCZOS)
         tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 
         tensor_crop = tensor_crop.unsqueeze(0).to(device)  # Ensure tensor_crop is on the same device
-        
         class_prob_logit, t_values = model(tensor_crop)
         
         class_prob = torch.sigmoid(class_prob_logit)
@@ -189,10 +230,15 @@ def plot_altered_NMS_positive(image, boxes, model, dim, device, discard_threshol
     # Apply NMS with chosen thresholds
     nms_boxes = non_maximum_suppression(boxes_w_probs, discard_threshold, consideration_threshold)
     # Plot the resulting boxes after NMS
-    for i, (box, class_prob) in enumerate(nms_boxes):
-        label = f'Altered, {"positive" if class_prob > 0.5 else "negative"}' if i == 0 else None
-        plot_boxes([box], color='r', linestyle=linestyle, linewidth=linewidth, label=label)
-
+    for (box, class_prob) in nms_boxes:
+        color = 'g' if class_prob > 0.5 else 'r'
+        label = f'Altered, {"positive" if class_prob > 0.5 else "negative"}'
+        if label not in used_labels:
+            plot_boxes([box], color=color, linestyle=linestyle, linewidth=linewidth, label=label)
+            used_labels.add(label)  # Mark this label as used
+        else:
+            plot_boxes([box], color=color, linestyle=linestyle, linewidth=linewidth, label=None)  # No label
+        plot_probability_text(box, class_prob, color)
 
 def plot_steps(image_id, steps, model_path, model_name, device, num_class_0 = 5, discard_threshold = 0.5, consideration_threshold = None):
     path = "graphics/"
@@ -208,6 +254,7 @@ def plot_steps(image_id, steps, model_path, model_name, device, num_class_0 = 5,
     model = EfficientNetWithBBox(model_name, pretrained=False, num_classes=1)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
+    model.eval()
     input_size = get_input_size(model_name)
     dim = (input_size, input_size)
     
