@@ -36,7 +36,7 @@ print("Define loss etc")
 t = time()
 
 # Define optimizer
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
 # Initialize the scheduler
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)

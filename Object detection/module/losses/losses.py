@@ -54,7 +54,7 @@ class MultiTaskLoss(nn.Module):
         # Combine the losses
 
         # Combine losses
-        total_loss = loss_2_normalized * class_loss + loss_1_normalized * bbox_loss
+        total_loss = 0.1*class_loss + bbox_loss
         #print("weight class: ",loss_2_normalized * class_loss) 
         #print("weight box: ",loss_1_normalized * bbox_loss) 
         #print("total: ",total_loss)

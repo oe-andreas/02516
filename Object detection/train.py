@@ -95,7 +95,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
             altered_boxes_tensor = torch.tensor(altered_boxes_list).to(device)
 
             # Compute combined loss
-            total_loss, class_loss, bbox_loss = combined_loss(class_score.squeeze(), Y_batch, altered_boxes_tensor, gt_bbox)
+            total_loss, class_loss, bbox_loss = combined_loss(class_score.squeeze(), Y_batch, t_vals, t_batch)
 
             # Backward pass and optimization
             optimizer.zero_grad()
@@ -164,7 +164,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
                 altered_boxes_tensor = torch.tensor(altered_boxes_list).to(device)
 
                 # Compute validation loss
-                val_loss, val_class, val_bbox = combined_loss(class_score_val.squeeze(), Y_val, altered_boxes_tensor, gt_bbox_val)
+                val_loss, val_class, val_bbox = combined_loss(class_score_val.squeeze(), Y_val, t_vals_val, t_batch_val)
                 val_total_loss += val_loss.item()
                 val_class_loss += val_class.item()
                 val_bbox_loss += val_bbox.item()
@@ -181,14 +181,14 @@ def train(model, train_loader, val_loader, optimizer, scheduler, combined_loss, 
         all_losses_val.append([val_total_loss, val_class_loss, val_bbox_loss])
 
         # Check for early stopping
-        early_stopping(val_total_loss, model)
+        #early_stopping(val_total_loss, model)
     
-        if early_stopping.early_stop:
-            print("Early stopping triggered")
-            break
+        #if early_stopping.early_stop:
+            #print("Early stopping triggered")
+            #break
 
         # Load the best model after training
-        model.load_state_dict(torch.load('Trained_models/best_model.pth'))
+        #model.load_state_dict(torch.load('Trained_models/best_model.pth'))
 
         # Adjust learning rate
         scheduler.step(total_epoch_loss)
