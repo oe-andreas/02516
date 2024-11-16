@@ -16,7 +16,7 @@
 - Try to understand what goes wrong in Loss/train/main (Mads)
 - Make "different steps"-plot that we can reference. Ideas for steps (probably don't include all): Initial image --> Image with GT -->  Image with proposals --> Proposals classified and adjusted --> Final detection after NMS (Alex)
 - Make architecture flow chart graphic (Image -> proposal generator -> stack of proposals -> efficient net w two heads -> classification + t-values
-- Make plot of recall/mabo
+- Make plot of recall/mabo (Ø)
 - Make plot of train/validation loss history (Alex)
 - Make final test plots given a model (Ø)
 
@@ -30,6 +30,38 @@
 - A visualization of an image (test) with boxes on top?
 - Loss history for classification and regression
 - Consider making a flow chart of everything that goes on at test time (images goes into SS -> bboxes... Each bbox goes through Network... boxes are adjusted according to bbox regression... NMS... etc)
+
+
+Schematic:
+- Introduktion
+	- VERY short
+	- Dataset (maybe image with the different steps)
+
+- Arkitektur (figur)
+	- Proposal Generation
+	- EfficientNet m. to heads, t_vals
+
+- Proposal generation
+	- plot of recall/mabo (think about reordering proposals)
+	- Show some examples of proposals
+
+- Training approach
+	- Class balance dataloader
+	- Loss choice (lambda)
+	+ Infobox on training: Loss, optimizer, epochs (in plot), stratification…
+
+- Results
+	- Train/validation loss history. Maybe have for regression, classification, but definitely have sum. Include also classification accuracy
+	- AP history or final AP table
+	- All positive detections in an example image (maybe before and after NMS)
+    - Afterwards, show same results on test data (maybe not even needed for validation)
+
+Should we have?
+	- Data Augmentation (part of ‘story’, if necessary)
+	- Example of generated/selected proposals?
+	- Loss history, AP history…
+	- Confusion matrix on validation set (pure classification)
+	- Confusion matrix on validation set or test set (including proposal generation, NMS). Show AP
 
 ## Questions
 - What recall/MABO is acceptable?
