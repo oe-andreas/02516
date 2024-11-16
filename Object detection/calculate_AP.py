@@ -48,7 +48,8 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
     bboxs = bboxs[:max_proposals]
     print("Managed to define bboxs")
     
-    class_score_logits, t_vals = model(proposals)
+    with torch.no_grad(): #save memory usage by not saving gradients
+        class_score_logits, t_vals = model(proposals)
     print("Managed to run model")
     
     probs = torch.sigmoid(class_score_logits).squeeze().detach()
