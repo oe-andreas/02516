@@ -90,7 +90,7 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
 
 
 current_time = datetime.now().strftime("%Y%m%d_%H%M")
-pickle.dump((all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs), open(f"dumps/ap_input_{current_time}.pkl", "wb"))
+pickle.dump((all_gt_bboxs.cpu(), all_positive_proposal_bboxs.cpu(), all_positive_proposals_probs.cpu()), open(f"dumps/ap_input_{current_time}.pkl", "wb"))
 
 
 ap = AP(all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs)
