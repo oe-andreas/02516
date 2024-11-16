@@ -68,13 +68,12 @@ plot_losses(all_losses_train, all_losses_val)
 
 current_time = datetime.now().strftime("%Y%m%d_%H%M")
 
-
+pickle.dump((all_loses_train, all_losses_val), open(f"dumps/all_losses_{current_time}.pkl", "wb"))
 
 print("Saving model")
+
 # Extract the shortened model name (e.g., 'b0')
 short_model_name = model_name.split('_')[-1]
 t = time()
 torch.save(model.state_dict(), f'Trained_models/{short_model_name}_model_{current_time}.pth')
 print(f"Saved model in {time() - t:.2}s")
-
-pickle.dump((all_loses_train, all_losses_val), open(f"dumps/all_losses_{current_time}.pkl", "wb"))
