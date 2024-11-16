@@ -7,19 +7,19 @@ from tqdm import tqdm  # For progress bar
 import pickle
 from datetime import datetime
 
+#UPDATE THESE
+model_path = 'Trained_models/frederik_good_model.pth'
+model_name = 'efficientnet_b0'
+max_proposals = 1500
+data_loader = Dataloader_test_time(train = 'test', shuffle_proposals_in_im=True)
 
 
 #test pickle to avoid running the whole thing
 pickle.dump(['test'], open("dumps/test.pkl", "wb"))
-max_proposals = 1500
-data_loader = Dataloader_test_time(train = 'test', shuffle_proposals_in_im=True)
 
+#start script stuff
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model_path = 'Trained_models/frederik_good_model.pth'
-model_name = 'efficientnet_b0'
-
-
-
+print(f'Using device {device}')
 model = EfficientNetWithBBox(model_name, pretrained=False, num_classes=1)
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.to(device)
