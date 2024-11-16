@@ -33,6 +33,12 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
     
     Xs = Xs.to(device)
     
+    #check memory size
+    print(f"Memory allocated for Xs: {Xs.element_size() * Xs.nelement()}")
+    print(f"Total memory: {torch.cuda.get_device_properties(device).total_memory}")
+    print(f"Total memory allocated: {torch.cuda.memory_allocated(device)}")
+    
+    
     proposals = Xs[:max_proposals]
     
     bboxs = bboxs[:max_proposals]
