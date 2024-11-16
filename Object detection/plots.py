@@ -104,13 +104,13 @@ def load_SS_boxes(image_id, num_GT_boxes, num_class_0, all_boxes=False):
 
 def plot_image(image):
     """Displays a plot image without axis."""
-    plt.figure(figsize=(10, 10))
+    plt.figure(figsize=(8, 8))
     plt.imshow(image)
     plt.axis('off')
 
 def save_img(save_path):
     """Saves the current plot."""
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches='tight', dpi = 600, transparent=True)
     plt.close()
 
 def plot_boxes(boxes, color, linestyle, linewidth, label=None):
@@ -138,7 +138,7 @@ def plot_probability_text(box, class_prob, color, offset=-5):
 
     # Plot the probability text
     plt.text(
-        x1, y1 + offset,  # Position above the top-left corner with offset
+        max(x1,10), max(y1 + offset,10),  # Position above the top-left corner with offset
         f'{prob:.2f}',  # Display probability with 2 decimal points
         color=color,
         fontsize=10,
@@ -259,7 +259,7 @@ def plot_steps(image_id, steps, model_path, model_name, device, num_class_0 = 5,
     dim = (input_size, input_size)
     
     for step in steps:
-        save_path = os.path.join(path, f"step_{step}.jpg")
+        save_path = os.path.join(path, f"step_{step}.png")
         
         if step == 1:
             # Step 1: Plot the original image
@@ -269,46 +269,46 @@ def plot_steps(image_id, steps, model_path, model_name, device, num_class_0 = 5,
         elif step == 2:
             # Step 2: Plot GT boxes in yellow
             plot_image(image)
-            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=3, label='GT')
-            plt.legend()
+            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=2, label='Ground truth')
+            plt.legend(borderaxespad=0.3)
             save_img(save_path)
         
         elif step == 3:
             # Step 3: Plot selected SS boxes in dashed blue
             plot_image(image)
-            plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='SS')
-            plt.legend()
+            plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='Proposals')
+            plt.legend(borderaxespad=0.3)
             save_img(save_path)
 
         elif step == 4:
             # Step 4: Plot selected SS boxes and GT boxes
             plot_image(image)
-            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=3, label='GT')
-            plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='SS')
-            plt.legend()
+            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=2, label='Ground truth')
+            plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='Proposals')
+            plt.legend(borderaxespad=1)
             save_img(save_path)
         
         elif step == 5:
             # Step 5: Plot SS boxes, altered predictions from the model, and GT boxes
             plot_image(image)
-            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=3, label='GT')
-            plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='SS')
+            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=2, label='Ground truth')
+            plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='Proposals')
             plot_altered(image, SS_boxes, model, dim, device)
-            plt.legend()
+            plt.legend(borderaxespad=1)
             save_img(save_path)
 
         elif step == 6:
             # Step 6: Apply NMS to the predicted boxes after alteration
             plot_image(image)
-            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=3, label='GT')
-            plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='SS')
+            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=2, label='Ground truth')
+            plot_boxes(SS_boxes, color='b', linestyle='--', linewidth=2, label='Proposals')
             plot_altered_NMS(image, SS_boxes, model, dim, device, discard_threshold=discard_threshold, consideration_threshold=consideration_threshold)
             plt.legend()
             save_img(save_path)
         
         elif step == 7:
             plot_image(image)
-            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=3, label='GT')
+            plot_boxes(GT_boxes, color='y', linestyle='-', linewidth=2, label='Ground truth')
             plot_altered_NMS_positive(image, SS_boxes_all, model, dim, device, discard_threshold=discard_threshold, consideration_threshold=consideration_threshold)
             plt.legend()
             save_img(save_path)
