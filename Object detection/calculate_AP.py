@@ -8,7 +8,7 @@ import pickle
 from datetime import datetime
 
 #UPDATE THESE
-model_path = 'Trained_models/frederik_good_model.pth'
+model_path = 'Trained_models/b0_model_20241117_0044.pth'
 model_name = 'efficientnet_b0'
 max_proposals = 1500
 data_loader = Dataloader_test_time(train = 'train', shuffle_proposals_in_im=True)
