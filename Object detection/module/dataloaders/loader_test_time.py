@@ -108,7 +108,7 @@ class Dataloader_test_time():
         bbox_batch =  torch.stack(bbox_batch)
         
 
-        return X_batch, bbox_batch, np.array(list_with_all_gtboxes)
+        return X_batch, bbox_batch, np.array(list_with_all_gtboxes), id
         
 
         

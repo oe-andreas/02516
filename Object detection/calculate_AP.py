@@ -32,9 +32,10 @@ print(f"Total memory allocated after loading model: {torch.cuda.memory_allocated
 all_gt_bboxs = []
 all_positive_proposal_bboxs = []
 all_positive_proposals_probs = []
+all_is = []
 
 
-for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
+for Xs, bboxs, gt_bboxs, id in tqdm(data_loader, total=len(data_loader)):
 
     Xs = Xs.to(device)
     
@@ -78,6 +79,7 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
     all_gt_bboxs.extend(gt_bboxs)
     all_positive_proposal_bboxs.extend(bboxs.cpu())
     all_positive_proposals_probs.extend(probs.cpu())
+    all_is.extend([id] * len(probs))
     
     print("Managed to extend lists")
     
@@ -90,8 +92,8 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
 
 
 current_time = datetime.now().strftime("%Y%m%d_%H%M")
-pickle.dump((all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs), open(f"dumps/ap_input_{current_time}.pkl", "wb"))
+pickle.dump((all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs, all_ids), open(f"dumps/ap_input_{current_time}.pkl", "wb"))
 
 
-ap = AP(all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs)
-print(ap)
+#ap = AP(all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs)
+#print(ap)
