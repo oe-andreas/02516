@@ -11,7 +11,7 @@ from datetime import datetime
 model_path = 'Trained_models/b0_model_20241117_0044.pth'
 model_name = 'efficientnet_b0'
 max_proposals = 1500
-data_loader = Dataloader_test_time(train = 'train', shuffle_proposals_in_im=True)
+data_loader = Dataloader_test_time(train = 'test', shuffle_proposals_in_im=True)
 
 
 #test pickle to avoid running the whole thing
