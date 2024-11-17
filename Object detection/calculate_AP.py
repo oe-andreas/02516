@@ -31,8 +31,8 @@ print(f"Total memory allocated after loading model: {torch.cuda.memory_allocated
 
 all_gt_bboxs = []
 all_positive_proposal_bboxs = []
-all_positive_proposals_probs = []
-all_is = []
+#all_positive_proposals_probs = []
+
 
 
 for Xs, bboxs, gt_bboxs, id in tqdm(data_loader, total=len(data_loader)):
@@ -76,10 +76,9 @@ for Xs, bboxs, gt_bboxs, id in tqdm(data_loader, total=len(data_loader)):
     
     print("Managed to do second masking")
     
-    all_gt_bboxs.extend(gt_bboxs)
-    all_positive_proposal_bboxs.extend(bboxs.cpu())
-    all_positive_proposals_probs.extend(probs.cpu())
-    all_is.extend([id] * len(probs))
+    all_gt_bboxs.append((gt_bboxs, i))
+    all_positive_proposal_bboxs.append((zip(bboxs.cpu(), probs.cpu()), i))
+    #all_positive_proposals_probs.extend((probs.cpu(), i))
     
     print("Managed to extend lists")
     
@@ -92,7 +91,7 @@ for Xs, bboxs, gt_bboxs, id in tqdm(data_loader, total=len(data_loader)):
 
 
 current_time = datetime.now().strftime("%Y%m%d_%H%M")
-pickle.dump((all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs, all_ids), open(f"dumps/ap_input_{current_time}.pkl", "wb"))
+pickle.dump((all_gt_bboxs, all_positive_proposal_bboxs), open(f"dumps/ap_input_{current_time}.pkl", "wb"))
 
 
 #ap = AP(all_gt_bboxs, all_positive_proposal_bboxs, all_positive_proposals_probs)
