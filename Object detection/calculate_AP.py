@@ -60,7 +60,7 @@ for Xs, bboxs, gt_bboxs in tqdm(data_loader, total=len(data_loader)):
     #extract only positive examples
     proposals = proposals[probs > 0.5]
     probs = probs[probs > 0.5]
-    print("Managed to masking")
+    print("Managed to mask")
     
     boxes_w_probs = list(zip(bboxs, probs))
 
