@@ -76,8 +76,8 @@ for Xs, bboxs, gt_bboxs, id in tqdm(data_loader, total=len(data_loader)):
     
     print("Managed to do second masking")
     
-    all_gt_bboxs.append((gt_bboxs, i))
-    all_positive_proposal_bboxs.append((zip(bboxs.cpu(), probs.cpu()), i))
+    all_gt_bboxs.append((gt_bboxs, id))
+    all_positive_proposal_bboxs.append((zip(bboxs.cpu(), probs.cpu()), id))
     #all_positive_proposals_probs.extend((probs.cpu(), i))
     
     print("Managed to extend lists")
