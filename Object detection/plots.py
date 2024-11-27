@@ -157,7 +157,8 @@ def plot_altered(image, boxes, model, dim, device, linestyle='-', linewidth=3):
         tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 
         tensor_crop = tensor_crop.unsqueeze(0).to(device)  # Ensure tensor_crop is on the same device
         
-        class_prob_logit, t_values = model(tensor_crop)
+        with torch.no_grad():
+            class_prob_logit, t_values = model(tensor_crop)
         
         class_prob = torch.sigmoid(class_prob_logit)
         t_values = t_values.squeeze().tolist()
@@ -184,7 +185,9 @@ def plot_altered_NMS(image, boxes, model, dim, device, discard_threshold, consid
         resized_crop = crop.resize(dim, Image.LANCZOS)
         tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 
         tensor_crop = tensor_crop.unsqueeze(0).to(device)  # Ensure tensor_crop is on the same device
-        class_prob_logit, t_values = model(tensor_crop)
+        
+        with torch.no_grad():
+            class_prob_logit, t_values = model(tensor_crop)
         
         class_prob = torch.sigmoid(class_prob_logit)
         t_values = t_values.squeeze().tolist()
@@ -217,7 +220,9 @@ def plot_altered_NMS_positive(image, boxes, model, dim, device, discard_threshol
         resized_crop = crop.resize(dim, Image.LANCZOS)
         tensor_crop = torch.tensor(np.array(resized_crop), dtype=torch.float32).permute(2, 0, 1) / 255.0 
         tensor_crop = tensor_crop.unsqueeze(0).to(device)  # Ensure tensor_crop is on the same device
-        class_prob_logit, t_values = model(tensor_crop)
+        
+        with torch.no_grad():
+            class_prob_logit, t_values = model(tensor_crop)
         
         class_prob = torch.sigmoid(class_prob_logit)
         t_values = t_values.squeeze().tolist()

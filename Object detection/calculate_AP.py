@@ -11,7 +11,7 @@ from datetime import datetime
 model_path = 'Trained_models/b0_model_20241117_0044.pth'
 model_name = 'efficientnet_b0'
 max_proposals = 1500
-data_loader = Dataloader_test_time(train = 'test', shuffle_proposals_in_im=True)
+data_loader = Dataloader_test_time(train = 'train', shuffle_proposals_in_im=True)
 
 
 #test pickle to avoid running the whole thing
@@ -61,7 +61,7 @@ for Xs, bboxs, gt_bboxs, id in tqdm(data_loader, total=len(data_loader)):
         class_score_logits, t_vals = model(proposals)
     #print("Managed to run model")
     
-    probs = torch.sigmoid(class_score_logits).squeeze().detach()
+    probs = torch.sigmoid(class_score_logits).squeeze().detach().cpu()
     #print("Managed to calc probs")
 
     
@@ -91,7 +91,7 @@ for Xs, bboxs, gt_bboxs, id in tqdm(data_loader, total=len(data_loader)):
     
     #all_gt_bboxs.append((gt_bboxs, id))
     all_gt_bboxs_w_ids.append((gt_bboxs, id))
-    all_prop_boxes_w_tvals_probs_and_ids.append((bboxs, tvals, probs, id))
+    all_prop_boxes_w_tvals_probs_and_ids.append((bboxs.cpu(), t_vals.cpu(), probs.cpu(), id))
     #all_positive_proposal_bboxs.append((zip(bboxs.cpu(), probs.cpu()), id))
     #all_positive_proposals_probs.extend((probs.cpu(), i))
     
